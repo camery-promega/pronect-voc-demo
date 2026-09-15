@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pronect-voc-demo sizing test</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    box-sizing: border-box;
+    border: 6px solid #F58150;
+    background: repeating-linear-gradient(
+      45deg,
+      #1a1a1a,
+      #1a1a1a 24px,
+      #262626 24px,
+      #262626 48px
+    );
+    color: #fff;
+    font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .corner {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border: 3px solid #F58150;
+  }
+  .tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+  .tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+  .bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+  .br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+  .crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%);
+  }
+  .crosshair::before, .crosshair::after {
+    content: "";
+    position: absolute;
+    background: #F58150;
+  }
+  .crosshair::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-1px); }
+  .crosshair::after { left: 50%; top: 0; height: 100%; width: 2px; transform: translateX(-1px); }
+  .card {
+    background: rgba(0,0,0,.55);
+    border: 1px solid #F58150;
+    border-radius: 8px;
+    padding: 20px 28px;
+    text-align: center;
+  }
+  .card h1 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
+  .card p { margin: 4px 0; opacity: .85; }
+  .card #dims { font-size: 22px; font-weight: 700; color: #F58150; }
+  .edge-label {
+    position: absolute;
+    opacity: .6;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+  .edge-top { top: 14px; left: 50%; transform: translateX(-50%); }
+  .edge-bottom { bottom: 14px; left: 50%; transform: translateX(-50%); }
+  .edge-left { top: 50%; left: 14px; transform: translateY(-50%) rotate(-90deg); transform-origin: left center; }
+  .edge-right { top: 50%; right: 14px; transform: translateY(-50%) rotate(90deg); transform-origin: right center; }
+</style>
+</head>
+<body>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+  <div class="crosshair"></div>
+  <div class="edge-label edge-top">top edge</div>
+  <div class="edge-label edge-bottom">bottom edge</div>
+  <div class="edge-label edge-left">left edge</div>
+  <div class="edge-label edge-right">right edge</div>
+  <div class="card">
+    <h1>pronect-voc-demo</h1>
+    <p>Foleon Embed Source sizing test</p>
+    <p id="dims">— × —</p>
+    <p id="ratio" style="opacity:.6;"></p>
+  </div>
+  <script>
+    function report() {
+      var w = window.innerWidth, h = window.innerHeight;
+      document.getElementById('dims').textContent = w + ' × ' + h + ' px';
+      document.getElementById('ratio').textContent = 'aspect ' + (w / h).toFixed(3);
+    }
+    report();
+    window.addEventListener('resize', report);
+  </script>
+</body>
+</html>
