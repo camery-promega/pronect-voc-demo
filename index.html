@@ -9,11 +9,10 @@
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
-    overflow: hidden;
   }
   body {
     box-sizing: border-box;
+    min-height: 100vh;
     border: 6px solid #F58150;
     background: repeating-linear-gradient(
       45deg,
@@ -25,9 +24,31 @@
     color: #fff;
     font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
+  }
+  .spacer {
+    width: 100%;
+    height: 500px;
+    box-sizing: border-box;
+    border-top: 3px dashed #F58150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: .8;
+  }
+  .grow-btn {
+    margin-top: 14px;
+    padding: 8px 16px;
+    background: #F58150;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    font: 600 13px/1 -apple-system, sans-serif;
+    cursor: pointer;
   }
   .corner {
     position: absolute;
@@ -92,15 +113,51 @@
     <p>Foleon Embed Source sizing test</p>
     <p id="dims">— × —</p>
     <p id="ratio" style="opacity:.6;"></p>
+    <p id="doc-height" style="opacity:.6;"></p>
+    <button class="grow-btn" id="grow-toggle">Grow page +500px</button>
   </div>
   <script>
     function report() {
       var w = window.innerWidth, h = window.innerHeight;
       document.getElementById('dims').textContent = w + ' × ' + h + ' px';
       document.getElementById('ratio').textContent = 'aspect ' + (w / h).toFixed(3);
+      document.getElementById('doc-height').textContent =
+        'document height: ' + document.documentElement.scrollHeight + 'px';
     }
     report();
     window.addEventListener('resize', report);
+
+    // Same resize-report contract as pronect-topbar.dc.html and index.dc.html in
+    // the real demo - postMessage({src, context:"iframe.resize", height}) to the
+    // parent on every document.documentElement size change, which is what
+    // Foleon's Embed Source "Dynamic height" setting listens for.
+    let lastHeight = 0;
+    function reportHeight() {
+      var h = document.documentElement.scrollHeight;
+      if (h === lastHeight) return;
+      lastHeight = h;
+      window.parent.postMessage(
+        JSON.stringify({ src: location.toString(), context: 'iframe.resize', height: h }),
+        '*'
+      );
+      report();
+    }
+    new ResizeObserver(reportHeight).observe(document.documentElement);
+
+    var spacer = null;
+    document.getElementById('grow-toggle').addEventListener('click', function (e) {
+      if (spacer) {
+        spacer.remove();
+        spacer = null;
+        e.target.textContent = 'Grow page +500px';
+      } else {
+        spacer = document.createElement('div');
+        spacer.className = 'spacer';
+        spacer.textContent = 'extra 500px of content';
+        document.body.appendChild(spacer);
+        e.target.textContent = 'Shrink page back';
+      }
+    });
   </script>
 </body>
 </html>
