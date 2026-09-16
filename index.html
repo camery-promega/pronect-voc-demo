@@ -15,19 +15,17 @@
 <link rel="stylesheet" href="pronect-demo.css">
 <style>
   body{margin:0;font-family:var(--pn-font-family-sans);}
-  .ix-link{display:block;text-decoration:none;border:1px solid var(--pn-color-border-subtle);
-    border-radius:var(--pn-border-radius-md);padding:14px 18px;background:#fff;}
-  .ix-link:hover{background:var(--pn-color-surface-hover);border-color:var(--pn-color-border-default);}
+  .ix-card{display:block;text-decoration:none;border:1px solid var(--pn-color-border-subtle);
+    border-radius:var(--pn-border-radius-md);padding:24px;background:#fff;height:100%;box-sizing:border-box;}
+  .ix-card:hover{background:var(--pn-color-surface-hover);border-color:var(--pn-color-border-default);}
 </style>
 </head>
 <body>
 
-<!-- Entry point. Reorganized 2026-09-16 per Stephanie's China-branch review
-     feedback (see Screen Review Checklist.md): the flat "every screen" list
-     didn't give a first-time viewer any sense of where to start, so this is
-     now grouped as Dashboards, then a CellTiter-Glo workflow starting at
-     Create Plate Map, then a Read Plate Tool workflow starting at RPT Home -
-     each workflow leads with its guided first step rather than the app's
+<!-- Entry point. One card per guided flow, per "China ProNect Demo - Flow
+     Plan.md" (cow3rk): CellTiter-Glo, Read Plate Tool, Dashboards - order per
+     Cate, 2026-09-16. Each flow card links straight to its guided first step
+     (Create Plate Map for CTG, RPT Home for RPT) rather than the app's
      general home screen. The old flat "every screen" list with review-status
      tags is gone entirely as of the static-microsite conversion - it lived at
      review-status.dc.html, which was cut along with the rest of the
@@ -36,10 +34,7 @@
      DELIBERATELY OUTSIDE THE PRODUCT CHROME. No sidebar, no top bar. Putting a
      launcher inside ProNect's chrome would assert that ProNect has one, and it
      does not; a respondent would reasonably read it as a real screen. This
-     reads as scaffolding around the demo instead, which is what it is.
-
-     Card descriptions describe the functionality and what to expect, per
-     the checklist's "Demo Guidance" task - no longer placeholders. -->
+     reads as scaffolding around the demo instead, which is what it is. -->
 <div style="min-height:100vh;background:var(--pn-color-surface-page);padding:48px 32px;box-sizing:border-box;">
   <div style="max-width:1080px;margin:0 auto;">
 
@@ -48,74 +43,36 @@
     <p style="margin:0 0 8px;font:500 13px/1 var(--pn-font-family-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--pn-color-text-muted);">Demo</p>
     <h1 style="margin:0 0 6px;font:600 32px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">ProNect</h1>
     <p style="margin:0 0 36px;font:400 16px/1.5 var(--pn-font-family-sans);color:var(--pn-color-text-muted);max-width:60ch;">
-      A guided path through the demo. Start with the dashboards, then walk through the CellTiter-Glo and Read Plate Tool workflows.
+      A guided path through the demo. Start with a workflow below, or explore the dashboard.
     </p>
 
-    <div id="ix-groups"></div>
+    <div id="ix-cards"></div>
 
   </div>
 </div>
 
 <script>
-  // Grouping and order per Stephanie's China-branch feedback, 2026-09-16: each
-  // workflow leads with its guided first step (Create Plate Map for CTG, RPT
-  // Home for RPT) rather than the app's general home screen. Cate is defining
-  // the exact steps/screens for each workflow in the checklist doc - this is a
-  // starting point, not final.
-  const GROUPS = [
-    {
-      title: 'Dashboards',
-      blurb: 'The platform, above any one app.',
-      links: [
-        { name: 'Dashboard', href: 'user-dashboard.html',
-          note: 'Every connected instrument and your saved plate maps, reads, and analyses, all on one screen.' },
-        { name: 'Instrument details', href: 'instrument-details.html',
-          note: "One instrument's full record - status, connected files, and live telemetry." },
-      ],
-    },
-    {
-      title: 'CellTiter-Glo workflow',
-      blurb: 'Build a plate map, read it, see the analysis.',
-      links: [
-        { name: 'Create Plate Map', href: 'ctg-guided-plate-map.html',
-          note: 'Start here. A plate map tells CellTiter-Glo which wells hold samples, controls, and standards - click any well to see what it holds.' },
-        { name: 'Read in progress, from a plate map', href: 'ctg-read-in-progress.html?from=platemap',
-          note: 'The read runs against the plate map you just saw, then opens directly into its analysis.' },
-        { name: 'Analysis results', href: 'ctg-analysis-results.html',
-          note: 'The finished analysis - curve fit, error bars, and every data point behind it.' },
-      ],
-    },
-    {
-      title: 'Read Plate Tool workflow',
-      blurb: 'Select wells, run a time course, see the results.',
-      links: [
-        { name: 'App home', href: 'rpt-guided-home.html',
-          note: 'Start here. Select which wells to read, then choose a Time Course to collect data over multiple reads.' },
-        { name: 'Read in progress, time course', href: 'rpt-read-in-progress.html?mode=timecourse&running=1',
-          note: 'A time course read in progress, collecting data at set intervals until it finishes.' },
-        { name: 'Results, time course', href: 'rpt-results.html?mode=timecourse',
-          note: 'All 13 reads complete, laid out read by read.' },
-      ],
-    },
+  // Three-card front door, one per guided flow, per
+  // "China ProNect Demo - Flow Plan.md" (cow3rk). Order per Cate, 2026-09-16:
+  // CellTiter-Glo, Read Plate Tool, Dashboards. Card copy is Cate's own,
+  // written to the demo's Voice & Tone guideline.
+  const CARDS = [
+    { name: 'CellTiter-Glo Demo', href: 'ctg-guided-plate-map.html',
+      note: 'View a plate map, start a read on a MyGlo, and see the dose response results.' },
+    { name: 'Read Plate Tool Demo', href: 'rpt-guided-home.html',
+      note: 'Follow a MyGlo time course read from setup to final results.' },
+    { name: 'Dashboard Demo', href: 'user-dashboard.html',
+      note: 'Explore the user dashboard: see available apps, browse My Data files, and get details about a connected MyGlo.' },
   ];
 
-  const groupsEl = document.getElementById('ix-groups');
-  GROUPS.forEach((g) => {
-    const groupDiv = document.createElement('div');
-    groupDiv.style.marginBottom = '34px';
-    const linksHtml = g.links.map((l) => `
-      <a class="ix-link" href="${l.href}">
-        <span style="display:block;font:500 15px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">${l.name}</span>
-        <span style="display:block;margin-top:3px;font:400 13px/1.4 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">${l.note}</span>
-      </a>
-    `).join('');
-    groupDiv.innerHTML = `
-      <h2 style="margin:0 0 4px;font:600 18px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">${g.title}</h2>
-      <p style="margin:0 0 14px;font:400 14px/1.4 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">${g.blurb}</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;">${linksHtml}</div>
-    `;
-    groupsEl.appendChild(groupDiv);
-  });
+  const cardsEl = document.getElementById('ix-cards');
+  cardsEl.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:16px;';
+  cardsEl.innerHTML = CARDS.map((c) => `
+    <a class="ix-card" href="${c.href}">
+      <span style="display:block;font:600 17px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">${c.name}</span>
+      <span style="display:block;margin-top:8px;font:400 14px/1.5 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">${c.note}</span>
+    </a>
+  `).join('');
 
   // Same Foleon "Dynamic height" resize report as pronect-topbar.js - this page
   // has no topbar to load it from, being deliberately outside the product
