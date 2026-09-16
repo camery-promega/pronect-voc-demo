@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <script src="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/_ds_bundle.js"></script>
+  <script src="ctg-demo-data.js"></script>
+  <style>
+    body{margin:0;font-family:var(--pn-font-family-sans);}
+    /* Read Plate is a <button> so it can open the modal, the other two are <a>.
+       Browsers default buttons to border-box and anchors to content-box, so without
+       this the anchors added 66px of padding and border on top of the 320px basis and
+       rendered 386px wide against the button's 320px. */
+    .ctg-card{box-sizing:border-box;transition:transform .15s ease, box-shadow .15s ease;}
+  </style>
+</helmet>
+
+<div data-screen-label="CTG App Home" style="min-height:100vh;display:flex;flex-direction:column;">
+
+  <div style="display:none;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);padding:8px 24px;font-size:13px;letter-spacing:.02em">Demo guide - CTG App Home (Read Plate and Analyze Data open as modals here) → <a href="ctg-create-plate-map.dc.html" style="color:#9fd3ff">Create Plate Map</a> → <a href="ctg-analysis-results.dc.html" style="color:#9fd3ff">Analysis Results</a></div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <!-- Shared platform sidebar. Markup lives in pronect-sidebar; do not inline it here. -->
+    <dc-import name="pronect-sidebar"
+                dashboard-href="user-dashboard.dc.html"
+                hint-size="284,900"
+                style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></dc-import>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+
+      <!-- Shared platform top bar. Markup lives in pronect-topbar; do not inline it here. -->
+      <dc-import name="pronect-topbar"
+                  hint-size="1200,64"
+                  style="display:block;width:100%;flex:none;"></dc-import>
+
+      <div style="flex:1;min-height:0;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;background:var(--pn-color-surface-page);">
+
+        <div style="flex:1;min-height:0;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-xl);padding:clamp(20px,2vw,40px);box-sizing:border-box;display:flex;flex-direction:column;gap:clamp(16px,2vw,32px);overflow:auto;">
+
+          <!-- App Resources is a button, not a card, and is demo-note-only per the brief. -->
+          <div style="display:flex;justify-content:flex-end;flex:none;">
+            <button data-note="App Resources opens an external page of reference material for this app."
+                    onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                    style="display:flex;align-items:center;gap:10px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:8px 12px;cursor:not-allowed;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9l-2.5-1.5L14 11V4h5v7z"/></svg>
+              App Resources
+            </button>
+          </div>
+
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:clamp(24px,3vw,48px);">
+
+            <div style="display:flex;align-items:center;gap:14px;flex:none;">
+              <img src="assets/app-icon_ctg.svg" alt="" style="width:clamp(36px,2.6vw,56px);height:clamp(36px,2.6vw,56px);display:block;">
+              <!-- #F58150 is the CH app identity orange, the same value app-icon_ctg.svg is
+                   drawn in. No token carries it. --app-orange is #EB5B26 and belongs to the
+                   dashboard's app-category card gradient, a different role. Token candidate
+                   raised in the design system Working Notes, 2026-09-10. -->
+              <h1 style="margin:0;font:600 clamp(26px,2.2vw,40px)/1.2 var(--pn-font-family-sans);color:#F58150;">CellTiter-Glo</h1>
+            </div>
+
+            <div style="display:flex;justify-content:center;align-items:stretch;gap:clamp(16px,2vw,36px);flex-wrap:wrap;width:100%;">
+          <button class="ctg-card" onClick="{{ openReadPlate }}" onMouseEnter="{{ onCardEnter }}" onMouseLeave="{{ onCardLeave }}" style="border:1px solid var(--pn-color-border-default);font:inherit;text-align:inherit;cursor:pointer;flex:0 1 320px;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:clamp(16px,1.6vw,28px);background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-lg);padding:clamp(20px,2vw,32px);text-decoration:none;">
+            <img src="assets/illus-read-plate.svg" alt="" style="width:100%;height:auto;display:block;">
+            <span style="font:400 clamp(18px,1.4vw,26px)/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Read Plate</span>
+          </button>
+          <a class="ctg-card" href="ctg-create-plate-map.dc.html" onMouseEnter="{{ onCardEnter }}" onMouseLeave="{{ onCardLeave }}" style="flex:0 1 320px;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:clamp(16px,1.6vw,28px);background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-lg);padding:clamp(20px,2vw,32px);text-decoration:none;">
+            <img src="assets/illus-create-plate-map.svg" alt="" style="width:100%;height:auto;display:block;">
+            <span style="font:400 clamp(18px,1.4vw,26px)/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Create Plate Map</span>
+          </a>
+          <button class="ctg-card" onClick="{{ openAnalyzeData }}" onMouseEnter="{{ onCardEnter }}" onMouseLeave="{{ onCardLeave }}" style="flex:0 1 320px;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:clamp(16px,1.6vw,28px);background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-lg);padding:clamp(20px,2vw,32px);text-decoration:none;">
+            <img src="assets/illus-analyze-data.svg" alt="" style="width:100%;height:auto;display:block;">
+            <span style="font:400 clamp(18px,1.4vw,26px)/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Analyze Data</span>
+          </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Read Plate. A modal over the app home, matching the product. Dismissal is on
+       Cancel only, no click-outside: the Luc prototype settled that after a stray
+       click discarded in-progress edits with no warning. -->
+  <sc-if value="{{ readPlateOpen }}">
+    <div style="position:fixed;inset:0;background:rgba(20,20,20,.5);z-index:2100;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;">
+      <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-lg);width:1200px;max-width:100%;height:860px;max-height:100%;box-shadow:var(--pn-shadow-3);display:flex;flex-direction:column;padding:32px 40px;box-sizing:border-box;">
+
+        <h2 style="margin:0 0 20px;font:600 24px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">{{ modalTitle }}</h2>
+
+        <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:8px;border-bottom:1px solid var(--pn-color-border-subtle);flex:none;">
+            <button onClick="{{ showFullPlate }}" style="{{ tabFullStyle }}">Read Full Plate</button>
+            <button onClick="{{ showPlateMap }}" style="{{ tabMapStyle }}">Select Plate Map</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showInstruments }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
+
+            <sc-if value="{{ isMapInstrument }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:24px;padding:24px 0;flex:none;">
+                <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);flex:none;">Analysis Results Name</span>
+                <span style="flex:1;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);overflow-wrap:anywhere;">{{ analysisName }}</span>
+                <button data-note="The analysis name can be edited before the read starts."
+                        onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                        style="flex:none;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:8px 12px;cursor:not-allowed;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Rename</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isFullPlate }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:24px;padding:24px 0;flex:none;">
+              <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);flex:none;">Read File Name</span>
+              <span style="flex:1;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ readFileName }}</span>
+              <button data-note="The read file name can be edited before the read starts."
+                      onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                      style="flex:none;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:8px 12px;cursor:not-allowed;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Rename</button>
+            </div>
+            </sc-if>
+
+            <!-- The instrument table is shared with ctg-select-instrument; see the
+                 note in ctg-instrument-table. It is controlled, so selectedId goes
+                 down as a prop and a pick comes back on the document. -->
+            <dc-import name="ctg-instrument-table"
+                        selected-id="{{ selectedId }}"
+                        hint-size="1120,420"
+                        style="width:100%;flex:1;min-height:0;"></dc-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isPlateMap }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 0;flex:none;">
+              <!-- A single-item picker isn't a real choice, so it doesn't open a menu -
+                   but it still reads as a dropdown field in its default/closed state,
+                   same house style as any other, matching the disabled search box's
+                   not-wired-up treatment right next to it. -->
+              <div data-note="Plate maps from your other Cell Health apps can be selected here."
+                   onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                   style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--pn-color-neutral-50);border:1px solid var(--pn-color-border-default);border-radius:6px;cursor:not-allowed;">
+                <span style="font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">CellTiter-Glo</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <!-- Matches the dashboard's / Instrument Details' search box exactly. -->
+              <label data-note="Search filters this list by file name."
+                     onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                     style="display:flex;align-items:center;gap:8px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:6px;padding:6px 10px;width:200px;cursor:not-allowed;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="16" y1="16" x2="21" y2="21" stroke-linecap="round"></line></svg>
+                <input placeholder="Search" disabled readonly tabindex="-1" style="border:0;outline:none;flex:1;min-width:0;font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);background:transparent;pointer-events:none;cursor:not-allowed;user-select:none;">
+              </label>
+            </div>
+
+            <!-- radio -> pin -> name -> date -> other actions, matching Read Full
+                 Plate's radio-leads convention. -->
+            <div style="display:grid;grid-template-columns:32px 32px 1fr 230px 190px;gap:16px;align-items:center;padding:0 0 12px;border-bottom:1px solid var(--pn-color-border-subtle);flex:none;">
+              <span></span>
+              <span></span>
+              <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Name</span>
+              <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Date</span>
+              <span></span>
+            </div>
+
+            <div style="flex:1;min-height:0;overflow:auto;">
+              <sc-for list="{{ plateMaps }}" as="pm" hint-placeholder-count="10">
+                <!-- Clicking anywhere in the row selects it; the icon buttons stop
+                     the click from bubbling so they stay their own targets. -->
+                <div onClick="{{ pm.onSelect }}" style="display:grid;grid-template-columns:32px 32px 1fr 230px 190px;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--pn-color-border-subtle);cursor:pointer;">
+                  <button onClick="{{ pm.onSelect }}" style="{{ pm.radioStyle }}"><span style="{{ pm.radioDotStyle }}"></span></button>
+                  <!-- Design system pin glyph, inlined per its own usage spec: currentColor
+                       can't cross an <img src> boundary. -->
+                  <button data-note="{{ pm.pinNote }}" onClick="{{ stop }}"
+                          onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                          style="width:24px;height:24px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:not-allowed;">
+                    <sc-if value="{{ pm.pinned }}" hint-placeholder-val="{{ false }}">
+                      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-brand-sol);" role="img" aria-label="Pinned"><path d="M7.56663 2.9452C7.82034 2.26215 8.69593 2.07106 9.21116 2.58629L14.2776 7.65273C14.7928 8.16796 14.6017 9.04356 13.9187 9.29726L13.4221 9.48169L10.0666 12.8372C10.0666 12.8372 10.0666 14.6656 9.31213 16.059C9.04914 16.5446 8.40783 16.5473 8.01731 16.1567L0.707154 8.84659C0.31663 8.45606 0.319266 7.81475 0.804919 7.55177C2.19826 6.79727 4.02668 6.79727 4.02668 6.79727L7.3822 3.44174L7.56663 2.9452Z" fill="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>
+                    </sc-if>
+                    <sc-if value="{{ pm.notPinned }}" hint-placeholder-val="{{ true }}">
+                      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-neutral-700);" role="img" aria-label="Not pinned"><path d="M13.2481 9.01298L13.1458 9.05097L13.0686 9.12814L9.71307 12.4837L9.56662 12.6301L9.56662 12.8367L9.56662 12.8369L9.56662 12.8369V12.837V12.8372L9.56661 12.8392L9.56648 12.8514C9.56633 12.8628 9.56601 12.8807 9.56534 12.9045C9.56401 12.9522 9.56129 13.0236 9.55576 13.1142C9.54468 13.2958 9.52241 13.5531 9.4778 13.8517C9.38748 14.4562 9.21031 15.197 8.87245 15.8209C8.83076 15.8979 8.76944 15.9328 8.68665 15.9371C8.59292 15.942 8.47096 15.9033 8.37086 15.8032L1.06071 8.49303C0.960611 8.39294 0.921938 8.27098 0.926799 8.17724C0.931092 8.09445 0.966015 8.03313 1.043 7.99144C1.66694 7.65358 2.40767 7.47641 3.01218 7.38609C3.31077 7.34148 3.56809 7.31921 3.74967 7.30813C3.84031 7.3026 3.91166 7.29988 3.95936 7.29855C3.9832 7.29788 4.0011 7.29756 4.01251 7.29741L4.02468 7.29728L4.02668 7.29727H4.02686L4.02697 7.29727L4.027 7.29727L4.02715 7.29727L4.23378 7.29727L4.38023 7.15082L7.73576 3.7953L7.81292 3.71813L7.85091 3.61584L8.03534 3.1193C8.1622 2.77777 8.59999 2.68222 8.85761 2.93984L13.9241 8.00628C14.1817 8.2639 14.0861 8.7017 13.7446 8.82855L13.2481 9.01298Z" stroke="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>
+                    </sc-if>
+                  </button>
+                  <span style="font:400 15px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);overflow-wrap:anywhere;">{{ pm.name }}</span>
+                  <span style="font:400 14px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ pm.date }}</span>
+                  <span style="display:flex;align-items:center;justify-content:flex-end;gap:14px;">
+                    <sc-for list="{{ pm.actions }}" as="act" hint-placeholder-count="4">
+                      <button data-note="{{ act.note }}" onClick="{{ stop }}"
+                              onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                              style="{{ act.style }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="{{ act.fill }}" stroke="{{ act.stroke }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ act.path }}"/></svg></button>
+                    </sc-for>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;justify-content:center;gap:16px;padding-top:24px;flex:none;">
+          <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ goBack }}" style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:8px 12px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Back</button>
+          </sc-if>
+          <button onClick="{{ closeReadPlate }}" style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:8px 12px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Cancel</button>
+          <button onClick="{{ goNext }}" disabled="{{ nextDisabled }}" style="{{ nextStyle }}">Next</button>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Analyze Data. Owns its whole modal card, including its two pickers, and
+       announces its outcomes on the document, because dc-import cannot pass
+       callbacks down. Same contract as ctg-select-instrument. -->
+  <sc-if value="{{ analyzeOpen }}" hint-placeholder-val="{{ false }}">
+    <dc-import name="ctg-analyze-data"
+                open="true"
+                hint-size="1600,900"
+                style="position:fixed;inset:0;width:100%;height:100%;z-index:2100;"></dc-import>
+  </sc-if>
+
+  <sc-if value="{{ adNoteOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:var(--pn-color-surface-scrim);display:flex;align-items:center;justify-content:center;z-index:2300;padding:24px;">
+      <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-md);box-shadow:var(--pn-shadow-3);max-width:440px;padding:28px;">
+        <div style="font:600 18px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);margin-bottom:10px;">{{ adNoteTitle }}</div>
+        <div style="font:400 15px/1.5 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ adNoteBody }}</div>
+        <div style="display:flex;justify-content:flex-end;margin-top:24px;">
+          <button onClick="{{ closeAdNote }}" style="background:var(--pn-color-sol-500);border:1px solid var(--pn-color-sol-500);border-radius:var(--pn-border-radius-md);padding:8px 12px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Close</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ note }}">
+    <!-- z-index above every modal on this page (readPlateOpen 2100, analyzeOpen's
+         import 2100, the ad-note dialog 2300), same as ctg-instrument-table's own
+         tooltip - was 2000, which put it BEHIND the Read Plate modal so a Rename
+         hover never showed. -->
+    <div style="position:fixed;left:{{ noteX }};top:{{ noteY }};background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 12px/1.3 var(--pn-font-family-sans);padding:6px 10px;border-radius:6px;pointer-events:none;z-index:2400;box-shadow:var(--pn-shadow-xs);max-width:220px;">{{ note }}</div>
+  </sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:900}}">
+// Instruments are the dashboard's canonical four, so the prototype tells one story.
+// The reference screenshot showed two QA boxes both Offline with Next disabled, which
+// is a dead end; the brief calls for selecting the available MyGlo.
+// The plate maps, their row actions and the instruments all live in
+// ctg-demo-data.js now, loaded above, so every screen that lists them shows the
+// same rows. They used to be declared here, which was fine while this was the
+// only screen with a list and became a drift risk the moment it was not.
+const PLATE_MAPS  = window.CTG.PLATE_MAPS;
+const ROW_ACTIONS = window.CTG.PLATE_MAP_ROW_ACTIONS;
+// Matches prod: auto-select the reader if there's only one selectable one, or
+// the first in the list if there's more than one.
+const firstSelectableId = () => {
+  const found = (window.CTG.INSTRUMENTS || []).find(i => i.selectable);
+  return found ? found.id : null;
+};
+
+class Component extends DCLogic {
+  state = {
+    note: null, noteX: 0, noteY: 0,
+    readPlateOpen: false,
+    analyzeOpen: false,
+    adNoteOpen: false, adNoteTitle: '', adNoteBody: '',
+    tab: 'full',
+    selectedId: null,
+    selectedMapId: null,
+    // On the plate map tab the modal has two steps: pick a map, then pick an instrument.
+    step: 'pick',
+    integrationInvalid: false,
+  };
+
+  showNote = (e) => {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    this.setState({ note, noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  moveNote = (e) => {
+    if (!this.state.note) return;
+    this.setState({ noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  hideNote = () => this.setState({ note: null });
+
+  // Imperative instead of a CSS :hover rule, same fix the dashboard's app cards
+  // already needed: not because these three are in a loop (they aren't), but
+  // because it's the only version of "lift on hover" that's proven reliable in
+  // every render environment this demo runs in. A plain :hover rule matched and
+  // applied correctly in the local static-server render every time it was
+  // tested, so whatever makes it inconsistent for Cate is specific to another
+  // environment (most likely Claude Design's own preview) - this sidesteps it
+  // rather than explaining it.
+  onCardEnter = (e) => {
+    e.currentTarget.style.transform = 'translateY(-4px)';
+    e.currentTarget.style.boxShadow = 'var(--pn-shadow-3)';
+  };
+  onCardLeave = (e) => {
+    e.currentTarget.style.transform = '';
+    e.currentTarget.style.boxShadow = '';
+  };
+
+  componentDidMount() {
+    this._adCancel = () => this.setState({ analyzeOpen: false, note: null });
+    this._adNote = (e) => {
+      const d = (e && e.detail) || {};
+      this.setState({ analyzeOpen: false, adNoteOpen: true, adNoteTitle: d.title || '', adNoteBody: d.body || '' });
+    };
+    document.addEventListener('ctg:analyze-data-cancel', this._adCancel);
+    document.addEventListener('ctg:analyze-data-note', this._adNote);
+    // The shared instrument table is a dc-import and cannot call back into this
+    // page, so a pick arrives on the document.
+    this._onPick = (e) => this.setState({ selectedId: ((e && e.detail) || {}).id || null });
+    document.addEventListener('ctg:instrument-pick', this._onPick);
+    // Same contract: the shared instrument table can't call back directly, so
+    // whether its integration-time field is valid arrives as an event too.
+    this._onValidity = (e) => this.setState({ integrationInvalid: !!((e && e.detail) || {}).invalid });
+    document.addEventListener('ctg:integration-validity', this._onValidity);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('ctg:analyze-data-cancel', this._adCancel);
+    document.removeEventListener('ctg:analyze-data-note', this._adNote);
+    document.removeEventListener('ctg:instrument-pick', this._onPick);
+    document.removeEventListener('ctg:integration-validity', this._onValidity);
+  }
+
+  openAnalyzeData = () => this.setState({ analyzeOpen: true, note: null });
+  openReadPlate  = () => this.setState({ readPlateOpen: true, tab: 'full', step: 'pick', selectedId: firstSelectableId(), selectedMapId: null, note: null });
+  // Cancel only. No click-outside dismissal, per the Luc prototype's decision.
+  closeReadPlate = () => this.setState({ readPlateOpen: false, note: null });
+  showFullPlate  = () => this.setState({ tab: 'full', step: 'pick' });
+  // Re-entering the tab returns to step one, which doubles as the way back from the
+  // instrument step without inventing a Back button the app does not have.
+  showPlateMap   = () => this.setState({ tab: 'map', step: 'pick' });
+  // The app has a Back button on Select Instrument; it returns to the plate map list
+  // with the choice intact.
+  goBack         = () => this.setState({ step: 'pick' });
+
+  goNext = () => {
+    const { tab, step, selectedId, selectedMapId } = this.state;
+    if (tab === 'map' && step === 'pick') {
+      if (selectedMapId) this.setState({ step: 'instrument' });
+      return;
+    }
+    if (!selectedId) return;
+    // The read itself is the same either way; what differs is where it lands.
+    // A full-plate read produces instrument data, a plate map read produces an analysis.
+    window.location.href = tab === 'map'
+      ? 'ctg-read-in-progress.dc.html?from=platemap'
+      : 'ctg-read-in-progress.dc.html';
+  };
+
+  // Generated at render so the demo never shows a stale date. The field itself is
+  // static: renaming was cut from scope.
+  // Generated when Select Instrument opens. Same shape as the read file name, but it
+  // names the analysis the read will produce rather than the read itself.
+  _analysisName() {
+    return this._stamp('CellTiter-Glo', 'Analysis');
+  }
+
+  _readFileName() {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    let h = d.getHours();
+    const ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return 'CellTiter-Glo ' + d.getFullYear() + ' ' + p(d.getMonth() + 1) + ' ' + p(d.getDate())
+         + ' ' + h + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' ' + ap + ' - Full Plate';
+  }
+
+  _stamp(prefix, suffix) {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    let h = d.getHours();
+    const ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return prefix + ' ' + d.getFullYear() + ' ' + p(d.getMonth() + 1) + ' ' + p(d.getDate())
+         + ' ' + h + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' ' + ap + ' - ' + suffix;
+  }
+
+  // Font-weight and background now match the Instrument Details / Analyze Data
+  // tab convention (semibold + sol-50 tint when active), per Cate's ask.
+  _tabStyle(active) {
+    return 'background:' + (active ? 'var(--pn-color-sol-50)' : 'none') + ';border:0;padding:12px 20px;cursor:pointer;'
+         + 'font:' + (active ? 'var(--pn-font-weight-semibold)' : '400') + ' 15px/1 var(--pn-font-family-sans);'
+         + 'color:' + (active ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-muted)') + ';'
+         + 'border-bottom:3px solid ' + (active ? 'var(--pn-color-sol-500)' : 'transparent') + ';'
+         + 'margin-bottom:-1px;';
+  }
+
+  renderVals() {
+    const { tab, step, selectedMapId } = this.state;
+    const isMapPick = tab === 'map' && step === 'pick';
+    const isMapInstrument = tab === 'map' && step === 'instrument';
+    const selectedMap = PLATE_MAPS.find(m => m.id === selectedMapId);
+
+    const ICON = 'width:24px;height:24px;padding:0;display:flex;align-items:center;justify-content:center;'
+               + 'background:none;border:0;cursor:not-allowed;';
+    const pinAction = ROW_ACTIONS.find(a => a.key === 'pin') || {};
+    const plateMaps = PLATE_MAPS.map(m => {
+      const isSel = selectedMapId === m.id;
+      return {
+        name: m.name,
+        date: m.date,
+        pinNote: pinAction.note,
+        pinned: !!m.pinned, notPinned: !m.pinned,
+        // Pin now renders as its own leading column, so only the remaining
+        // actions (rename/delete/download/edit) go through the generic loop.
+        actions: ROW_ACTIONS.filter(a => a.key !== 'pin').map(a => ({
+          note: a.note,
+          path: a.path,
+          style: ICON,
+          fill: 'none', stroke: 'var(--pn-color-text-muted)',
+        })),
+        radioStyle: 'width:22px;height:22px;border-radius:50%;padding:0;display:flex;align-items:center;'
+          + 'justify-content:center;background:var(--pn-color-surface-default);cursor:pointer;'
+          + 'border:2px solid ' + (isSel ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-default)') + ';',
+        radioDotStyle: 'width:10px;height:10px;border-radius:50%;display:block;background:'
+          + (isSel ? 'var(--pn-color-sol-500)' : 'transparent') + ';',
+        onSelect: () => this.setState({ selectedMapId: m.id }),
+      };
+    });
+
+    const canNext = isMapPick ? !!selectedMapId : (!!this.state.selectedId && !this.state.integrationInvalid);
+    return {
+      plateMaps,
+      showInstruments: tab === 'full' || isMapInstrument,
+      isMapInstrument,
+      modalTitle: isMapInstrument ? 'Select Instrument' : 'Read Plate',
+      showTabs: !isMapInstrument,
+      showBack: isMapInstrument,
+      goBack: this.goBack,
+      analysisName: this._analysisName(),
+      selectedMapName: selectedMap ? selectedMap.name : '',
+
+      analyzeOpen: this.state.analyzeOpen,
+
+      openAnalyzeData: this.openAnalyzeData,
+
+      adNoteOpen: this.state.adNoteOpen,
+
+      adNoteTitle: this.state.adNoteTitle,
+
+      adNoteBody: this.state.adNoteBody,
+
+      closeAdNote: () => this.setState({ adNoteOpen: false }),
+
+      note: this.state.note,
+      noteX: this.state.noteX + 'px',
+      noteY: this.state.noteY + 'px',
+      showNote: this.showNote, moveNote: this.moveNote, hideNote: this.hideNote,
+      onCardEnter: this.onCardEnter, onCardLeave: this.onCardLeave,
+      // Keeps an icon-button click from also selecting the row it sits in.
+      stop: (e) => e.stopPropagation(),
+
+      openReadPlate: this.openReadPlate,
+      closeReadPlate: this.closeReadPlate,
+      readPlateOpen: this.state.readPlateOpen,
+      showFullPlate: this.showFullPlate,
+      showPlateMap: this.showPlateMap,
+      isFullPlate: tab === 'full',
+      isPlateMap: isMapPick,
+      tabFullStyle: this._tabStyle(tab === 'full'),
+      tabMapStyle: this._tabStyle(tab === 'map'),
+
+      readFileName: this._readFileName(),
+      selectedId: this.state.selectedId || '',
+
+      goNext: this.goNext,
+      nextDisabled: !canNext,
+      nextStyle: 'border:0;border-radius:var(--pn-border-radius-md);padding:8px 12px;'
+        + 'font:500 15px/1 var(--pn-font-family-sans);'
+        + (canNext
+            ? 'background:var(--pn-color-sol-500);color:var(--pn-color-text-primary);cursor:pointer;'
+            : 'background:var(--pn-color-action-disabled-bg);color:var(--pn-color-action-disabled-text);cursor:not-allowed;'),
+    };
+  }
+}
+</script>
+</body>
+</html>

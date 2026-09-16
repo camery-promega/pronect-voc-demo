@@ -1,0 +1,180 @@
+/* ProNect UI kit — chrome styles. Tokens come from
+   ../../colors_and_type.css. Designed at 1366px and up. */
+
+html,body{margin:0;padding:0;}
+body{
+  font-family: var(--font-sans);
+  color: var(--ink-body);
+  background: var(--shell-frame);
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage{ min-height:100vh; }
+
+.app-shell{
+  display: flex;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(59,110,169,.10), transparent 60%),
+    radial-gradient(900px 600px at 100% 100%, rgba(253,184,19,.08), transparent 55%),
+    linear-gradient(180deg, #F4F6F9 0%, #E8EAEE 100%);
+}
+
+/* ── sidebar ───────────────────────────────────────────────── */
+.side{
+  width: clamp(101px, 7.5vw, 284px); flex:none;
+  background: var(--shell-dark);
+  display:flex; flex-direction:column;
+  color: var(--ink-on-dark);
+  position: sticky; top: 0; align-self: stretch;
+}
+.side__logo{
+  width:100%; height: clamp(45px, 7vh, 80px);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.side__logo img{ width:100%; height:100%; object-fit:cover; display:block; }
+.side__nav{ display:flex; flex-direction:column; }
+.side__item{
+  position:relative;
+  height: clamp(80px, 10vh, 160px); width:100%;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; border:0; background:transparent; padding:0;
+}
+.side__bar{
+  position:absolute; left:0; top:0; bottom:0; width:2.8%;
+  background: var(--promega-sol); opacity:0;
+}
+.side__item.is-active .side__bar{ opacity:1; }
+.side__wrap{
+  display:flex; flex-direction:column; align-items:center;
+  gap: clamp(6px, 0.5vw, 20px);
+  opacity:.5;
+}
+.side__item.is-active .side__wrap{ opacity:1; }
+.side__wrap .ic{ width: clamp(32px, 2vw, 64px); height: clamp(32px, 2vw, 64px); display:block; }
+.side__wrap span{
+  font:500 clamp(16px, 0.9vw, 32px)/24px var(--font-sans); color:#fff;
+}
+
+/* ── main canvas ───────────────────────────────────────────── */
+.main{
+  flex:1; min-width:0;
+  display:flex; flex-direction:column;
+  padding: 18px 32px 32px;
+  gap: 16px;
+}
+
+/* ── header ────────────────────────────────────────────────── */
+.head{
+  width:100%; height: clamp(40px, 5vh, 120px);
+  background:#fff; box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+  display:flex; align-items:center; justify-content:flex-end;
+  gap: clamp(16px, 1.5vw, 32px);
+  padding: 0 clamp(16px, 2vw, 48px);
+  margin: -18px -32px 0;
+}
+.head__user-wrap{ position:relative; }
+.head__user{
+  display:flex; align-items:center; gap:6px;
+  font:400 clamp(12px, 1.1vw, 24px)/1 var(--font-sans); color:#000;
+  cursor:pointer; background:none; border:0; padding:0;
+}
+.head__menu{
+  position:absolute; top: calc(100% + 6px); right:0; z-index:5;
+  background:#fff; border-radius:10px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.15);
+  padding: 8px;
+}
+.head__menu button{
+  display:block; width:100%; white-space:nowrap;
+  font:400 14px/1 var(--font-sans); color:#000;
+  background:none; border:0; cursor:pointer; padding:10px 16px; border-radius:4px;
+}
+.head__menu button:hover{ background: rgba(0,0,0,.05); }
+.head__divider{ width:1px; height:19px; background: rgba(0,0,0,.15); }
+.head__support{
+  display:flex; align-items:center; gap:8px;
+  font:400 clamp(12px, 1.1vw, 24px)/1 var(--font-sans); color:#000;
+  text-decoration:none; cursor:pointer;
+}
+.head__support .ic{ width: clamp(20px, 1.5vw, 32px); height: clamp(20px, 1.5vw, 32px); }
+
+/* ── tile ──────────────────────────────────────────────────── */
+.tile{
+  background:#fff; border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card-soft);
+  padding: 18px 24px 22px;
+  position:relative;
+}
+.tile__title{
+  font:400 20px/32px var(--font-sans);
+  color: var(--ink-headline);
+  margin: 0 0 8px;
+}
+
+/* ── two-column grid below applications ───────────────────── */
+.grid-2{
+  display:grid;
+  grid-template-columns: minmax(0,1.65fr) minmax(360px,1fr);
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── chevrons ──────────────────────────────────────────────── */
+.chev-down{
+  width:0; height:0;
+  border-style:solid; border-width:5px 4px 0 4px;
+  border-color: var(--neutral-900) transparent transparent transparent;
+  display:inline-block;
+}
+
+/* ── buttons (Read Plate, Settings) ────────────────────────── */
+.rpt-btn{
+  font:500 13px/1 var(--font-sans);
+  letter-spacing: .04em; text-transform: uppercase;
+  padding: 10px 16px; border-radius: 4px; cursor: pointer;
+  border: 1px solid transparent; background: transparent;
+}
+.rpt-btn--primary{
+  background: var(--primary-blue); color:#fff; box-shadow: var(--shadow-1);
+}
+.rpt-btn--primary:hover{ background:#345f93; }
+.rpt-btn--outline{
+  background:#fff; color: var(--primary-blue); border-color: var(--primary-blue);
+}
+.rpt-btn--text{ color: var(--primary-blue); padding: 10px 8px; }
+
+/* ── read list rows ────────────────────────────────────────── */
+.read-row{
+  display:flex; align-items:center; gap:10px;
+  padding: 8px 10px;
+  border-radius: 6px; cursor: pointer;
+  background: none; border: 0; width: 100%;
+  font:500 13px/1 var(--font-sans); color: var(--ink-body);
+}
+.read-row:hover{ background: var(--neutral-050); }
+.read-row .read-dot{
+  width:10px; height:10px; border-radius:50%; flex:none;
+  background:#fff; border: 2px solid var(--neutral-500); box-sizing: border-box;
+}
+.read-row--completed .read-dot{ background:#16A34A; border-color:#16A34A; }
+.read-row--selected{ background: var(--info-bg); }
+.read-row--selected .read-dot{ background: #3B82F6; border-color:#3B82F6; }
+.read-row .read-label{ flex:1; text-align:left; }
+.read-row .read-time{ font:400 11px/1 Roboto; color: var(--neutral-700); }
+
+/* ── checkbox ──────────────────────────────────────────────── */
+.cb{
+  width:20px; height:20px; border-radius:3px;
+  border:2px solid var(--neutral-700); background:#fff;
+  display:inline-flex; align-items:center; justify-content:center;
+  flex:none;
+}
+.cb.is-on{ background: var(--promega-sol); border-color: var(--promega-sol); }
+.cb.is-on::after{
+  content:""; width:11px; height:6px;
+  border:2px solid #fff; border-top:0; border-right:0;
+  transform: rotate(-45deg) translate(1px,-1px);
+}

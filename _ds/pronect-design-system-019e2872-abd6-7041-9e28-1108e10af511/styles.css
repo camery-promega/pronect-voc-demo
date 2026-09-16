@@ -1,0 +1,6 @@
+/* ProNect Design System — root stylesheet entry point.
+   Import this single file to get fonts, tokens, and UI-kit chrome. */
+
+@import "./fonts/fonts.css";
+@import "./colors_and_type.css";
+@import "./ui_kits/pronect/styles.css";

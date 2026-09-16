@@ -1,0 +1,38 @@
+/* Shared by every page and component in the China ProNect demo.
+   Linked after the design system stylesheets so it wins on order; the universal
+   selector has zero specificity, so anything the design system sets explicitly
+   still takes precedence.
+
+   Why this exists: padding and borders were being added on top of declared widths
+   rather than counted inside them, which produced two bugs in two days. The shared
+   top bar set width:100% and then added 32px of padding on each side, overflowing
+   the viewport by exactly 64px on every page that imported it. The CellTiter-Glo
+   app home cards rendered at two different widths, 320px and 386px, because
+   browsers default <button> to border-box and <a> to content-box, and one of three
+   otherwise identical cards had become a button.
+
+   Both were fixed in place first. This replaces those spot fixes as the general
+   answer, before the demo grows more pages to make the same mistake on. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Guided-walkthrough cue. Applied directly to the real clickable element (a
+   button, a tab) rather than a separately-positioned dot, so it can't drift
+   out of sync with the element across window sizes on this percentage-based
+   layout. Not a design-system token: #14B8A6, picked 2026-09-16 because
+   sol-on-sol (this demo's own primary color pulsing against sol-colored
+   buttons) was too subtle to read as a cue. Add/remove the class from a
+   page's own state once the guided step is done, so the cue never points at
+   something the user has already handled. */
+@keyframes demo-cue-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(20, 184, 166, .55); }
+  70%  { box-shadow: 0 0 0 10px rgba(20, 184, 166, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+}
+.demo-cue {
+  animation: demo-cue-pulse 1.8s ease-out infinite;
+}

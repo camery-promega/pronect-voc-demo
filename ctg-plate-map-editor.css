@@ -1,0 +1,340 @@
+/* ==================================================================
+   CTG Plate Map Editor
+   ------------------------------------------------------------------
+   Ported from the Luciferase Assays App's plate-map-editor.css, which
+   is the prototype this screen starts from. Three things were dropped
+   on the way across and one was added:
+
+   DROPPED  .app-shell / .app-sidebar / .app-topbar. The Luc editor
+            hand-rolls its own chrome; this demo already has it as the
+            pronect-sidebar and pronect-topbar components, so the page
+            places those and this file never styles them.
+   DROPPED  the group list and wizard mode toggle. Both belong to Luc's
+            Custom Sample analysis type, which CTG does not have.
+   DROPPED  the box-sizing reset. It lives in pronect-demo.css, linked
+            by every page and component in this demo.
+   ADDED    the Standard well type. See the note on its colours below.
+
+   Everything else is carried over as-is, comments included, so a diff
+   against the Luc file stays readable.
+   ================================================================== */
+
+/* ─── Standard well type ──────────────────────────────────────────
+   CTG has four well types; Luc has three. The design system's
+   --pn-color-plate-* set was derived from Luc, so there is no
+   --pn-color-plate-standard-* triplet to use and these three values
+   are declared here instead.
+
+   This is a deliberate, temporary exception to the no-literal-colours
+   rule, not an oversight. Raised as a token candidate against the
+   design system; when the tokens land, delete this block and swap the
+   three references below.
+
+   All three values are from Cate, against CTG's current implementation.
+
+   Contrast: #385157 on #E7ECEE is 7.7:1, so Standard is the only one
+   of the four well types that clears WCAG AA. That is not luck and not
+   something to average away with the others: Cate picked these, where
+   the other three came from the previous designer. They carry the known
+   debt already tracked against the plate tokens, sample 4.41:1, control
+   and background 2.97:1. Standard is the target the others need to
+   reach, so it is the anchor for the accessible-palette work rather
+   than another thing to fix.
+   ------------------------------------------------------------------ */
+:root {
+  --ctg-plate-standard-indicator: #7DA2A9;   /* dot / legend swatch */
+  --ctg-plate-standard-surface:   #E7ECEE;   /* well cell fill, rgb(231,236,238) */
+  --ctg-plate-standard-text:      #385157;   /* well cell text */
+}
+
+/* ─── editor area ─────────────────────────────────────────────── */
+.editor-wrap {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--pn-color-surface-page);
+  padding: var(--pn-spacing-20) var(--pn-spacing-24) var(--pn-spacing-16);
+}
+/* The plate and the Well Wizard sit together on one white card over the page
+   background, per 114. The header is outside it, on the page. */
+.editor-card {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  background: var(--pn-color-surface-default);
+  border-radius: var(--pn-border-radius-lg);
+  padding: var(--pn-spacing-20) var(--pn-spacing-24);
+  margin-top: var(--pn-spacing-12);
+}
+
+/* ─── page header ─────────────────────────────────────────────── */
+.page-header {
+  display: flex; align-items: center;
+  gap: var(--pn-spacing-16);
+  min-height: 72px;
+  flex-shrink: 0;
+}
+.app-identity { display: flex; align-items: center; gap: var(--pn-spacing-12); flex: 0 0 auto; }
+.app-icon-wrap { width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.app-icon-wrap img { width: 44px; height: 44px; display: block; }
+.app-name {
+  font-size: var(--pn-font-size-md);
+  font-weight: var(--pn-font-weight-semibold);
+  color: var(--pn-color-text-primary);
+  line-height: var(--pn-font-line-height-tight);
+}
+/* The plate map name sits under the app name, unlike Luc, which puts it in a
+   labelled meta block to the right. Matches 105_plate-map_read-only.png. */
+.app-platename {
+  display: flex; align-items: center; gap: var(--pn-spacing-8);
+  font-size: var(--pn-font-size-sm);
+  color: var(--pn-color-text-muted);
+  line-height: var(--pn-font-line-height-tight);
+  margin-top: var(--pn-spacing-4);
+}
+.header-actions { display: flex; align-items: center; gap: var(--pn-spacing-12); flex-shrink: 0; }
+
+/* ─── buttons ─────────────────────────────────────────────────── */
+.btn {
+  font-size: var(--pn-font-size-sm);
+  font-weight: var(--pn-font-weight-medium);
+  padding: var(--pn-spacing-8) var(--pn-spacing-12);
+  border-radius: var(--pn-border-radius-sm);
+  border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.12s;
+}
+.btn-outline   { background: var(--pn-color-surface-default); color: var(--pn-color-text-primary); }
+.btn-outline:hover { background: var(--pn-color-surface-hover); }
+.btn:disabled  { background: var(--pn-color-surface-sunken); color: var(--pn-color-text-disabled);
+                 border-color: var(--pn-color-border-subtle); cursor: default; }
+
+/* The analysis type control. A dropdown, not a button, but it shares the
+   32px-plus-padding metrics of the header row so it is sized here. */
+.header-select {
+  height: 40px; min-width: 240px;
+  border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+  border-radius: var(--pn-border-radius-sm);
+  padding: 0 var(--pn-spacing-12);
+  font-size: var(--pn-font-size-sm);
+  color: var(--pn-color-text-primary);
+  background: var(--pn-color-surface-default);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--pn-spacing-8);
+  cursor: pointer; user-select: none;
+}
+
+/* ─── plate area ──────────────────────────────────────────────── */
+.plate-row  { display: flex; flex: 1; gap: var(--pn-spacing-20); min-height: 0; overflow: hidden; }
+.plate-area { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Rows stretch to fill the card rather than sitting at their natural height,
+   which is what 114 shows and what stops a short plate leaving dead space under
+   it. The row template pairs this with minmax(): the computed height is a floor,
+   not a fixed size. */
+.plate-grid {
+  display: grid;
+  gap: var(--pn-spacing-2);                /* sub-grid exception: cell gutter */
+  width: 100%; min-height: 0; flex: 1; align-content: stretch;
+  border: var(--pn-border-width-1) solid var(--pn-color-border-subtle);
+  border-radius: var(--pn-border-radius-sm);
+  padding: var(--pn-spacing-2);            /* sub-grid exception */
+}
+.well-header {
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--pn-font-size-sm);
+  line-height: var(--pn-font-line-height-tight);
+  font-weight: var(--pn-font-weight-medium);
+  color: var(--pn-color-text-muted);
+  border: var(--pn-border-width-1) solid var(--pn-color-border-subtle);
+  border-radius: var(--pn-border-radius-sm);
+  background: var(--pn-color-neutral-50);
+}
+.well-header.col-num { font-variant-numeric: tabular-nums; }
+
+.well {
+  border-radius: var(--pn-border-radius-sm);
+  border: var(--pn-border-width-1) solid var(--pn-color-border-subtle);
+  background: var(--pn-color-surface-default);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  /* Wells are drag-selectable, so the cursor belongs to the well, not to the
+     render function. Deliberately the normal arrow: a crosshair reads as
+     precision drawing, which is not what selecting wells is. */
+  cursor: default;
+}
+.well.is-selected { border: var(--pn-border-width-2) solid var(--pn-color-state-selected-border); }
+/* Selection is a rectangle, and the Well Wizard shows the ANCHOR, the well the
+   drag started on, not a merge of the range. The anchor therefore has to be
+   findable by eye, or the panel appears to show values from nowhere. */
+.well.is-anchor { border: var(--pn-border-width-2) solid var(--pn-color-sol-500); }
+.well.is-drag-preview { outline: var(--pn-border-width-2) dashed var(--pn-color-sol-500); outline-offset: -2px; }
+.well__text {
+  font-size: var(--pn-font-size-sm);
+  line-height: var(--pn-font-line-height-normal);
+  font-weight: var(--pn-font-weight-regular);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.well--sample     { background: var(--pn-color-plate-sample-surface); }
+.well--control    { background: var(--pn-color-plate-control-surface); }
+.well--background { background: var(--pn-color-plate-background-surface); }
+.well--standard   { background: var(--ctg-plate-standard-surface); }
+.well--sample     .well__text { color: var(--pn-color-plate-sample-text); }
+.well--control    .well__text { color: var(--pn-color-plate-control-text); }
+.well--background .well__text { color: var(--pn-color-plate-background-text); }
+.well--standard   .well__text { color: var(--ctg-plate-standard-text); }
+
+/* ─── wizard panel ────────────────────────────────────────────── */
+.wizard-col {
+  display: flex; flex-direction: column; gap: var(--pn-spacing-8);
+  width: 280px; min-width: 280px; max-width: 280px; flex-shrink: 0;
+  min-height: 0; overflow: hidden;
+}
+.control-panel { width: 100%; display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.wizard-col { padding-left: var(--pn-spacing-4); }
+/* No border and no background of its own: the wizard's fields sit directly on
+   the editor card, per 114. The Luc editor boxes them because its wizard is on
+   the page rather than on a card. flex:1 is what pushes the footer down so
+   Clear Well Data and Next line up with the bottom of the plate. */
+.control-panel__body {
+  padding: 0 0 var(--pn-spacing-12);
+  overflow: visible; flex: 1;
+}
+
+.field-group { margin-bottom: var(--pn-spacing-12); }
+.field-label {
+  font-size: var(--pn-font-size-sm);
+  font-weight: var(--pn-font-weight-semibold);
+  line-height: var(--pn-font-line-height-tight);
+  color: var(--pn-color-text-secondary);
+  margin-bottom: var(--pn-spacing-4);
+  display: flex; align-items: center; gap: var(--pn-spacing-4);
+}
+.field-label__optional { font-weight: var(--pn-font-weight-regular); color: var(--pn-color-text-muted); }
+
+.field-input {
+  width: 100%; height: 32px;
+  font-size: var(--pn-font-size-sm);
+  font-weight: var(--pn-font-weight-regular);
+  line-height: var(--pn-font-line-height-normal);
+  border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+  border-radius: var(--pn-border-radius-sm);
+  padding: var(--pn-spacing-8);
+  color: var(--pn-color-text-primary);
+  background: var(--pn-color-surface-default);
+}
+/* PENDING: focus ring is open question 4 in the design system decisions doc.
+   --pn-color-border-focus has no value yet. This is a placeholder using the
+   selected/active border so focus is at least visible; revisit once decided. */
+.field-input:focus {
+  outline: var(--pn-border-width-2) solid var(--pn-color-state-selected-border);
+  outline-offset: -1px;
+}
+.field-input:disabled {
+  background: var(--pn-color-surface-sunken);
+  color: var(--pn-color-text-disabled);
+  cursor: default;
+}
+.field-error {
+  font-size: var(--pn-font-size-xs);
+  color: var(--pn-color-text-error);
+  margin-top: var(--pn-spacing-4);
+}
+
+/* The static unit label Standard uses instead of a unit dropdown: Standard is
+   always µM ATP, so there is nothing to pick. Same 32px height as .ww-unit so
+   the two well types' Concentration rows line up. */
+.ww-unit-static {
+  height: 32px; display: flex; align-items: center;
+  font-size: var(--pn-font-size-sm);
+  color: var(--pn-color-text-primary);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.panel-footer {
+  flex-shrink: 0; display: flex; flex-direction: column;
+  gap: var(--pn-spacing-8); padding-top: var(--pn-spacing-12);
+}
+.btn-clear, .btn-next {
+  width: 100%;
+  font-size: var(--pn-font-size-sm);
+  padding: var(--pn-spacing-8);
+  border-radius: var(--pn-border-radius-sm);
+  cursor: pointer;
+}
+.btn-clear { border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+             background: var(--pn-color-surface-default); color: var(--pn-color-text-primary);
+             font-weight: var(--pn-font-weight-medium); }
+.btn-clear:hover { background: var(--pn-color-surface-hover); }
+/* Was deliberately NOT the Luc editor's sol yellow (neutral-700, sampled off
+   114 as #464646) - reversed 2026-09-15, Cate's call to use sol-500 as this
+   demo's primary color everywhere, keeping the real teal primary out of it
+   entirely since it hasn't been reviewed yet. */
+.btn-next  { border: var(--pn-border-width-1) solid var(--pn-color-sol-500);
+             background: var(--pn-color-sol-500); color: var(--pn-color-text-primary);
+             font-weight: var(--pn-font-weight-medium); }
+.btn-next:hover { background: var(--pn-color-sol-600); border-color: var(--pn-color-sol-600); }
+.btn-next:disabled { background: var(--pn-color-surface-sunken); color: var(--pn-color-text-disabled);
+                     border-color: var(--pn-color-border-subtle); cursor: default; }
+.btn-clear:disabled { color: var(--pn-color-text-disabled); cursor: default; }
+
+/* ─── well type dropdown + shared wizard bits ─────────────────── */
+.ww-select {
+  height: 32px;
+  border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+  border-radius: var(--pn-border-radius-sm);
+  padding: 0 var(--pn-spacing-12);
+  font-size: var(--pn-font-size-sm);
+  color: var(--pn-color-text-primary);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--pn-color-surface-default);
+  cursor: pointer; user-select: none;
+}
+.ww-unit { width: 92px; height: 32px;
+           border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+           border-radius: var(--pn-border-radius-sm); padding: 0 var(--pn-spacing-8);
+           font-size: var(--pn-font-size-sm); color: var(--pn-color-text-primary);
+           display: flex; align-items: center; justify-content: space-between;
+           background: var(--pn-color-surface-default); cursor: pointer;
+           user-select: none; flex-shrink: 0; }
+.ww-menu {
+  position: absolute; left: 0; right: 0;
+  background: var(--pn-color-surface-default);
+  border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+  border-radius: var(--pn-border-radius-sm);
+  box-shadow: var(--pn-shadow-2);
+  z-index: 100; overflow: hidden;
+}
+.ww-menu__item {
+  display: flex; align-items: center; gap: var(--pn-spacing-8);
+  padding: var(--pn-spacing-8) var(--pn-spacing-12);
+  font-size: var(--pn-font-size-sm);
+  color: var(--pn-color-text-primary);
+  cursor: pointer;
+}
+.ww-menu__item:hover { background: var(--pn-color-surface-hover); }
+.ww-menu__item.is-note { cursor: default; color: var(--pn-color-text-muted); }
+.ww-menu__item.is-note:hover { background: transparent; }
+.ww-badge {
+  font-size: var(--pn-font-size-xs);
+  font-weight: var(--pn-font-weight-medium);
+  color: var(--pn-color-status-info-border);
+  background: var(--pn-color-status-info-surface);
+  border: var(--pn-border-width-1) solid var(--pn-color-active-200);
+  border-radius: var(--pn-border-radius-sm);
+  padding: var(--pn-spacing-1) var(--pn-spacing-4);
+  margin-left: var(--pn-spacing-4);
+}
+.ww-check {
+  width: 16px; height: 16px;
+  border: var(--pn-border-width-2) solid var(--pn-color-border-default);
+  border-radius: var(--pn-border-radius-sm);
+  background: var(--pn-color-surface-default);
+  flex-shrink: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+/* The Concentration Series checkbox: the whole row is the target, not the 16px
+   box. The box sits to the LEFT of the label, per the CTG field reference. */
+.ww-check-row {
+  display: flex; align-items: center; gap: var(--pn-spacing-8);
+  padding: var(--pn-spacing-2) 0;
+  cursor: pointer; user-select: none;
+}
+.ww-row { display: flex; gap: var(--pn-spacing-8); margin-top: var(--pn-spacing-4); }
+.ww-child { margin-left: var(--pn-spacing-12); padding-left: var(--pn-spacing-12);
+            border-left: var(--pn-border-width-4) solid var(--pn-color-sol-500); }
+.empty-note { font-size: var(--pn-font-size-sm); color: var(--pn-color-text-muted); }

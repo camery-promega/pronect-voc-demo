@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/ui_kits/pronect/styles.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <link rel="stylesheet" href="ctg-plate-map-editor.css">
+  <script src="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/_ds_bundle.js"></script>
+  <!-- Loaded here, not only inside ctg-select-instrument. An imported component's
+       logic class is evaluated before its own helmet scripts have loaded, so the
+       component cannot be the only thing pulling this in. -->
+  <script src="ctg-demo-data.js"></script>
+  <style>
+    body { margin:0; background:var(--pn-color-surface-page); user-select:none; }
+    /* Wells are drag-selected, so text selection is off for the page. The inputs
+       have to opt back in or you cannot select what you typed. */
+    .field-input { user-select:text; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;font-family:var(--pn-font-family-sans)">
+
+  <!-- Prototype guide. Also carries Auto-fill Demo Data: the demo convention is
+       that the dark strip is the tool and everything below it is the product, so
+       the prototype shortcut lives here rather than in a separate panel. The Luc
+       editor uses a blue .proto-controls bar for the same job. -->
+  <div style="background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);padding:8px 24px;font-size:13px;letter-spacing:.02em;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <span style="display:none">Demo guide - Create Plate Map. Drag across wells to select a range, then edit the Well Wizard on the right.</span>
+    <button class="{{ autoFillCue }}" onClick="{{ onAutoFill }}" style="background:var(--pn-color-neutral-800);color:#9fd3ff;border:1px solid #3d3d3d;border-radius:4px;padding:3px 10px;font:inherit;cursor:pointer">Auto-fill Demo Data</button>
+    <button onClick="{{ onClearPlate }}" style="background:var(--pn-color-neutral-800);color:#9fd3ff;border:1px solid #3d3d3d;border-radius:4px;padding:3px 10px;font:inherit;cursor:pointer">Clear Plate</button>
+    <a href="ctg-app-home.dc.html" style="display:none;color:#9fd3ff;margin-left:auto">&larr; CellTiter-Glo</a>
+  </div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <dc-import name="pronect-sidebar"
+                dashboard-href="user-dashboard.dc.html"
+                hint-size="284,900"
+                style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></dc-import>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+
+      <dc-import name="pronect-topbar"
+                  hint-size="1200,64"
+                  style="display:block;width:100%;flex:none;"></dc-import>
+
+      <div class="editor-wrap">
+
+        <!-- Page header -->
+        <div class="page-header">
+          <div class="app-identity">
+            <div class="app-icon-wrap"><a href="ctg-app-home.dc.html" style="display:block;"><img src="assets/app-icon_ctg.svg" alt=""></a></div>
+            <div style="min-width:0;">
+              <div class="app-name">CellTiter-Glo</div>
+              <div class="app-platename">
+                <span style="{{ plateNameStyle }}">{{ plateMapNameDisplay }}</span>
+                <svg onClick="{{ onRename }}" style="cursor:pointer;" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 11h7M4 16h7M14 19l5-5 2 2-5 5h-2z"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analysis type. Opens and lists all three; picking Single
+               Concentration or Linearity Analysis shows a demo note rather than
+               switching, because switching means rebuilding the plate and those
+               two analysis types are out of scope for this demo. -->
+          <div style="position:relative;margin-left:var(--pn-spacing-24);" data-dropdown="analysis">
+            <div class="header-select" onClick="{{ toggleAnalysisDropdown }}">
+              <span>{{ analysisName }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--pn-color-text-muted);transform:{{ analysisChevron }};transition:transform .15s;flex-shrink:0"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <sc-if value="{{ analysisDropdownOpen }}" hint-placeholder-val="{{ false }}">
+              <div class="ww-menu" style="top:44px;">
+                <sc-for list="{{ analysisOptions }}" as="opt" hint-placeholder-count="3">
+                  <div class="ww-menu__item" onClick="{{ opt.select }}" style="background:{{ opt.bg }};">{{ opt.label }}</div>
+                </sc-for>
+                <sc-if value="{{ analysisNoteVisible }}" hint-placeholder-val="{{ false }}">
+                  <div class="ww-menu__item is-note" style="border-top:1px solid var(--pn-color-border-subtle);white-space:normal;line-height:1.4;font-size:var(--pn-font-size-xs);">{{ analysisNote }}</div>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- Per 114. All four are real controls in the product and all four are
+               demo notes here: Assay Note and the two saves have no backing
+               store in a prototype, and Open Plate Map needs the plate map list,
+               which is still to build. -->
+          <div class="header-actions" style="margin-left:var(--pn-spacing-12);">
+            <button class="btn btn-outline" onClick="{{ onAssayNote }}">Assay Note</button>
+            <button class="btn btn-outline" onClick="{{ onOpenPlateMap }}">Open Plate Map</button>
+          </div>
+
+          <span style="flex:1"></span>
+
+          <div class="header-actions">
+            <button class="btn btn-outline" onClick="{{ onSave }}">Save</button>
+            <button class="btn btn-outline" onClick="{{ onSaveAs }}">Save As</button>
+          </div>
+        </div>
+
+        <!-- Plate + Well Wizard, together on one white card over the page
+             background. The header sits outside it, on the page. Per 114. -->
+        <div class="editor-card">
+        <div class="plate-row">
+
+          <div class="plate-area">
+            {{ plateGrid }}
+          </div>
+
+          <div class="wizard-col">
+            <!-- No flex:none here, unlike the Luc editor. Its wizard hugs its
+                 content; CTG's fills the column so Clear Well Data and Next sit
+                 at the bottom, level with the foot of the plate. Per 114. -->
+            <div class="control-panel">
+              <div class="control-panel__body">
+
+                <sc-if value="{{ wwEmpty }}" hint-placeholder-val="{{ false }}">
+                  <div class="empty-note">Select one or more wells to set their type and values.</div>
+                </sc-if>
+
+                <sc-if value="{{ wwActive }}" hint-placeholder-val="{{ true }}">
+                  <div class="field-group" style="position:relative;" data-dropdown="welltype">
+                    <div class="field-label">Well Type</div>
+                    <div class="ww-select" onClick="{{ wwToggleDropdown }}">
+                      <span style="display:flex;align-items:center;gap:var(--pn-spacing-8);"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" fill="{{ wwIndicatorFill }}"></circle><circle cx="8" cy="8" r="5.5" stroke="{{ wwIndicatorFill }}" stroke-opacity="0.2" stroke-width="3"></circle></svg>{{ wwWellType }}</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--pn-color-text-muted);transform:{{ wwChevron }};transition:transform .15s;flex-shrink:0"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                    <sc-if value="{{ wwDropdownOpen }}" hint-placeholder-val="{{ false }}">
+                      <div class="ww-menu" style="top:56px;">
+                        <sc-for list="{{ wwTypeOptions }}" as="opt" hint-placeholder-count="4">
+                          <div class="ww-menu__item" onClick="{{ opt.select }}" style="background:{{ opt.bg }};">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="4" fill="{{ opt.color }}"></circle><circle cx="8" cy="8" r="5.5" stroke="{{ opt.color }}" stroke-opacity="0.2" stroke-width="3"></circle></svg>{{ opt.label }}
+                            <sc-if value="{{ opt.optional }}" hint-placeholder-val="{{ false }}"><span class="ww-badge">Optional</span></sc-if>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+
+                  <!-- Compound. Sample only. Luc calls this field Treatment; CTG
+                       calls it Compound, confirmed against CTG's implementation. -->
+                  <sc-if value="{{ wwShowCompound }}" hint-placeholder-val="{{ true }}">
+                    <div class="field-group">
+                      <div class="field-label">Compound</div>
+                      <input type="text" class="field-input" value="{{ compound }}" onInput="{{ onCompoundInput }}" onFocus="{{ onCompoundFocus }}" onBlur="{{ onCompoundBlur }}">
+                      <sc-if value="{{ compoundHasError }}" hint-placeholder-val="{{ false }}">
+                        <div class="field-error">{{ compoundError }}</div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+
+                  <!-- Concentration. Sample gets a unit dropdown, Standard a
+                       static "µM ATP" because a Standard is always ATP. -->
+                  <sc-if value="{{ wwShowConcentration }}" hint-placeholder-val="{{ true }}">
+                    <div class="field-group">
+                      <div class="field-label">Concentration</div>
+                      <div class="ww-row">
+                        <input type="text" inputMode="decimal" class="field-input" value="{{ concentration }}" onInput="{{ onConcentrationInput }}" onFocus="{{ onConcentrationFocus }}" onBlur="{{ onConcentrationBlur }}" style="flex:1;min-width:0;">
+                        <sc-if value="{{ wwUnitIsStatic }}" hint-placeholder-val="{{ false }}">
+                          <div class="ww-unit-static">{{ wwStaticUnit }}</div>
+                        </sc-if>
+                        <sc-if value="{{ wwUnitIsPicker }}" hint-placeholder-val="{{ true }}">
+                          <div style="position:relative;" data-dropdown="wwunit">
+                            <div class="ww-unit" onClick="{{ wwToggleUnitDropdown }}">
+                              <span>{{ wwConcUnit }}</span>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--pn-color-text-muted);flex-shrink:0"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                            <sc-if value="{{ wwUnitDropdownOpen }}" hint-placeholder-val="{{ false }}">
+                              <div class="ww-menu" style="top:36px;left:auto;right:0;min-width:92px;">
+                                <sc-for list="{{ wwUnitOptions }}" as="opt" hint-placeholder-count="8">
+                                  <div class="ww-menu__item" onClick="{{ opt.select }}" style="background:{{ opt.bg }};white-space:nowrap;">{{ opt.label }}</div>
+                                </sc-for>
+                              </div>
+                            </sc-if>
+                          </div>
+                        </sc-if>
+                      </div>
+                      <sc-if value="{{ concentrationHasError }}" hint-placeholder-val="{{ false }}">
+                        <div class="field-error">{{ concentrationError }}</div>
+                      </sc-if>
+                    </div>
+
+                    <div class="field-group">
+                      <div class="ww-check-row" onClick="{{ wwToggleConcSeries }}">
+                        <div class="ww-check">
+                          <sc-if value="{{ wwConcSeriesChecked }}" hint-placeholder-val="{{ false }}">
+                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="var(--pn-color-text-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                          </sc-if>
+                        </div>
+                        <span style="font-size:var(--pn-font-size-sm);color:var(--pn-color-text-primary);">Concentration Series</span>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ wwShowConcChildren }}" hint-placeholder-val="{{ false }}">
+                    <div class="field-group ww-child">
+                      <div class="field-label">First Concentration</div>
+                      <div class="ww-row">
+                        <input type="text" inputMode="decimal" class="field-input" value="{{ firstConcentration }}" onInput="{{ onFirstConcentrationInput }}" onFocus="{{ onFirstConcentrationFocus }}" onBlur="{{ onFirstConcentrationBlur }}" style="flex:1;min-width:0;">
+                        <sc-if value="{{ wwUnitIsStatic }}" hint-placeholder-val="{{ false }}">
+                          <div class="ww-unit-static">{{ wwStaticUnit }}</div>
+                        </sc-if>
+                        <sc-if value="{{ wwUnitIsPicker }}" hint-placeholder-val="{{ true }}">
+                          <div style="position:relative;" data-dropdown="wwfirstunit">
+                            <div class="ww-unit" onClick="{{ wwToggleFirstUnitDropdown }}">
+                              <span>{{ wwFirstConcUnit }}</span>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--pn-color-text-muted);flex-shrink:0"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                            <sc-if value="{{ wwFirstUnitDropdownOpen }}" hint-placeholder-val="{{ false }}">
+                              <div class="ww-menu" style="top:36px;left:auto;right:0;min-width:92px;">
+                                <sc-for list="{{ wwFirstUnitOptions }}" as="opt" hint-placeholder-count="8">
+                                  <div class="ww-menu__item" onClick="{{ opt.select }}" style="background:{{ opt.bg }};white-space:nowrap;">{{ opt.label }}</div>
+                                </sc-for>
+                              </div>
+                            </sc-if>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </div>
+                    <div class="field-group ww-child">
+                      <div class="field-label">Dilution Factor - Division</div>
+                      <input type="text" inputMode="decimal" class="field-input" value="{{ dilutionFactor }}" onInput="{{ onDilutionFactorInput }}" onFocus="{{ onDilutionFactorFocus }}" onBlur="{{ onDilutionFactorBlur }}" style="margin-top:var(--pn-spacing-4);">
+                      <sc-if value="{{ dilutionFactorHasError }}" hint-placeholder-val="{{ false }}">
+                        <div class="field-error">{{ dilutionFactorError }}</div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+
+                  <!-- Cell Type. Sample and Control only. Standard has no cell
+                       type (it is an ATP dilution, not cells) and Background has
+                       no fields beyond its name. -->
+                  <sc-if value="{{ wwShowCellType }}" hint-placeholder-val="{{ true }}">
+                    <div class="field-group">
+                      <div class="field-label">Cell Type <span class="field-label__optional">(Optional)</span></div>
+                      <input type="text" class="field-input" value="{{ cellType }}" onInput="{{ onCellTypeInput }}" onFocus="{{ onCellTypeFocus }}" onBlur="{{ onCellTypeBlur }}">
+                      <sc-if value="{{ cellTypeHasError }}" hint-placeholder-val="{{ false }}">
+                        <div class="field-error">{{ cellTypeError }}</div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+
+                  <!-- Sample Name is on all four well types. -->
+                  <div class="field-group">
+                    <div class="field-label">Sample Name <span class="field-label__optional">(Optional)</span></div>
+                    <input type="text" class="field-input" value="{{ sampleName }}" onInput="{{ onSampleNameInput }}" onFocus="{{ onSampleNameFocus }}" onBlur="{{ onSampleNameBlur }}">
+                    <sc-if value="{{ sampleNameHasError }}" hint-placeholder-val="{{ false }}">
+                      <div class="field-error">{{ sampleNameError }}</div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+
+              </div>
+              <div class="panel-footer">
+                <button class="btn-clear" onClick="{{ onClearWellData }}">Clear Well Data</button>
+                <button class="btn-next" onClick="{{ onNextClick }}" disabled="{{ nextDisabled }}">Next</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Select Instrument. Opened by Next, which is where workflow #3 rejoins the
+     read. The component owns its own Next (it navigates) and announces Cancel on
+     the document, because dc-import cannot pass callbacks down. -->
+<sc-if value="{{ instrumentOpen }}" hint-placeholder-val="{{ false }}">
+  <dc-import name="ctg-select-instrument"
+              open="true"
+              destination="ctg-read-in-progress.dc.html?from=platemap"
+              hint-size="1600,900"
+              style="position:fixed;inset:0;width:100%;height:100%;z-index:2100;"></dc-import>
+</sc-if>
+
+<!-- Open Plate Map. Same contract as Select Instrument: the component owns its
+     modal card and announces its outcomes on the document, because dc-import
+     cannot pass callbacks down. -->
+<sc-if value="{{ openMapOpen }}" hint-placeholder-val="{{ false }}">
+  <dc-import name="ctg-open-plate-map"
+              open="true"
+              hint-size="1600,900"
+              style="position:fixed;inset:0;width:100%;height:100%;z-index:2100;"></dc-import>
+</sc-if>
+
+<!-- Demo note, used by the header actions. Dismisses on its own control only;
+     no click-outside, matching the rest of the demo. -->
+<sc-if value="{{ noteOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:var(--pn-color-surface-scrim);display:flex;align-items:center;justify-content:center;z-index:400;">
+    <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-md);box-shadow:var(--pn-shadow-2);max-width:420px;padding:24px;">
+      <div style="font:600 17px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);margin-bottom:8px;">{{ noteTitle }}</div>
+      <div style="font:400 14px/1.5 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ noteBody }}</div>
+      <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+        <button class="btn btn-outline" onClick="{{ onNoteClose }}">Close</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    // wellTypes/wellData are the plate. A well exists once it has a type.
+    wellTypes: {},
+    wellData: {},
+    plateMapName: null,
+
+    wwWellType: '',
+    wwDropdownOpen: false,
+    wwConcUnit: null,
+    wwFirstConcUnit: null,
+    wwUnitDropdownOpen: false,
+    wwFirstUnitDropdownOpen: false,
+    wwConcSeriesChecked: false,
+
+    compound: '', concentration: '', firstConcentration: '',
+    dilutionFactor: '', cellType: '', sampleName: '',
+
+    compoundValidationError: '', concentrationValidationError: '',
+    firstConcentrationValidationError: '', dilutionFactorValidationError: '',
+    cellTypeValidationError: '', sampleNameValidationError: '',
+    touchedCompound: false, touchedConcentration: false,
+    focusedField: null,
+
+    analysisDropdownOpen: false,
+    analysisNote: '',
+
+    noteOpen: false, noteTitle: '', noteBody: '',
+    instrumentOpen: false,
+    openMapOpen: false,
+
+    // Selection is a rectangle. anchorWellId is the well the drag started on,
+    // and it is what the Well Wizard displays.
+    wwSelectedWellIds: [], anchorWellId: null,
+    isDragging: false, dragAnchor: null, dragCurrent: null,
+  };
+
+  // ---- well type table --------------------------------------------------
+  // One entry per well type, driving the dropdown, the wizard's field set, the
+  // well cell's colour class and the lines it renders. The Luc editor branches
+  // on type in four separate places instead; CTG has four types rather than
+  // three and will likely gain more, so the branching is collected here.
+  //
+  // `lines` is what a filled well shows, top to bottom. Entries that resolve to
+  // an empty string are dropped, so a Control with no Cell Type is one line.
+  _types = {
+    control: {
+      label: 'Control',
+      color: 'var(--pn-color-plate-control-indicator)',
+      fields: ['cellType', 'sampleName'],
+      lines: (d) => ['Control', d.cellType],
+    },
+    sample: {
+      label: 'Sample',
+      color: 'var(--pn-color-plate-sample-indicator)',
+      fields: ['compound', 'concentration', 'cellType', 'sampleName'],
+      unit: 'picker',
+      // Cell Type first, matching the Luc editor's sample well.
+      lines: (d) => [d.cellType, d.compound, d.concentration ? `${d.concentration} ${d.concentrationUnit || ''}`.trim() : ''],
+    },
+    background: {
+      label: 'Background',
+      color: 'var(--pn-color-plate-background-indicator)',
+      optional: true,
+      fields: ['sampleName'],
+      lines: () => ['Background'],
+    },
+    // Not in the Luc app, which is why the design system has no
+    // --pn-color-plate-standard-* triplet; see ctg-plate-map-editor.css.
+    // A Standard is an ATP dilution series, so its unit is fixed and it has no
+    // Cell Type.
+    standard: {
+      label: 'Standard',
+      color: 'var(--ctg-plate-standard-indicator)',
+      fields: ['concentration', 'sampleName'],
+      unit: 'static', staticUnit: 'µM ATP',
+      lines: (d) => ['Standard', d.concentration ? `${d.concentration} µM ATP` : ''],
+    },
+  };
+  // Dropdown order, taken from the CTG field reference.
+  _typeOrder = ['control', 'sample', 'background', 'standard'];
+
+  // Character limits and allowed characters, from the CTG Well Wizard field
+  // reference. These match the Luc app's, which were themselves copied from
+  // CTG, except that Luc's `treatment` is CTG's `compound`.
+  _limits = {
+    compound:           { max: 30, numeric: false },
+    concentration:      { max: 15, numeric: true  },
+    firstConcentration: { max: 15, numeric: true  },
+    dilutionFactor:     { max: 10, numeric: true  },
+    cellType:           { max: 20, numeric: false },
+    sampleName:         { max: 20, numeric: false },
+  };
+
+  _typeKey() { return (this.state.wwWellType || '').toLowerCase(); }
+  _typeDef(key) { return this._types[key || this._typeKey()] || null; }
+  _hasField(name) {
+    const def = this._typeDef();
+    return !!(def && def.fields.includes(name));
+  }
+
+  // ---- validation -------------------------------------------------------
+
+  _sanitizeText(value, maxLen) {
+    return (value || '').replace(/[^A-Za-z0-9 _-]/g, '').slice(0, maxLen);
+  }
+  _validateText(raw, maxLen) {
+    const invalidChars = /[^A-Za-z0-9 _-]/.test(raw);
+    const overLimit = !invalidChars && raw.length > maxLen;
+    let error = '';
+    if (invalidChars) error = 'Only letters, numbers, spaces, hyphens (-), or underscores (_) are allowed.';
+    else if (overLimit) error = `Limit: ${maxLen} characters`;
+    return { value: this._sanitizeText(raw, maxLen), error };
+  }
+  // Numeric fields allow digits and a single decimal point. Per the reference the
+  // decimal point does not count toward the limit, so the cap is on digits.
+  _sanitizeNumber(value, maxLen) {
+    let s = (value || '').replace(/[^0-9.]/g, '');
+    const first = s.indexOf('.');
+    if (first !== -1) s = s.slice(0, first + 1) + s.slice(first + 1).replace(/\./g, '');
+    let out = '', digits = 0;
+    for (const ch of s) {
+      if (ch === '.') { out += ch; continue; }
+      if (digits >= maxLen) break;
+      out += ch; digits++;
+    }
+    return out;
+  }
+  _validateNumber(raw, maxLen) {
+    const invalidChars = /[^0-9.]/.test(raw);
+    const extraDots = (raw.match(/\./g) || []).length > 1;
+    const digitCount = raw.replace(/[^0-9]/g, '').length;
+    let error = '';
+    if (invalidChars) error = 'Only numbers and a decimal point are allowed.';
+    else if (extraDots) error = 'Only one decimal point is allowed.';
+    else if (digitCount > maxLen) error = `Limit: ${maxLen} digits`;
+    return { value: this._sanitizeNumber(raw, maxLen), error };
+  }
+  _validate(field, raw) {
+    const { max, numeric } = this._limits[field];
+    return numeric ? this._validateNumber(raw, max) : this._validateText(raw, max);
+  }
+
+  // ---- selection --------------------------------------------------------
+
+  _wellRowCol(id) { return { row: id.charCodeAt(0) - 65, col: parseInt(id.slice(1), 10) - 1 }; }
+  _wellId(row, col) { return `${String.fromCharCode(65 + row)}${String(col + 1).padStart(2, '0')}`; }
+  _rectWellIds(a, b) {
+    const rMin = Math.min(a.row, b.row), rMax = Math.max(a.row, b.row);
+    const cMin = Math.min(a.col, b.col), cMax = Math.max(a.col, b.col);
+    const ids = [];
+    for (let r = rMin; r <= rMax; r++) for (let c = cMin; c <= cMax; c++) ids.push(this._wellId(r, c));
+    return ids;
+  }
+
+  // The anchor wins. Selecting a range whose wells hold different values shows
+  // the values of the well the drag STARTED on, rather than blanking the form.
+  // Editing then applies to the whole selection.
+  _formFromAnchor(anchorId, stickyType) {
+    const blank = { wwWellType: '', compound: '', concentration: '', firstConcentration: '', dilutionFactor: '', cellType: '', sampleName: '' };
+    const type = anchorId ? this.state.wellTypes[anchorId] : null;
+    if (!type) return { ...blank, wwWellType: stickyType || '' };
+    const d = this.state.wellData[anchorId] || {};
+    return {
+      wwWellType: this._types[type].label,
+      compound: d.compound || '', concentration: d.concentration || '',
+      firstConcentration: d.firstConcentration || '', dilutionFactor: d.dilutionFactor || '',
+      cellType: d.cellType || '', sampleName: d.sampleName || '',
+    };
+  }
+
+  // One place that names the six error slots, so adding a field cannot leave a
+  // reset half-written.
+  _blankErrors() {
+    return {
+      compoundValidationError: '', concentrationValidationError: '',
+      firstConcentrationValidationError: '', dilutionFactorValidationError: '',
+      cellTypeValidationError: '', sampleNameValidationError: '',
+    };
+  }
+
+  _onWellMouseDown(id) {
+    this.setState({ isDragging: true, dragAnchor: this._wellRowCol(id), dragCurrent: this._wellRowCol(id), anchorWellId: id });
+  }
+  _onWellMouseEnter(id) {
+    if (!this.state.isDragging) return;
+    this.setState({ dragCurrent: this._wellRowCol(id) });
+  }
+  _onGlobalMouseUp() {
+    if (!this.state.isDragging) return;
+    const { dragAnchor, dragCurrent, anchorWellId } = this.state;
+    const ids = this._rectWellIds(dragAnchor, dragCurrent);
+    const form = this._formFromAnchor(anchorWellId, this.state.wwWellType);
+    const anchorData = (anchorWellId && this.state.wellData[anchorWellId]) || {};
+    this.setState({
+      wwSelectedWellIds: ids,
+      ...form,
+      wwConcUnit: anchorData.concentrationUnit ?? this.state.wwConcUnit,
+      // Derived from what the anchor well actually holds, not carried over from
+      // the last selection. A well only stores a first concentration and a
+      // dilution factor when the box was ticked, so their presence IS the
+      // checkbox. Carrying the flag across selections showed a stored series as
+      // unticked, and an unrelated well as ticked with empty children.
+      wwConcSeriesChecked: !!(anchorData.firstConcentration || anchorData.dilutionFactor),
+      touchedCompound: false, touchedConcentration: false,
+      // Every error slot, not just the two required fields. Clearing only those
+      // two left a character-class error from the previous selection sitting
+      // under a field now showing a different well's value.
+      ...this._blankErrors(),
+      isDragging: false, dragAnchor: null, dragCurrent: null,
+    });
+    // Deliberately no commit here. Selecting wells must never change them,
+    // otherwise dragging across a range silently overwrites every well in it
+    // with the anchor's values. Only an edit in the form commits.
+  }
+
+  // Writing a well writes only the fields its type actually has, so switching a
+  // Sample to a Background does not leave a stale Compound on it that reappears
+  // if it is switched back.
+  _commitWells(ids, form) {
+    if (!ids.length || !form.wwWellType) return;
+    const key = form.wwWellType.toLowerCase();
+    const def = this._types[key];
+    if (!def) return;
+    this.setState(s => {
+      const wellTypes = { ...s.wellTypes };
+      const wellData = { ...s.wellData };
+      ids.forEach(id => {
+        wellTypes[id] = key;
+        const d = {};
+        def.fields.forEach(f => { d[f] = form[f] || ''; });
+        if (def.fields.includes('concentration')) {
+          d.concentrationUnit = def.unit === 'static' ? def.staticUnit : (s.wwConcUnit ?? 'µM');
+          // From the form, not from state: wwToggleConcSeries commits in the same
+          // tick it flips the flag, so state still holds the old value here.
+          if (form.wwConcSeriesChecked) {
+            d.firstConcentration = form.firstConcentration || '';
+            d.dilutionFactor = form.dilutionFactor || '';
+          }
+        }
+        wellData[id] = d;
+      });
+      return { wellTypes, wellData };
+    });
+  }
+  _commitCurrent(overrides) {
+    const merged = { ...this.state, ...overrides };
+    this._commitWells(merged.wwSelectedWellIds, merged);
+  }
+
+  _clearWellData() {
+    const ids = this.state.wwSelectedWellIds;
+    this.setState(s => {
+      const wellTypes = { ...s.wellTypes };
+      const wellData = { ...s.wellData };
+      ids.forEach(id => { delete wellTypes[id]; delete wellData[id]; });
+      return {
+        wellTypes, wellData,
+        wwWellType: '', compound: '', concentration: '', firstConcentration: '',
+        dilutionFactor: '', cellType: '', sampleName: '',
+        wwConcSeriesChecked: false,
+        touchedCompound: false, touchedConcentration: false,
+        ...this._blankErrors(),
+      };
+    });
+  }
+
+  // ---- demo plate -------------------------------------------------------
+  // The same plate the rest of the demo already runs on: it is the plate map for
+  // CTG-DR-wStd-demo, whose raw RLUs drive ctg-read-results and whose analysis
+  // drives ctg-analysis-results. Rows A-D are an 8-point ATP standard curve with
+  // Background and Control columns; rows E-H are two compounds in duplicate
+  // across a 12-point dilution series. Values read off the exported plate map.
+  _demoStandardByCol = { 1:'5', 2:'1.25', 3:'0.3125', 4:'0.07813', 5:'0.01953', 6:'0.004883', 7:'0.001221', 8:'0.0003053' };
+  _demoCompounds = [
+    { rows: ['E','F'], compound: 'Panobinostat', conc: ['0.0002823','0.000847','0.002541','0.007623','0.02287','0.0686','0.2058','0.6173','1.852','5.557','16.67','50'] },
+    { rows: ['G','H'], compound: 'Bortezomib',   conc: ['0.0001409','0.000423','0.001269','0.003809','0.01143','0.0343','0.1029','0.3087','0.926','2.778','8.333','25'] },
+  ];
+
+  // Same stamp shape as ctg-read-in-progress/ctg-read-results: a plate map is
+  // "named" from the moment it exists, not left as "Not yet named" until the
+  // user does something. Stamped once (on mount, or on Clear Plate), not on
+  // every render - a name that ticks its own seconds while you watch reads as
+  // a bug.
+  _stamp() {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    let h = d.getHours();
+    const ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return 'CellTiter-Glo ' + d.getFullYear() + ' ' + p(d.getMonth() + 1) + ' ' + p(d.getDate())
+         + ' ' + h + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' ' + ap + ' - Plate';
+  }
+
+  _buildDemoPlate() {
+    const p = n => String(n).padStart(2, '0');
+    const wellTypes = {}, wellData = {};
+    ['A','B','C','D'].forEach(r => {
+      for (let c = 1; c <= 8; c++) {
+        const id = `${r}${p(c)}`;
+        wellTypes[id] = 'standard';
+        wellData[id] = { concentration: this._demoStandardByCol[c], concentrationUnit: 'µM ATP', sampleName: '' };
+      }
+      wellTypes[`${r}09`] = 'background'; wellData[`${r}09`] = { sampleName: '' };
+      wellTypes[`${r}10`] = 'background'; wellData[`${r}10`] = { sampleName: '' };
+      wellTypes[`${r}11`] = 'control';    wellData[`${r}11`] = { cellType: '', sampleName: '' };
+      wellTypes[`${r}12`] = 'control';    wellData[`${r}12`] = { cellType: '', sampleName: '' };
+    });
+    this._demoCompounds.forEach(g => g.rows.forEach(r => {
+      for (let c = 1; c <= 12; c++) {
+        const id = `${r}${p(c)}`;
+        wellTypes[id] = 'sample';
+        wellData[id] = { compound: g.compound, concentration: g.conc[c - 1], concentrationUnit: 'nM', cellType: '', sampleName: '' };
+      }
+    }));
+    return { wellTypes, wellData };
+  }
+
+  _resetSelection() {
+    return {
+      wwSelectedWellIds: [], anchorWellId: null, wwWellType: '',
+      compound: '', concentration: '', firstConcentration: '', dilutionFactor: '',
+      cellType: '', sampleName: '', wwConcSeriesChecked: false,
+      touchedCompound: false, touchedConcentration: false,
+      ...this._blankErrors(),
+    };
+  }
+
+  // ---- plate rendering --------------------------------------------------
+
+  // NOTE: hardcoded pixel math, carried over from the Luc editor. Correct only
+  // while --pn-font-size-sm is 0.8333rem, --pn-font-line-height-normal is 1.5
+  // and the root font size is 16px. Silently wrong if any of those move.
+  _computeRowHeight() {
+    const lineH = 0.8333 * 1.5 * 16;
+    const padV = 2 * 8;
+    const minHeight = Math.ceil(2 * lineH + padV);
+    let maxLines = 1;
+    Object.entries(this.state.wellTypes).forEach(([id, type]) => {
+      const def = this._types[type];
+      if (!def) return;
+      const lines = def.lines(this.state.wellData[id] || {}).filter(Boolean).length;
+      maxLines = Math.max(maxLines, lines);
+    });
+    return Math.max(minHeight, Math.ceil(maxLines * lineH + padV));
+  }
+
+  _renderWellGrid() {
+    const rows = ['A','B','C','D','E','F','G','H'];
+    const { wellTypes, wellData, wwSelectedWellIds, anchorWellId, isDragging, dragAnchor, dragCurrent } = this.state;
+    const dragPreviewIds = isDragging && dragAnchor && dragCurrent
+      ? new Set(this._rectWellIds(dragAnchor, dragCurrent)) : null;
+    const cells = [];
+
+    cells.push(React.createElement('div', { key:'corner', className:'well-header' }));
+    for (let c = 1; c <= 12; c++) {
+      cells.push(React.createElement('div', { key:`h${c}`, className:'well-header col-num' }, String(c).padStart(2,'0')));
+    }
+
+    rows.forEach(row => {
+      cells.push(React.createElement('div', { key:`r${row}`, className:'well-header' }, row));
+      for (let c = 1; c <= 12; c++) {
+        const id = `${row}${String(c).padStart(2,'0')}`;
+        const type = wellTypes[id];
+        const def = type ? this._types[type] : null;
+        let content = null;
+
+        if (def) {
+          const lines = def.lines(wellData[id] || {}).filter(Boolean);
+          content = React.createElement('div', {
+            style: { display:'flex', flexDirection:'column', justifyContent:'center', width:'100%',
+                     padding:'var(--pn-spacing-8) var(--pn-spacing-4)', overflow:'hidden' },
+          }, lines.map((t, i) => React.createElement('div', { key:i, className:'well__text' }, t)));
+        }
+
+        const cls = ['well'];
+        if (type) cls.push(`well--${type}`);
+        if (wwSelectedWellIds.includes(id)) cls.push('is-selected');
+        // The anchor carries the values the Well Wizard is showing, so it has to
+        // be distinguishable from the rest of the selection.
+        if (id === anchorWellId && wwSelectedWellIds.includes(id)) cls.push('is-anchor');
+        if (dragPreviewIds && dragPreviewIds.has(id)) cls.push('is-drag-preview');
+
+        cells.push(React.createElement('div', {
+          key: id, className: cls.join(' '),
+          onMouseDown: () => this._onWellMouseDown(id),
+          onMouseEnter: () => this._onWellMouseEnter(id),
+        }, content));
+      }
+    });
+
+    return React.createElement('div', {
+      className: 'plate-grid',
+      // minmax, not a fixed height: the computed value is the floor needed to fit
+      // the tallest well's lines, and the rows grow from there to fill the card.
+      style: { gridTemplateColumns:'28px repeat(12,1fr)', gridTemplateRows:`24px repeat(8, minmax(${this._computeRowHeight()}px, 1fr))` },
+    }, ...cells);
+  }
+
+  componentDidMount() {
+    this.setState({ plateMapName: this._stamp() });
+    this._onMouseUp = () => this._onGlobalMouseUp();
+    document.addEventListener('mouseup', this._onMouseUp);
+    this._close = (e) => {
+      if (!e.target.closest('[data-dropdown="welltype"]')) this.setState({ wwDropdownOpen: false });
+      if (!e.target.closest('[data-dropdown="wwunit"]')) this.setState({ wwUnitDropdownOpen: false });
+      if (!e.target.closest('[data-dropdown="wwfirstunit"]')) this.setState({ wwFirstUnitDropdownOpen: false });
+      if (!e.target.closest('[data-dropdown="analysis"]')) this.setState({ analysisDropdownOpen: false, analysisNote: '' });
+    };
+    document.addEventListener('click', this._close);
+    // The Select Instrument modal is a dc-import and cannot call back into this
+    // page, so it announces Cancel on the document and we close it here. Same
+    // constraint the Luc editor works around for its Configure modal.
+    this._onInstrumentCancel = () => this.setState({ instrumentOpen: false });
+    document.addEventListener('ctg:select-instrument-cancel', this._onInstrumentCancel);
+
+    this._onOpenMapCancel = () => this.setState({ openMapOpen: false });
+    // Only the demo's own plate map has well data behind it; the other nine are
+    // names and dates. They stay selectable rather than being disabled, because
+    // the list's whole job is to show that any saved plate map can be reopened,
+    // and a row you cannot click argues the opposite. Picking one explains the
+    // prototype's edge instead of loading an empty plate that looks broken.
+    this._onOpenMapSelect = (e) => {
+      const id = ((e && e.detail) || {}).id;
+      const chosen = (window.CTG.PLATE_MAPS || []).find(m => m.id === id);
+      if (id === 'pm1') {
+        this.setState({
+          openMapOpen: false,
+          ...this._buildDemoPlate(),
+          ...this._resetSelection(),
+          plateMapName: chosen.name,
+        });
+        return;
+      }
+      this.setState({
+        openMapOpen: false,
+        noteOpen: true,
+        noteTitle: 'This plate map is not built out',
+        noteBody: `${chosen ? chosen.name : 'That plate map'} appears in the list. Open ${window.CTG.PLATE_MAPS[0].name} to load the plate map this demo uses.`,
+      });
+    };
+    document.addEventListener('ctg:open-plate-map-cancel', this._onOpenMapCancel);
+    document.addEventListener('ctg:open-plate-map-select', this._onOpenMapSelect);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('mouseup', this._onMouseUp);
+    document.removeEventListener('click', this._close);
+    document.removeEventListener('ctg:select-instrument-cancel', this._onInstrumentCancel);
+    document.removeEventListener('ctg:open-plate-map-cancel', this._onOpenMapCancel);
+    document.removeEventListener('ctg:open-plate-map-select', this._onOpenMapSelect);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const sel = 'var(--pn-color-state-selected-bg)';
+    const def = this._typeDef();
+    const unitList = ['M','mM','µM','nM','g/ml','mg/ml','µg/ml','ng/ml'];
+    const concUnit = s.wwConcUnit ?? 'µM';
+    const firstUnit = s.wwFirstConcUnit ?? 'µM';
+
+    const requiredLabel = { compound: 'Compound', concentration: 'Concentration' };
+    const errorFor = (field, touched) =>
+      s[`${field}ValidationError`] ||
+      (touched && !String(s[field]).trim() ? `${requiredLabel[field]} is required.` : '');
+
+    const fieldVals = (field) => {
+      const error = (field === 'compound') ? errorFor('compound', s.touchedCompound)
+                  : (field === 'concentration') ? errorFor('concentration', s.touchedConcentration)
+                  : s[`${field}ValidationError`];
+      const Cap = field.charAt(0).toUpperCase() + field.slice(1);
+      return {
+        [field]: s[field],
+        [`${field}Error`]: error,
+        [`${field}HasError`]: !!error,
+        [`on${Cap}Input`]: (e) => {
+          const { value, error: err } = this._validate(field, e.target.value);
+          this.setState({ [field]: value, [`${field}ValidationError`]: err });
+          this._commitCurrent({ [field]: value });
+        },
+        [`on${Cap}Focus`]: () => this.setState({ focusedField: field }),
+        [`on${Cap}Blur`]: () => this.setState({
+          focusedField: null,
+          ...(field === 'compound' ? { touchedCompound: true } : {}),
+          ...(field === 'concentration' ? { touchedConcentration: true } : {}),
+        }),
+      };
+    };
+
+    const setUnit = (key, openKey) => (u) => {
+      this.setState({ [key]: u, [openKey]: false });
+      if (key === 'wwConcUnit') this._commitCurrent({});
+    };
+
+    // Picking a well type writes it straight to the selection. Sample and
+    // Standard pre-fill Concentration with 0, which is why neither has a
+    // "missing a Concentration" error: the state cannot occur.
+    const selectType = (key) => () => {
+      const d = this._types[key];
+      const next = { wwWellType: d.label, wwDropdownOpen: false };
+      if (d.fields.includes('concentration')) {
+        next.concentration = String(s.concentration || '').trim() || '0';
+      } else {
+        next.wwConcSeriesChecked = false;
+      }
+      this.setState(next);
+      this._commitCurrent(next);
+    };
+
+    const analysisTypes = [
+      { key: 'dose-response', label: 'Dose Response' },
+      { key: 'single-concentration', label: 'Single Concentration' },
+      // Label confirmed by Cate: Linearity is "Linearity Analysis" in CTG,
+      // unlike the Luc app, where the same analysis type is just "Linearity".
+      { key: 'linearity', label: 'Linearity Analysis' },
+    ];
+
+    return {
+      plateGrid: this._renderWellGrid(),
+      plateMapNameDisplay: s.plateMapName ?? 'Not yet named',
+      plateNameStyle: s.plateMapName ? '' : 'font-style:italic;',
+
+      // ---- analysis type ----
+      analysisName: 'Dose Response',
+      analysisDropdownOpen: s.analysisDropdownOpen,
+      analysisChevron: s.analysisDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+      toggleAnalysisDropdown: () => this.setState(st => ({ analysisDropdownOpen: !st.analysisDropdownOpen, analysisNote: '' })),
+      analysisNote: s.analysisNote,
+      analysisNoteVisible: !!s.analysisNote,
+      analysisOptions: analysisTypes.map(a => ({
+        label: a.label,
+        bg: a.key === 'dose-response' ? sel : 'transparent',
+        // Only Dose Response is built. The other two are real CTG analysis types
+        // and the dropdown lists them, but picking one explains itself instead of
+        // switching, which would mean a second and third plate layout.
+        select: () => this.setState({
+          analysisNote: a.key === 'dose-response' ? ''
+            : `${a.label} is a real CellTiter-Glo analysis type. This demo builds out Dose Response only.`,
+        }),
+      })),
+
+      // ---- well wizard ----
+      wwEmpty: !def,
+      wwActive: !!def,
+      wwWellType: s.wwWellType,
+      wwDropdownOpen: s.wwDropdownOpen,
+      wwChevron: s.wwDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+      wwIndicatorFill: def ? def.color : 'var(--pn-color-plate-sample-indicator)',
+      wwToggleDropdown: () => this.setState(st => ({ wwDropdownOpen: !st.wwDropdownOpen })),
+      wwTypeOptions: this._typeOrder.map(k => ({
+        label: this._types[k].label,
+        color: this._types[k].color,
+        optional: !!this._types[k].optional,
+        bg: this._typeKey() === k ? sel : 'transparent',
+        select: selectType(k),
+      })),
+
+      wwShowCompound: this._hasField('compound'),
+      wwShowConcentration: this._hasField('concentration'),
+      wwShowCellType: this._hasField('cellType'),
+      wwUnitIsStatic: !!(def && def.unit === 'static'),
+      wwUnitIsPicker: !!(def && def.unit === 'picker'),
+      wwStaticUnit: (def && def.staticUnit) || '',
+
+      wwConcUnit: concUnit,
+      wwUnitDropdownOpen: s.wwUnitDropdownOpen,
+      wwToggleUnitDropdown: () => this.setState(st => ({ wwUnitDropdownOpen: !st.wwUnitDropdownOpen })),
+      wwUnitOptions: unitList.map(u => ({ label:u, bg: concUnit===u ? sel : 'transparent', select: () => setUnit('wwConcUnit','wwUnitDropdownOpen')(u) })),
+      wwFirstConcUnit: firstUnit,
+      wwFirstUnitDropdownOpen: s.wwFirstUnitDropdownOpen,
+      wwToggleFirstUnitDropdown: () => this.setState(st => ({ wwFirstUnitDropdownOpen: !st.wwFirstUnitDropdownOpen })),
+      wwFirstUnitOptions: unitList.map(u => ({ label:u, bg: firstUnit===u ? sel : 'transparent', select: () => setUnit('wwFirstConcUnit','wwFirstUnitDropdownOpen')(u) })),
+
+      wwConcSeriesChecked: s.wwConcSeriesChecked,
+      wwShowConcChildren: this._hasField('concentration') && s.wwConcSeriesChecked,
+      // Ticking the box pre-fills First Concentration from Concentration, and
+      // its unit too when there is one to carry. Dilution Factor starts blank
+      // deliberately: there is nothing sensible to guess.
+      // Commits, unlike the other toggles. The checkbox is not just panel state:
+      // whether a well holds a first concentration and dilution factor IS what
+      // the checkbox is derived from on re-selection. Without the commit,
+      // ticking the box and clicking away lost both the tick and the pre-fill.
+      wwToggleConcSeries: () => {
+        const st = this.state;
+        const on = !st.wwConcSeriesChecked;
+        const next = on
+          ? {
+              wwConcSeriesChecked: true,
+              firstConcentration: String(st.firstConcentration || '').trim() || String(st.concentration || '').trim() || '0',
+              wwFirstConcUnit: st.wwFirstConcUnit ?? st.wwConcUnit ?? 'µM',
+            }
+          // Unticking drops the children, so the well stops holding a series
+          // rather than keeping orphaned values the panel no longer shows.
+          : { wwConcSeriesChecked: false, firstConcentration: '', dilutionFactor: '' };
+        this.setState(next);
+        this._commitCurrent(next);
+      },
+
+      ...fieldVals('compound'),
+      ...fieldVals('concentration'),
+      ...fieldVals('firstConcentration'),
+      ...fieldVals('dilutionFactor'),
+      ...fieldVals('cellType'),
+      ...fieldVals('sampleName'),
+
+      onClearWellData: () => this._clearWellData(),
+      nextDisabled: Object.keys(s.wellTypes).length === 0,
+      // Guided-walkthrough cue: pulses Auto-fill Demo Data until the plate has
+      // any wells, then stops - same "plate is empty" check as nextDisabled.
+      autoFillCue: Object.keys(s.wellTypes).length === 0 ? 'demo-cue' : '',
+      // Straight to Select Instrument. The product runs plate map validation
+      // first, and the Luc editor implements that catalogue in full; this demo
+      // deliberately does not. Cate's reasoning: the point of a survey demo is to
+      // show the feature, not to make a respondent build a valid plate map from
+      // scratch. So the check is stated as a note at the top of the modal rather
+      // than enforced, and the plate cannot fail it.
+      onNextClick: () => this.setState({ instrumentOpen: true }),
+      instrumentOpen: s.instrumentOpen,
+
+      // Header actions. All demo notes; see the markup for why each one is.
+      onRename: () => this.setState({ noteOpen: true, noteTitle: 'Rename',
+        noteBody: 'Rename changes the name of this plate map.' }),
+      onAssayNote: () => this.setState({ noteOpen: true, noteTitle: 'Assay Note',
+        noteBody: 'Assay Note records notes against this assay and saves them with the plate map.' }),
+      onOpenPlateMap: () => this.setState({ openMapOpen: true }),
+      openMapOpen: s.openMapOpen,
+      onSave: () => this.setState({ noteOpen: true, noteTitle: 'Save',
+        noteBody: 'Save writes the plate map to your ProNect account, where it is available from any device you sign in from.' }),
+      onSaveAs: () => this.setState({ noteOpen: true, noteTitle: 'Save As',
+        noteBody: 'Save As stores the plate map under a new name and leaves the original unchanged.' }),
+
+      // ---- prototype controls ----
+      // The plate map name comes from the shared list rather than a literal, so
+      // the plate the editor loads and its row in every plate map list are the
+      // same string by construction.
+      onAutoFill: () => this.setState({
+        ...this._buildDemoPlate(),
+        ...this._resetSelection(),
+        plateMapName: window.CTG.PLATE_MAPS[0].name,
+      }),
+      onClearPlate: () => this.setState({ wellTypes: {}, wellData: {}, plateMapName: this._stamp(), ...this._resetSelection() }),
+
+      noteOpen: s.noteOpen, noteTitle: s.noteTitle, noteBody: s.noteBody,
+      onNoteClose: () => this.setState({ noteOpen: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <link rel="stylesheet" href="ctg-plate-map-editor.css">
+  <script src="ctg-detailed-data.js"></script>
+  <style>
+    body{margin:0;background:transparent}
+    /* The %CV scale is not here: it is a value-driven scale rather than a set
+       of named surfaces, so it lives with the logic. See CV_SCALE below. */
+  </style>
+</helmet>
+
+<!-- Detailed Data, opened by the Detailed Data button on ctg-analysis-results.
+     ==========================================================================
+     Built from 106_detailed-data_sample-analysis.png and
+     107_detailed-data_plate-analysis.png, IDEALISED rather than reproduced.
+     Cate's call, because the spreadsheet look is the weakest part of the real
+     screen. Four departures, all deliberate:
+
+     1. NO SPREADSHEET CHROME. The real screen is a spreadsheet widget: a name
+        box, an fx formula bar, A/B/C column letters, 1/2/3 row numbers, a "+"
+        to add a sheet and an "x" to delete one. All gone. Tables get real
+        headers; the plate keeps its A-H and 1-12 labels, because on a plate
+        those are the well's address and not spreadsheet furniture.
+
+     2. HEADERS ARE THE SHEET'S ACTUAL HEADERS. 106 shows columns D through G
+        as "Entered", "Unit - Entered", "Standardized", "Standardized". The
+        workbook says "Concentration - Entered", "Unit - Entered",
+        "Concentration - Standardized", "Unit - Standardized". The app wraps
+        the header to two lines in a row too short to show both, so you see
+        only the second line, which is why "Unit - Entered" survives intact and
+        the other three do not. That is a rendering bug, not a naming scheme,
+        and this shows the real text.
+
+     3. TWO TAB STRIPS, NO DROPDOWN. The real screen picks the workbook with a
+        dropdown and the sheet with a bottom tab strip. Same two levels here,
+        both as tabs, because a dropdown hides half the available data behind a
+        click and there are only two workbooks.
+
+     4. DESIGN SYSTEM COLOUR, NOT THE WORKBOOK'S. See the mapping below.
+
+     WHERE THE COLOUR COMES FROM. The workbooks carry their own fills, and the
+     fills are meaning rather than decoration: well type, which compound a row
+     belongs to, and a sequential scale on %CV. Two of them are already exactly
+     on token, which is the whole reason to prefer tokens here:
+
+       workbook   meaning       rendered as
+       #E68B50    series 1      --pn-color-plate-group-1   (identical)
+       #619CD1    series 2      --pn-color-plate-group-2   (identical)
+       #BED1D4    standard      --ctg-plate-standard-surface
+       #D6D8DF    background    --pn-color-plate-background-surface
+       #E4E7EB    background    (same; the three plate sheets were each
+       #C7EED6    background     styled separately and disagree with each
+       #E8EAEC    control        other, so several hexes collapse onto one
+       #F2F4F6    control        token)
+       #C2E9F2    control
+       #D2E6F9    sample        --pn-color-plate-sample-surface
+       indigo ramp  %CV         CV_SCALE, an 11 band scale on the
+                                absolute %CV; no token exists
+
+     The demo's chart series were #E8743B and #4A90D9, off token and close to
+     but not equal to plate-group-1 and -2. Folded onto the tokens in the same
+     commit as this, so one compound is one colour across the whole screen.
+
+     DATA IS GENERATED, NOT HAND ENTERED. tools/extract-detailed-data.py reads
+     both workbooks and writes ctg-detailed-data.js. Re-run it if the analysis
+     is ever swapped; do not edit the js. -->
+<sc-if value="{{ open }}" hint-placeholder-val="{{ true }}">
+  <div class="dd" style="position:fixed;inset:0;background:rgba(20,20,20,.5);z-index:2100;display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-lg);width:1500px;max-width:100%;height:880px;max-height:100%;box-shadow:var(--pn-shadow-3);display:flex;flex-direction:column;padding:32px 40px;box-sizing:border-box;font-family:var(--pn-font-family-sans);">
+
+      <h2 style="margin:0 0 4px;font:600 24px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);flex:none;">Detailed Data</h2>
+      <p style="margin:0 0 18px;font:400 15px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-muted);flex:none;">{{ analysisName }}</p>
+
+      <!-- Level one: the workbook. -->
+      <div style="display:flex;gap:4px;border-bottom:1px solid var(--pn-color-border-subtle);flex:none;">
+        <sc-for list="{{ books }}" as="b" hint-placeholder-count="2">
+          <button onClick="{{ b.onPick }}" style="{{ b.style }}">{{ b.name }}</button>
+        </sc-for>
+      </div>
+
+      <!-- Level two: the sheet within it. -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;padding:16px 0 18px;flex:none;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+          <button onClick="{{ t.onPick }}" style="{{ t.style }}">{{ t.name }}</button>
+        </sc-for>
+      </div>
+
+      <div style="flex:1;min-height:0;overflow:auto;border:1px solid var(--pn-color-border-subtle);border-radius:var(--pn-border-radius-md);">
+
+        <!-- A table sheet. Sample Analysis is 33 columns wide, so this scrolls
+             horizontally; the header row stays put while it does. -->
+        <sc-if value="{{ isTable }}" hint-placeholder-val="{{ true }}">
+          <table style="border-collapse:separate;border-spacing:0;font:400 14px/1.3 var(--pn-font-family-sans);white-space:nowrap;">
+            <thead>
+              <tr>
+                <sc-for list="{{ headers }}" as="h" hint-placeholder-count="14">
+                  <th style="{{ h.style }}">{{ h.label }}</th>
+                </sc-for>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ rows }}" as="r" hint-placeholder-count="26">
+                <tr>
+                  <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="14">
+                    <td style="{{ c.style }}">{{ c.text }}</td>
+                  </sc-for>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </sc-if>
+
+        <!-- A plate sheet. 8 x 12, each well stacking its own lines. -->
+        <sc-if value="{{ isPlate }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px;display:inline-block;min-width:100%;box-sizing:border-box;">
+            <div style="display:grid;grid-template-columns:34px repeat(12, minmax(96px, 1fr));gap:4px;min-width:1220px;">
+              <span></span>
+              <sc-for list="{{ plateCols }}" as="c" hint-placeholder-count="12">
+                <span style="text-align:center;font:500 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);padding-bottom:4px;">{{ c }}</span>
+              </sc-for>
+              <sc-for list="{{ plateRows }}" as="pr" hint-placeholder-count="8">
+                <span style="display:flex;align-items:center;justify-content:center;font:500 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ pr.label }}</span>
+                <sc-for list="{{ pr.wells }}" as="w" hint-placeholder-count="12">
+                  <div style="{{ w.style }}">
+                    <sc-for list="{{ w.lines }}" as="ln" hint-placeholder-count="3">
+                      <span style="{{ ln.style }}">{{ ln.text }}</span>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <div style="display:flex;justify-content:center;padding-top:24px;flex:none;">
+        <button onClick="{{ onClose }}" style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:12px 48px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Close</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1600, &quot;height&quot;: 900},
+  &quot;open&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;section&quot;: &quot;State&quot;, &quot;tsType&quot;: &quot;boolean&quot; },
+  &quot;analysisName&quot;: { &quot;editor&quot;: &quot;string&quot;, &quot;default&quot;: &quot;&quot;, &quot;section&quot;: &quot;Content&quot;, &quot;tsType&quot;: &quot;string&quot; }
+}">
+// Read lazily, never as a top-level const: dc-runtime evaluates an imported
+// component's logic class before its own helmet scripts have loaded, and a
+// top-level read throws, fails the whole eval, and silently degrades to
+// props-only rendering. Same note as ctg-open-plate-map.
+const getBooks = () =>
+  (window.CTG_DETAILED && window.CTG_DETAILED.workbooks) || [];
+
+// Fill name -> the token that renders it. Several workbook hexes collapse onto
+// one token here; see the table in the markup comment.
+const SURFACE = {
+  'series-1':   'var(--pn-color-plate-group-1)',
+  'series-2':   'var(--pn-color-plate-group-2)',
+  'standard':   'var(--ctg-plate-standard-surface)',
+  'background': 'var(--pn-color-plate-background-surface)',
+  'control':    'var(--pn-color-plate-control-surface)',
+  'sample':     'var(--pn-color-plate-sample-surface)',
+};
+// The conditional formatting on %CV: eleven bands on the absolute value, each
+// with its fill and whether the text inverts. Index matches CV_SCALE in
+// tools/extract-detailed-data.py, and the extractor asserts that the scale
+// reproduces the workbook's own fill for every %CV cell, so these two lists
+// cannot drift apart silently.
+//
+// Bands, for reading: 1.25, 2.5, 5, 7.5, 10, 20, 30, 40, 50, 75, above.
+//
+// No design system token for any of this. Item 9, the data visualization
+// palette, reserves --pn-color-chart-sequential-min and -max and leaves both
+// without a value, so a documented eleven step scale has nowhere to live.
+const CV_SCALE = [
+  ['#FEFEFD', false], ['#E8EAF6', false], ['#C5CAE9', false], ['#9FA8DA', false],
+  ['#7986CB', false], ['#5C6BC0', true],  ['#3F51B5', true],  ['#3949AB', true],
+  ['#303F9F', true],  ['#283593', true],  ['#1A237E', true],
+];
+
+// A cell is either on the %CV scale, by step index, or on a named surface.
+function paint(cell) {
+  if (cell && cell.cv !== undefined) {
+    const band = CV_SCALE[cell.cv] || CV_SCALE[CV_SCALE.length - 1];
+    return { bg: band[0], color: band[1] ? 'var(--pn-color-text-inverse)' : '#141414' };
+  }
+  const f = cell && cell.f;
+  // Black on the series fills, not white. The design system marks both as
+  // failing AA with white text, and measured here they clear it comfortably
+  // with dark text: 7.17 on group-1 and 6.30 on group-2.
+  return { bg: f ? SURFACE[f] || null : null, color: '#141414' };
+}
+
+// How a number is written out. Not a rule inferred from the value: every cell
+// carries the workbook's own number format, and the format is the only thing
+// that can tell a concentration from an RLU when both are plain numbers.
+//
+//   General  as stored        0.0001409, 2.778, 800743
+//   "0.0"    one decimal      773175.25 -> 773175.3, matching 106
+//   "0.0000" four decimals    %CV, matching the "% CV: 6.8916" the plate
+//                             sheets bake into their own strings
+//   "00"     zero-padded pair the Series column, 01 and 02 rather than 1 and 2
+//
+// Anything else falls through to as-stored, which is the safe direction: a
+// format this does not know shows the real number rather than a wrong one.
+function plain(v) {
+  // String(v) is the shortest representation that round-trips, so it never
+  // invents the float noise that toFixed(20) would. It does go scientific for
+  // small magnitudes, and Excel's General does not, so expand those by hand.
+  const s = String(v);
+  if (s.indexOf('e') < 0) return s;
+  const parts = s.split('e');
+  const exp = parseInt(parts[1], 10);
+  if (exp >= 0) return v.toFixed(0);
+  const neg = parts[0].charAt(0) === '-';
+  const digits = parts[0].replace('-', '').replace('.', '');
+  return (neg ? '-' : '') + '0.' + new Array(-exp).join('0') + digits;
+}
+
+function fmt(v, code) {
+  if (v === null || v === undefined || v === '') return '';
+  if (typeof v !== 'number') return String(v);
+  if (code === '00') return (v < 10 && v >= 0 ? '0' : '') + v;
+  const dp = code && code.match(/^0\.(0+)$/);
+  if (dp) {
+    const out = v.toFixed(dp[1].length);
+    // A format that rounds a real value away to nothing is worse than no
+    // format. The 4PL and 5PL sheets put EC50 on "0.0000", and EC50 here is
+    // 8.18e-6, so following the workbook literally would print 0.0000 for the
+    // single most important number on the sheet. Excel has the same problem and
+    // shows the same thing; this is one of the places the demo is idealised
+    // rather than reproduced. Falls back to the value as stored, which is how
+    // the concentration columns render anyway.
+    if (v !== 0 && Number(out) === 0) return plain(v);
+    return out;
+  }
+  return plain(v);
+}
+
+class Component extends DCLogic {
+  state = { book: 0, sheet: 0 };
+
+  pickBook  = (i) => () => this.setState({ book: i, sheet: 0 });
+  pickSheet = (i) => () => this.setState({ sheet: i });
+
+  _bookTab(active) {
+    return 'background:transparent;border:0;border-bottom:3px solid '
+      + (active ? 'var(--pn-color-sol-500)' : 'transparent') + ';'
+      + 'padding:10px 18px;margin-bottom:-1px;cursor:pointer;'
+      + 'font:' + (active ? '500' : '400') + ' 16px/1 var(--pn-font-family-sans);'
+      + 'color:' + (active ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-muted)') + ';';
+  }
+
+  _sheetTab(active) {
+    return 'border:1px solid ' + (active ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-default)') + ';'
+      + 'background:' + (active ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-default)') + ';'
+      + 'color:var(--pn-color-text-primary);'
+      + 'border-radius:var(--pn-border-radius-full);padding:8px 18px;cursor:pointer;'
+      + 'font:400 14px/1 var(--pn-font-family-sans);';
+  }
+
+  renderVals() {
+    const books = getBooks();
+    const book = books[this.state.book];
+    const sheets = book ? book.sheets : [];
+    const sheet = sheets[this.state.sheet];
+
+    const CELL = 'border-bottom:1px solid var(--pn-color-border-subtle);'
+               + 'border-right:1px solid var(--pn-color-border-subtle);padding:10px 14px;';
+
+    let headers = [], rows = [], plateRows = [], plateCols = [];
+
+    if (sheet && sheet.kind === 'table') {
+      headers = sheet.headers.map(h => ({
+        label: h,
+        // Sticky so the header survives the horizontal scroll that 33 columns
+        // force. zIndex keeps it over the body cells' backgrounds.
+        style: CELL + 'position:sticky;top:0;z-index:1;background:var(--pn-color-surface-sunken);'
+             + 'text-align:left;font-weight:600;color:#141414;',
+      }));
+      rows = sheet.rows.map(r => ({
+        cells: r.cells.map(c => {
+          // A cell's own fill beats the row band: the Series cell and the %CV
+          // cell are both painted over the band they sit in.
+          const own = paint(c);
+          const bg = own.bg || (r.band ? SURFACE[r.band] : null);
+          return {
+            text: fmt(c.v, c.n),
+            style: CELL + (bg ? 'background:' + bg + ';' : '')
+                 + 'color:' + own.color + ';',
+          };
+        }),
+      }));
+    }
+
+    if (sheet && sheet.kind === 'plate') {
+      plateCols = sheet.cols;
+      plateRows = sheet.rows.map(letter => ({
+        label: letter,
+        wells: sheet.cols.map(c => {
+          const w = sheet.wells[letter + c];
+          const p = paint(w);
+          const bg = p.bg;
+          const color = p.color;
+          return {
+            // An empty well is still drawn, as an outline. The plate has gaps
+            // by design: columns 10 and 12 of rows A to D hold nothing.
+            // Sized to its content rather than to a fixed height. A plate is 8 rows
+            // deep and the modal has about 550px for it, so every pixel of slack in a
+            // well is 8 pixels of scrolling. min-height only keeps the empty wells,
+            // which have no lines at all, from collapsing to nothing.
+            style: 'min-height:56px;border-radius:var(--pn-border-radius-sm);padding:7px 10px;'
+                 + 'display:flex;flex-direction:column;gap:2px;box-sizing:border-box;'
+                 + (bg ? 'background:' + bg + ';'
+                       : 'background:transparent;border:1px dashed var(--pn-color-border-subtle);'),
+            lines: (w ? w.lines : []).map((t, i) => ({
+              text: t,
+              // First line is the short code, and reads as a label rather than
+              // a value, so it is the one that gets weight.
+              style: 'font:' + (i === 0 ? '600' : '400') + ' 13px/1.25 var(--pn-font-family-sans);'
+                   + 'color:' + color + ';',
+            })),
+          };
+        }),
+      }));
+    }
+
+    return {
+      open: this.props.open !== false,
+      analysisName: this.props.analysisName || '',
+      books: books.map((b, i) => ({
+        name: b.name,
+        style: this._bookTab(i === this.state.book),
+        onPick: this.pickBook(i),
+      })),
+      tabs: sheets.map((s, i) => ({
+        name: s.name,
+        style: this._sheetTab(i === this.state.sheet),
+        onPick: this.pickSheet(i),
+      })),
+      isTable: !!sheet && sheet.kind === 'table',
+      isPlate: !!sheet && sheet.kind === 'plate',
+      headers, rows, plateRows, plateCols,
+      onClose: () => document.dispatchEvent(new CustomEvent('ctg:detailed-data-close')),
+    };
+  }
+}
+</script>
+</body>
+</html>

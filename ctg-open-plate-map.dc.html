@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <script src="ctg-demo-data.js"></script>
+  <style>body{margin:0;background:transparent}</style>
+</helmet>
+
+<!-- Open Plate Map, opened by the Plate Map Editor's Open Plate Map button.
+     ==========================================================================
+     Built from 116_plate-map-editor_open-plate-map.png, with one deliberate
+     departure from it.
+
+     WORDING IS DELIBERATELY NOT WHAT 116 SHOWS. There, the button reads "Open
+     Plate Map", the modal is titled "Select existing plate map" and it confirms
+     with "Select": three labels for one action. Cate's call is that this was a
+     miss by the previous design team and the wording should be consistent, so
+     the modal follows the button. Aligned this way round rather than renaming
+     the button, because 114 is evidence for the button label in the product
+     while the modal's wording is constrained only by matching it.
+
+     FOUR row actions here, not five. The app home's Read Plate list shows an
+     Edit action too; this one drops it, because opening a plate map into the
+     editor IS editing it. Same ROW_ACTIONS source, filtered by key.
+
+     Third use of this list, after the Read Plate modal and before workflow #4's
+     picker, and still not a shared list component: dc-import has no slots, so a
+     component must own its whole modal card, and the Read Plate copy lives under
+     a tab strip its parent draws. Only the DATA is shared. Revisit once #4 lands
+     and all three call sites are known.
+
+     dc-import cannot pass callbacks, so this announces both outcomes on the
+     document and the editor acts on them. -->
+<sc-if value="{{ open }}" hint-placeholder-val="{{ true }}">
+  <div style="position:fixed;inset:0;background:rgba(20,20,20,.5);z-index:2100;display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-lg);width:1200px;max-width:100%;height:820px;max-height:100%;box-shadow:var(--pn-shadow-3);display:flex;flex-direction:column;padding:32px 40px;font-family:var(--pn-font-family-sans);">
+
+      <h2 style="margin:0 0 20px;font:600 24px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Open Plate Map</h2>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding-bottom:20px;flex:none;">
+        <select data-note="Plate maps from your other Cell Health apps can be selected here."
+                onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                style="padding:10px 14px;border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);background:var(--pn-color-surface-page);font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:not-allowed;">
+          <option>CellTiter-Glo</option>
+        </select>
+        <label data-note="Search filters this list by file name."
+               onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+               style="display:flex;align-items:center;gap:8px;width:280px;padding:10px 14px;border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);cursor:not-allowed;">
+          <input placeholder="Search" disabled style="border:0;outline:0;flex:1;min-width:0;background:transparent;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);cursor:not-allowed;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </label>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 280px 190px;gap:16px;align-items:center;padding:0 0 12px;border-bottom:1px solid var(--pn-color-border-subtle);flex:none;">
+        <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Name</span>
+        <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Date</span>
+        <span></span>
+      </div>
+
+      <div style="flex:1;min-height:0;overflow:auto;">
+        <sc-for list="{{ plateMaps }}" as="pm" hint-placeholder-count="10">
+          <div style="{{ pm.rowStyle }}" onMouseEnter="{{ pm.onRowEnter }}" onMouseLeave="{{ pm.onRowLeave }}">
+            <span style="font:400 15px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);overflow-wrap:anywhere;">{{ pm.name }}</span>
+            <span style="font:400 15px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ pm.date }}</span>
+            <span style="display:flex;align-items:center;justify-content:flex-end;gap:14px;">
+              <sc-for list="{{ pm.actions }}" as="act" hint-placeholder-count="4">
+                <!-- Design system pin glyph, inlined per its own usage spec: currentColor
+                     can't cross an <img src> boundary. Every other action keeps the generic
+                     single-path renderer below. -->
+                <sc-if value="{{ act.isPin }}" hint-placeholder-val="{{ false }}">
+                  <button data-note="{{ act.note }}"
+                          onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                          style="{{ act.style }}">
+                    <sc-if value="{{ act.pinned }}" hint-placeholder-val="{{ false }}">
+                      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-brand-sol);" role="img" aria-label="Pinned"><path d="M7.56663 2.9452C7.82034 2.26215 8.69593 2.07106 9.21116 2.58629L14.2776 7.65273C14.7928 8.16796 14.6017 9.04356 13.9187 9.29726L13.4221 9.48169L10.0666 12.8372C10.0666 12.8372 10.0666 14.6656 9.31213 16.059C9.04914 16.5446 8.40783 16.5473 8.01731 16.1567L0.707154 8.84659C0.31663 8.45606 0.319266 7.81475 0.804919 7.55177C2.19826 6.79727 4.02668 6.79727 4.02668 6.79727L7.3822 3.44174L7.56663 2.9452Z" fill="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>
+                    </sc-if>
+                    <sc-if value="{{ act.notPinned }}" hint-placeholder-val="{{ true }}">
+                      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-neutral-700);" role="img" aria-label="Not pinned"><path d="M13.2481 9.01298L13.1458 9.05097L13.0686 9.12814L9.71307 12.4837L9.56662 12.6301L9.56662 12.8367L9.56662 12.8369L9.56662 12.8369V12.837V12.8372L9.56661 12.8392L9.56648 12.8514C9.56633 12.8628 9.56601 12.8807 9.56534 12.9045C9.56401 12.9522 9.56129 13.0236 9.55576 13.1142C9.54468 13.2958 9.52241 13.5531 9.4778 13.8517C9.38748 14.4562 9.21031 15.197 8.87245 15.8209C8.83076 15.8979 8.76944 15.9328 8.68665 15.9371C8.59292 15.942 8.47096 15.9033 8.37086 15.8032L1.06071 8.49303C0.960611 8.39294 0.921938 8.27098 0.926799 8.17724C0.931092 8.09445 0.966015 8.03313 1.043 7.99144C1.66694 7.65358 2.40767 7.47641 3.01218 7.38609C3.31077 7.34148 3.56809 7.31921 3.74967 7.30813C3.84031 7.3026 3.91166 7.29988 3.95936 7.29855C3.9832 7.29788 4.0011 7.29756 4.01251 7.29741L4.02468 7.29728L4.02668 7.29727H4.02686L4.02697 7.29727L4.027 7.29727L4.02715 7.29727L4.23378 7.29727L4.38023 7.15082L7.73576 3.7953L7.81292 3.71813L7.85091 3.61584L8.03534 3.1193C8.1622 2.77777 8.59999 2.68222 8.85761 2.93984L13.9241 8.00628C14.1817 8.2639 14.0861 8.7017 13.7446 8.82855L13.2481 9.01298Z" stroke="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>
+                    </sc-if>
+                  </button>
+                </sc-if>
+                <sc-if value="{{ act.notPin }}" hint-placeholder-val="{{ true }}">
+                  <button data-note="{{ act.note }}"
+                          onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                          style="{{ act.style }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="{{ act.fill }}" stroke="{{ act.stroke }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ act.path }}"/></svg></button>
+                </sc-if>
+              </sc-for>
+              <button onClick="{{ pm.onSelect }}" style="{{ pm.radioStyle }}"><span style="{{ pm.radioDotStyle }}"></span></button>
+            </span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;justify-content:center;gap:16px;padding-top:24px;flex:none;">
+        <button onClick="{{ onCancel }}" style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:12px 40px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Cancel</button>
+        <button onClick="{{ onSelect }}" disabled="{{ selectDisabled }}" style="{{ selectStyle }}">Open</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ note }}">
+  <div style="position:fixed;left:{{ noteX }};top:{{ noteY }};background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 12px/1.3 var(--pn-font-family-sans);padding:6px 10px;border-radius:6px;pointer-events:none;z-index:2200;box-shadow:var(--pn-shadow-xs);max-width:220px;">{{ note }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1600, &quot;height&quot;: 900},
+  &quot;open&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;section&quot;: &quot;State&quot;, &quot;tsType&quot;: &quot;boolean&quot; }
+}">
+// Read lazily, never as a top-level const: dc-runtime evaluates an imported
+// component's logic class before its own helmet scripts have loaded, and a
+// top-level read throws, fails the whole eval, and silently degrades to
+// props-only rendering. See ctg-select-instrument for the same note.
+const getPlateMaps = () => (window.CTG && window.CTG.PLATE_MAPS) || [];
+// Edit is deliberately absent; see the note in the markup.
+const getRowActions = () =>
+  ((window.CTG && window.CTG.PLATE_MAP_ROW_ACTIONS) || []).filter(a => a.key !== 'edit');
+
+class Component extends DCLogic {
+  state = { note: null, noteX: 0, noteY: 0, selectedId: null, hoverId: null };
+
+  showNote = (e) => {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    this.setState({ note, noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  moveNote = (e) => {
+    if (!this.state.note) return;
+    this.setState({ noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  hideNote = () => this.setState({ note: null });
+
+  renderVals() {
+    const { selectedId, hoverId } = this.state;
+    const ICON = 'width:24px;height:24px;padding:0;display:flex;align-items:center;justify-content:center;'
+               + 'background:none;border:0;cursor:not-allowed;';
+
+    const plateMaps = getPlateMaps().map(m => {
+      const isSel = selectedId === m.id;
+      return {
+        name: m.name,
+        date: m.date,
+        rowStyle: 'display:grid;grid-template-columns:1fr 280px 190px;gap:16px;align-items:center;'
+          + 'padding:14px 8px;border-bottom:1px solid var(--pn-color-border-subtle);'
+          + 'background:' + (hoverId === m.id ? 'var(--pn-color-surface-hover)' : 'transparent') + ';',
+        onRowEnter: () => this.setState({ hoverId: m.id }),
+        onRowLeave: () => this.setState(s => (s.hoverId === m.id ? { hoverId: null } : null)),
+        actions: getRowActions().map(a => ({
+          note: a.note,
+          path: a.path,
+          style: ICON,
+          isPin: a.key === 'pin', notPin: a.key !== 'pin',
+          pinned: a.key === 'pin' && !!m.pinned, notPinned: a.key === 'pin' && !m.pinned,
+          fill: 'none', stroke: 'var(--pn-color-text-muted)',
+        })),
+        radioStyle: 'width:22px;height:22px;border-radius:50%;padding:0;display:flex;align-items:center;'
+          + 'justify-content:center;background:var(--pn-color-surface-default);cursor:pointer;'
+          + 'border:2px solid ' + (isSel ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-default)') + ';',
+        radioDotStyle: 'width:10px;height:10px;border-radius:50%;display:block;background:'
+          + (isSel ? 'var(--pn-color-sol-500)' : 'transparent') + ';',
+        onSelect: () => this.setState({ selectedId: m.id }),
+      };
+    });
+
+    const can = !!selectedId;
+    return {
+      open: this.props.open !== false,
+      plateMaps,
+      note: this.state.note, noteX: this.state.noteX + 'px', noteY: this.state.noteY + 'px',
+      showNote: this.showNote, moveNote: this.moveNote, hideNote: this.hideNote,
+      selectDisabled: !can,
+      selectStyle: `border:1px solid ${can ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-subtle)'};`
+        + `background:${can ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-sunken)'};`
+        + `color:${can ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};`
+        + `border-radius:var(--pn-border-radius-md);padding:12px 40px;`
+        + `font:400 15px/1 var(--pn-font-family-sans);cursor:${can ? 'pointer' : 'default'};`,
+      onCancel: () => document.dispatchEvent(new CustomEvent('ctg:open-plate-map-cancel')),
+      onSelect: () => {
+        if (!can) return;
+        document.dispatchEvent(new CustomEvent('ctg:open-plate-map-select', { detail: { id: selectedId } }));
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

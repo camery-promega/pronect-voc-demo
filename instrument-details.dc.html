@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/ui_kits/pronect/styles.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <script src="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/_ds_bundle.js"></script>
+  <script src="ctg-demo-data.js"></script>
+  <style>
+    body{margin:0;background:var(--pn-color-surface-page);font-family:var(--pn-font-family-sans)}
+    .id-tab{background:none;border:0;border-bottom:3px solid transparent;padding:16px;cursor:pointer;
+            font:400 var(--pn-font-size-base)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);white-space:nowrap;}
+    .id-tab.is-on{font-weight:var(--pn-font-weight-semibold);border-bottom-color:var(--pn-color-sol-500);background:var(--pn-color-sol-50);}
+    .id-card{background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-xl);
+             box-shadow:var(--pn-shadow-card-soft);padding:20px 24px;display:flex;flex-direction:column;min-height:0;}
+    .id-meta{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px 16px;align-items:center;}
+    .id-meta__k{font:400 var(--pn-font-size-sm)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);}
+    .id-meta__v{font:400 var(--pn-font-size-sm)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-muted);}
+    .id-row{display:grid;align-items:center;gap:16px;padding:12px 6px;border-bottom:1px solid var(--pn-color-border-subtle);}
+    .id-head{font:500 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);}
+    .id-cell{font:400 var(--pn-font-size-sm)/1.35 var(--pn-font-family-sans);color:var(--pn-color-text-primary);overflow-wrap:anywhere;}
+    .id-cell--muted{color:var(--pn-color-text-muted);}
+    .id-icon{width:24px;height:24px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:not-allowed;}
+    /* 17px sits exactly between --pn-font-size-base (16px) and --pn-font-size-reading (18px);
+       left as raw px pending Cate's pick, see the checklist. */
+    .id-about__h{font:600 17px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);margin:24px 0 4px;}
+    .id-about__row{display:flex;justify-content:space-between;gap:24px;padding:12px 0;border-bottom:1px solid var(--pn-color-border-subtle);}
+    .legend-btn{display:flex;align-items:center;gap:8px;background:none;border:0;padding:4px 0;cursor:pointer;
+                font:400 var(--pn-font-size-sm)/1.2 var(--pn-font-family-sans);text-align:left;}
+  </style>
+</helmet>
+
+<!-- Instrument details.
+     ==================================================================
+     Built from 134 to 145. One page, five tabs, for the Reading
+     instrument only: the dashboard links just that one, and the other
+     three explain themselves there instead.
+
+     DATA OPTIONS TAB CUT per Cate: it was a holdover from an earlier
+     instrument concept, not something this MyGlo actually exposes.
+
+     THE CALENDAR IS DELIBERATELY ABSENT. 134 onward show a week
+     scheduler under the instrument info. Cate cut it: MyGlo is marketed
+     as a personal device, so booking time on it does not scan. It is
+     left over from exploring a shared-resource instrument. The left
+     column is shorter as a result, which is on the to-do list.
+
+     THE TELEMETRY CHART IS NOT A COPY OF 137. Cate's brief was an
+     idealised version rather than a reproduction, because the real one
+     crams two Y axes into one plot area, rotates its date labels to
+     near-vertical, floats three event series in an unlabelled band and
+     gives each series its own tooltip. This builds the same six series
+     as STACKED PANELS ON ONE SHARED X AXIS, so a temperature spike and
+     an incident line up by eye, with one crosshair, one tooltip
+     reporting everything at that moment, and a legend that toggles
+     series. Those are the conventions the dose response chart already
+     uses, so the two charts read as one product. -->
+<div data-screen-label="Instrument Details" style="min-height:100vh;display:flex;flex-direction:column;">
+
+  <div style="display:none;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);padding:8px 24px;font-size:var(--pn-font-size-sm);letter-spacing:.02em">Demo guide - Instrument details. Five tabs; Telemetry is the built-out one. Click the status bar to see the read in progress. &rarr; <a href="user-dashboard.dc.html" style="color:#9fd3ff">Dashboard</a></div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+    <dc-import name="pronect-sidebar" dashboard-href="user-dashboard.dc.html" hint-size="284,900"
+                style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></dc-import>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+      <dc-import name="pronect-topbar" hint-size="1200,64" style="display:block;width:100%;flex:none;"></dc-import>
+
+      <div style="flex:1;min-height:0;padding:clamp(16px,2vw,28px) clamp(16px,2.4vw,32px);display:grid;
+                  grid-template-columns:minmax(300px,0.62fr) minmax(0,1.55fr);gap:16px;background:var(--pn-color-surface-page);">
+
+        <!-- ---------- left: the instrument ---------- -->
+        <!-- align-self:start plus its own token-based padding, rather than
+             stretching to match the tabs column and relying on a filler div
+             for the empty space the calendar left behind. -->
+        <section class="id-card" style="align-self:start;padding:var(--pn-spacing-24);">
+          <h1 style="margin:0 0 18px;font:400 var(--pn-font-size-md)/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">{{ instName }}</h1>
+          <div style="display:flex;gap:20px;align-items:flex-start;">
+            <img src="assets/reading-myglo.gif" alt="" style="width:92px;height:60px;object-fit:contain;flex:none;">
+            <div class="id-meta" style="flex:1;min-width:0;">
+              <span class="id-meta__k">Status</span>
+              <!-- The whole status row is the link to the read in progress, per
+                   Cate. The chevron is the affordance; 134 shows it. -->
+              <a href="{{ readHref }}" style="display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0;">
+                <span style="width:64px;height:4px;border-radius:2px;flex:none;background:{{ statusColor }};"></span>
+                <span style="font:400 var(--pn-font-size-sm)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);white-space:nowrap;">{{ statusLabel }}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-primary)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+              </a>
+              <span class="id-meta__k">Model</span><span class="id-meta__v">MyGlo Reagent Reader</span>
+            </div>
+          </div>
+          <button data-note="The operating manual opens as a PDF."
+                  onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                  style="align-self:flex-start;margin-top:20px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-sm);padding:8px 12px;cursor:not-allowed;font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Operating Manual</button>
+          <!-- The scheduling calendar sat here. See the note at the top. -->
+        </section>
+
+        <!-- ---------- right: the tabs ---------- -->
+        <section class="id-card" style="padding-top:12px;">
+          <!-- Date filter in line with the tabs, same box and same one-year-ago-to-today
+               range as the user dashboard's My Data filter, per Cate's ask that this
+               become the one date-filter convention going forward. -->
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;flex:none;">
+            <div style="display:flex;gap:2px;border-bottom:1px solid var(--pn-color-border-subtle);overflow-x:auto;">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+                <button class="{{ t.cls }}" onClick="{{ t.onClick }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+            <div style="flex:1;"></div>
+            <label data-note="The date range narrows every tab on this page to a window."
+                   onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                   style="display:flex;align-items:center;gap:8px;border:1px solid var(--pn-color-border-default);border-radius:8px;padding:8px 12px;cursor:not-allowed;">
+              <span style="font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-secondary);white-space:nowrap;">{{ rangeLabel }}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4" stroke-linecap="round"></path></svg>
+            </label>
+          </div>
+
+          <!-- search + download, shared by the list tabs. Search box matches the
+               user dashboard's My Data search exactly (icon-first, 200px, same
+               radius/padding), per Cate's ask that both pages read as one control. -->
+          <sc-if value="{{ showListChrome }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0 6px;flex:none;">
+              <label data-note="Search filters this tab by name."
+                     onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                     style="display:flex;align-items:center;gap:8px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:6px;padding:6px 10px;width:200px;cursor:not-allowed;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="16" y1="16" x2="21" y2="21" stroke-linecap="round"></line></svg>
+                <input placeholder="Search" disabled readonly tabindex="-1" style="border:0;outline:none;flex:1;min-width:0;font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);background:transparent;pointer-events:none;cursor:not-allowed;user-select:none;">
+              </label>
+              <button data-note="{{ downloadNote }}" onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                      style="{{ downloadStyle }}">{{ downloadLabel }}</button>
+            </div>
+          </sc-if>
+
+          <div style="flex:1;min-height:0;overflow:auto;">
+
+            <!-- ---- list tabs: Files, Actions, Incidents ---- -->
+            <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+              <div class="id-row" style="grid-template-columns:{{ gridCols }};border-bottom-color:var(--pn-color-border-default);">
+                <sc-for list="{{ headers }}" as="h" hint-placeholder-count="6">
+                  <sc-if value="{{ h.isCheck }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ h.onToggle }}" style="{{ h.style }}">
+                      <sc-if value="{{ h.indeterminate }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:block;width:9px;height:2px;background:var(--pn-color-text-primary);"></span>
+                      </sc-if>
+                      <sc-if value="{{ h.checked }}" hint-placeholder-val="{{ false }}">
+                        <svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="var(--pn-color-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      </sc-if>
+                    </button>
+                  </sc-if>
+                  <sc-if value="{{ h.isLabel }}" hint-placeholder-val="{{ true }}">
+                    <span class="id-head">{{ h.label }}</span>
+                  </sc-if>
+                </sc-for>
+              </div>
+              <sc-for list="{{ listRows }}" as="r" hint-placeholder-count="7">
+                <div class="id-row" style="grid-template-columns:{{ gridCols }};">
+                  <sc-if value="{{ r.hasCheck }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ r.onToggle }}" style="{{ r.checkStyle }}">
+                      <sc-if value="{{ r.checked }}" hint-placeholder-val="{{ false }}">
+                        <svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="var(--pn-color-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      </sc-if>
+                    </button>
+                  </sc-if>
+                  <!-- Pin status, checkbox -> pin -> name per Cate's ask. Same design-system
+                       glyph and colors as the dashboard's My Data pin column. -->
+                  <sc-if value="{{ r.hasPin }}" hint-placeholder-val="{{ false }}">
+                    <sc-if value="{{ r.pinned }}" hint-placeholder-val="{{ false }}">
+                      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-brand-sol);" role="img" aria-label="Pinned"><path d="M7.56663 2.9452C7.82034 2.26215 8.69593 2.07106 9.21116 2.58629L14.2776 7.65273C14.7928 8.16796 14.6017 9.04356 13.9187 9.29726L13.4221 9.48169L10.0666 12.8372C10.0666 12.8372 10.0666 14.6656 9.31213 16.059C9.04914 16.5446 8.40783 16.5473 8.01731 16.1567L0.707154 8.84659C0.31663 8.45606 0.319266 7.81475 0.804919 7.55177C2.19826 6.79727 4.02668 6.79727 4.02668 6.79727L7.3822 3.44174L7.56663 2.9452Z" fill="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>
+                    </sc-if>
+                    <sc-if value="{{ r.notPinned }}" hint-placeholder-val="{{ true }}">
+                      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-neutral-700);" role="img" aria-label="Not pinned"><path d="M13.2481 9.01298L13.1458 9.05097L13.0686 9.12814L9.71307 12.4837L9.56662 12.6301L9.56662 12.8367L9.56662 12.8369L9.56662 12.8369V12.837V12.8372L9.56661 12.8392L9.56648 12.8514C9.56633 12.8628 9.56601 12.8807 9.56534 12.9045C9.56401 12.9522 9.56129 13.0236 9.55576 13.1142C9.54468 13.2958 9.52241 13.5531 9.4778 13.8517C9.38748 14.4562 9.21031 15.197 8.87245 15.8209C8.83076 15.8979 8.76944 15.9328 8.68665 15.9371C8.59292 15.942 8.47096 15.9033 8.37086 15.8032L1.06071 8.49303C0.960611 8.39294 0.921938 8.27098 0.926799 8.17724C0.931092 8.09445 0.966015 8.03313 1.043 7.99144C1.66694 7.65358 2.40767 7.47641 3.01218 7.38609C3.31077 7.34148 3.56809 7.31921 3.74967 7.30813C3.84031 7.3026 3.91166 7.29988 3.95936 7.29855C3.9832 7.29788 4.0011 7.29756 4.01251 7.29741L4.02468 7.29728L4.02668 7.29727H4.02686L4.02697 7.29727L4.027 7.29727L4.02715 7.29727L4.23378 7.29727L4.38023 7.15082L7.73576 3.7953L7.81292 3.71813L7.85091 3.61584L8.03534 3.1193C8.1622 2.77777 8.59999 2.68222 8.85761 2.93984L13.9241 8.00628C14.1817 8.2639 14.0861 8.7017 13.7446 8.82855L13.2481 9.01298Z" stroke="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>
+                    </sc-if>
+                  </sc-if>
+                  <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="4">
+                    <span class="{{ c.cls }}">{{ c.text }}</span>
+                  </sc-for>
+                  <span style="display:flex;align-items:center;justify-content:flex-end;gap:16px;">
+                    <sc-for list="{{ r.actions }}" as="a" hint-placeholder-count="2">
+                      <button class="id-icon" data-note="{{ a.note }}" onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="{{ a.fill }}" stroke="{{ a.stroke }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ a.path }}"/></svg>
+                      </button>
+                    </sc-for>
+                  </span>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding-top:16px;">
+                <span style="font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ listCount }}</span>
+                <sc-if value="{{ showPager }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:flex;gap:4px;align-items:center;">
+                    <button onClick="{{ onPrevPage }}" disabled="{{ prevDisabled }}" style="{{ navStyle }}">&lsaquo;</button>
+                    <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="4">
+                      <button onClick="{{ pg.onClick }}" style="{{ pg.style }}">{{ pg.label }}</button>
+                    </sc-for>
+                    <button onClick="{{ onNextPage }}" disabled="{{ nextDisabled }}" style="{{ navStyle }}">&rsaquo;</button>
+                  </span>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <!-- ---- Telemetry ---- -->
+            <sc-if value="{{ isTelemetry }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:20px;padding-top:16px;align-items:stretch;min-height:100%;">
+                <div style="width:172px;flex:none;display:flex;flex-direction:column;gap:2px;">
+                  <sc-for list="{{ legend }}" as="l" hint-placeholder-count="6">
+                    <sc-if value="{{ l.interactive }}" hint-placeholder-val="{{ true }}">
+                      <button class="legend-btn" onClick="{{ l.onToggle }}" style="{{ l.style }}">
+                        <span style="{{ l.swatch }}"></span><span>{{ l.label }}</span>
+                      </button>
+                    </sc-if>
+                    <sc-if value="{{ l.notInteractive }}" hint-placeholder-val="{{ false }}">
+                      <div class="legend-btn" style="{{ l.style }}">
+                        <span style="{{ l.swatch }}"></span><span>{{ l.label }}</span>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                  <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--pn-color-border-subtle);">
+                    <div style="font:700 var(--pn-font-size-xs)/1 var(--pn-font-family-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--pn-color-text-muted);margin-bottom:8px;">State</div>
+                    <sc-for list="{{ stateKey }}" as="k" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font:400 var(--pn-font-size-xs)/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-secondary);">
+                        <span style="width:12px;height:12px;border-radius:3px;flex:none;background:{{ k.color }};"></span>{{ k.label }}
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="flex:1;min-width:0;position:relative;display:flex;min-height:360px;">
+                  {{ chart }}
+                  <sc-if value="{{ tipOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;left:{{ tipX }};top:{{ tipY }};transform:translate(-50%,0);pointer-events:none;z-index:5;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);box-shadow:var(--pn-shadow-2);padding:12px;min-width:190px;">
+                      <div style="font:600 var(--pn-font-size-xs)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);margin-bottom:6px;">{{ tipDate }}</div>
+                      <sc-for list="{{ tipRows }}" as="tr" hint-placeholder-count="4">
+                        <div style="display:flex;align-items:center;gap:8px;padding:2px 0;font:400 var(--pn-font-size-xs)/1.4 var(--pn-font-family-sans);color:var(--pn-color-text-secondary);">
+                          <span style="width:9px;height:9px;border-radius:2px;flex:none;background:{{ tr.color }};"></span>
+                          <span style="flex:1;">{{ tr.label }}</span>
+                          <span style="color:var(--pn-color-text-primary);">{{ tr.value }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ---- About ---- -->
+            <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+              <div style="padding-top:4px;">
+                <sc-for list="{{ aboutSections }}" as="sec" hint-placeholder-count="3">
+                  <div class="id-about__h">{{ sec.title }}</div>
+                  <sc-for list="{{ sec.rows }}" as="r" hint-placeholder-count="4">
+                    <div class="id-about__row">
+                      <span class="id-cell">{{ r.k }}</span>
+                      <span class="id-cell id-cell--muted" style="text-align:right;">{{ r.v }}</span>
+                    </div>
+                  </sc-for>
+                </sc-for>
+              </div>
+            </sc-if>
+
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ note }}">
+  <div style="position:fixed;left:{{ noteX }};top:{{ noteY }};background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 var(--pn-font-size-xs)/1.3 var(--pn-font-family-sans);padding:8px 10px;border-radius:8px;pointer-events:none;z-index:2200;box-shadow:var(--pn-shadow-xs);max-width:240px;">{{ note }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:900}}">
+const CTG = () => window.CTG || {};
+const DAYS = 30;
+
+// Same one-year-ago-to-today range and same YYYY-MM-DD display as the user
+// dashboard's My Data date filter, per Cate's ask that this becomes the one
+// date-filter convention across the demo.
+const pad2 = (n) => String(n).padStart(2, '0');
+const fmtRangeDate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const RANGE_END = new Date();
+const RANGE_START = new Date(RANGE_END);
+RANGE_START.setFullYear(RANGE_START.getFullYear() - 1);
+const DATE_RANGE_LABEL = `${fmtRangeDate(RANGE_START)} – ${fmtRangeDate(RANGE_END)}`;
+
+// Seeded, so the chart is the same on every load. Same reasoning as the time
+// course series on rpt-results: a demo whose numbers move when the presenter
+// refreshes invites the question you do not want asked.
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+class Component extends DCLogic {
+  state = { tab: 'Files', note: null, noteX: 0, noteY: 0, checked: {}, page: 1,
+            hidden: {}, hoverIdx: null };
+
+  showNote = (e) => {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    this.setState({ note, noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  moveNote = (e) => { if (this.state.note) this.setState({ noteX: e.clientX + 14, noteY: e.clientY + 18 }); };
+  hideNote = () => this.setState({ note: null });
+
+  // ---- telemetry data ---------------------------------------------------
+  // 30 days, one reading a day. Temperature sits in the low twenties with a step
+  // up partway through, humidity in the forties with a matching step down, which
+  // is the shape 137 shows: a room that changed, not noise.
+  _telemetry() {
+    if (this._cached) return this._cached;
+    const rnd = mulberry32(4242);
+    const day0 = new Date(); day0.setHours(12, 0, 0, 0);
+    day0.setDate(day0.getDate() - (DAYS - 1));
+    const points = [];
+    for (let i = 0; i < DAYS; i++) {
+      const d = new Date(day0); d.setDate(d.getDate() + i);
+      const stepped = i >= 9;
+      points.push({
+        date: d,
+        temp: +( (stepped ? 25.8 : 21.4) + (rnd() - 0.5) * 1.1 ).toFixed(1),
+        hum:  +( (stepped ? 42.5 : 53.0) + (rnd() - 0.5) * 3.0 ).toFixed(1),
+      });
+    }
+    // Events sit on a day. Results cluster while the instrument is reading,
+    // which is what makes the lanes worth aligning.
+    const results   = [10, 11, 12, 13, 15, 17, 24, 28].map(i => ({ i, label: 'Result captured' }));
+    const actions   = [3, 8, 10, 11, 12, 14, 17, 24, 28].map(i => ({ i, label: 'Read job received' }));
+    const incidents = [11, 13].map(i => ({ i, label: 'Capture aborted' }));
+    // State runs in segments, and the run ends Reading because the dashboard
+    // says this instrument is reading right now.
+    const states = [
+      { from: 0,  to: 8,  key: 'available' },
+      { from: 8,  to: 9,  key: 'offline' },
+      { from: 9,  to: 18, key: 'reading' },
+      { from: 18, to: 27, key: 'available' },
+      { from: 27, to: DAYS - 1, key: 'reading' },
+    ];
+    this._cached = { points, results, actions, incidents, states };
+    return this._cached;
+  }
+
+  _fmtDay(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  // "1 File" / "0 Files" / "2 Files" - never "File(s)".
+  _count(n, noun) {
+    return `${n} ${noun}${n === 1 ? '' : 's'}`;
+  }
+
+  // ---- the chart --------------------------------------------------------
+  // Stacked panels on one shared x axis, rather than 137's single plot area with
+  // two crammed Y axes and a floating marker band. Aligned vertically so a
+  // temperature step and an incident line up by eye.
+  _chart() {
+    const t = this._telemetry();
+    const hidden = this.state.hidden;
+    const W = 1000, L = 52, R = 16;
+    const PAD = 10;
+    const TEMP = { y: 8,   h: 118 };
+    const HUM  = { y: 156, h: 118 };
+    const EV   = { y: 300, h: 54 };
+    const ST   = { y: 368, h: 22 };
+    const H = 430;
+    const x = (i) => L + (W - L - R) * (i / (DAYS - 1));
+
+    const band = (vals, panel, pad) => {
+      const lo = Math.min.apply(null, vals) - pad, hi = Math.max.apply(null, vals) + pad;
+      return { lo, hi, y: (v) => panel.y + panel.h - ((v - lo) / (hi - lo)) * panel.h };
+    };
+    const tb = band(t.points.map(p => p.temp), TEMP, 1.2);
+    const hb = band(t.points.map(p => p.hum), HUM, 4);
+
+    const el = React.createElement;
+    const kids = [];
+    const axisTxt = { fontSize: 'var(--pn-font-size-xs)', fill: 'var(--pn-color-text-muted)', fontFamily: 'var(--pn-font-family-sans)' };
+
+    // Panel frames and gridlines, four ticks each, labelled horizontally.
+    [[TEMP, tb, '°C'], [HUM, hb, '%']].forEach(([panel, b, unit], pi) => {
+      for (let k = 0; k <= 3; k++) {
+        const v = b.lo + (b.hi - b.lo) * (k / 3), yy = b.y(v);
+        kids.push(el('line', { key: `g${pi}${k}`, x1: L, x2: W - R, y1: yy, y2: yy,
+          stroke: 'var(--pn-color-border-subtle)', strokeWidth: 1 }));
+        kids.push(el('text', { key: `gl${pi}${k}`, x: L - 8, y: yy + 4, textAnchor: 'end', style: axisTxt },
+          v.toFixed(pi ? 0 : 1) + unit));
+      }
+    });
+
+    const series = [
+      { key: 'temp', color: 'var(--pn-color-teal-500, #17A2A2)', get: p => p.temp, b: tb },
+      { key: 'hum',  color: '#7C5CD6',                            get: p => p.hum,  b: hb },
+    ];
+    series.forEach(s => {
+      if (hidden[s.key]) return;
+      const d = t.points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${s.b.y(s.get(p)).toFixed(1)}`).join(' ');
+      kids.push(el('path', { key: 'p' + s.key, d, fill: 'none', stroke: s.color, strokeWidth: 2,
+        strokeLinejoin: 'round', strokeLinecap: 'round' }));
+    });
+
+    // Event lanes: one row per kind, so shape and position both carry meaning
+    // rather than three kinds sharing a stripe.
+    const lanes = [
+      { key: 'results',   rowY: EV.y + 10, color: '#2E8FE0', shape: 'diamond' },
+      { key: 'actions',   rowY: EV.y + 30, color: '#7A2FA8', shape: 'circle' },
+      { key: 'incidents', rowY: EV.y + 48, color: '#D93A2B', shape: 'square' },
+    ];
+    lanes.forEach(lane => {
+      if (hidden[lane.key]) return;
+      t[lane.key].forEach((e, n) => {
+        const cx = x(e.i), cy = lane.rowY;
+        if (lane.shape === 'diamond') {
+          kids.push(el('rect', { key: `${lane.key}${n}`, x: cx - 4.5, y: cy - 4.5, width: 9, height: 9,
+            fill: lane.color, transform: `rotate(45 ${cx} ${cy})` }));
+        } else if (lane.shape === 'circle') {
+          kids.push(el('circle', { key: `${lane.key}${n}`, cx, cy, r: 4.5, fill: lane.color }));
+        } else {
+          kids.push(el('rect', { key: `${lane.key}${n}`, x: cx - 4.5, y: cy - 4.5, width: 9, height: 9, fill: lane.color, rx: 1.5 }));
+        }
+      });
+    });
+
+    // State bar - always drawn, not toggleable, per Cate's ask.
+    {
+      const S = CTG().STATUS || {};
+      const colorFor = { available: (S.available||{}).color, reading: (S.reading||{}).color, offline: (S.offline||{}).color };
+      t.states.forEach((seg, n) => {
+        const x0 = x(seg.from), x1 = x(seg.to);
+        kids.push(el('rect', { key: 'st' + n, x: x0, y: ST.y, width: Math.max(2, x1 - x0), height: ST.h,
+          fill: colorFor[seg.key] || 'var(--pn-color-border-default)' }));
+      });
+    }
+
+    // X axis: horizontal labels, every fifth day, rather than 137's rotated
+    // two-day ticks.
+    for (let i = 0; i < DAYS; i += 5) {
+      kids.push(el('text', { key: 'x' + i, x: x(i), y: ST.y + ST.h + 18, textAnchor: 'middle', style: axisTxt },
+        this._fmtDay(t.points[i].date)));
+    }
+
+    // Crosshair, one for all four panels.
+    const hi = this.state.hoverIdx;
+    if (hi != null) {
+      kids.push(el('line', { key: 'cross', x1: x(hi), x2: x(hi), y1: TEMP.y, y2: ST.y + ST.h,
+        stroke: 'var(--pn-color-text-primary)', strokeWidth: 1, strokeDasharray: '3 3', opacity: 0.5 }));
+      series.forEach(s => {
+        if (hidden[s.key]) return;
+        kids.push(el('circle', { key: 'd' + s.key, cx: x(hi), cy: s.b.y(s.get(t.points[hi])), r: 4,
+          fill: 'var(--pn-color-surface-default)', stroke: s.color, strokeWidth: 2 }));
+      });
+    }
+
+    // One transparent hit area per day, driving the single shared tooltip.
+    t.points.forEach((p, i) => {
+      const w = (W - L - R) / (DAYS - 1);
+      kids.push(el('rect', {
+        key: 'hit' + i, x: x(i) - w / 2, y: TEMP.y, width: w, height: ST.y + ST.h - TEMP.y,
+        fill: 'transparent',
+        onMouseEnter: () => this.setState({ hoverIdx: i }),
+        onMouseLeave: () => this.setState(st => (st.hoverIdx === i ? { hoverIdx: null } : null)),
+      }));
+    });
+
+    // xMinYMin rather than the default xMidYMid: the chart's aspect ratio binds
+    // before the card's width or height does, so centering left it floating in
+    // whitespace. Anchoring top-left instead puts it where the tab opens.
+    return el('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'xMinYMin meet',
+      style: { display: 'block', width: '100%', height: '100%', overflow: 'visible' } }, ...kids);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const C = CTG();
+    const tab = s.tab;
+    const t = this._telemetry();
+    const inst = (C.INSTRUMENTS || []).find(i => i.id === 'screening') || {};
+    const A = C.PLATE_MAP_ROW_ACTIONS || [];
+    const act = (key) => A.find(a => a.key === key) || {};
+    const icon = (key, note) => ({ note: note || act(key).note, path: act(key).path,
+      fill: 'none', stroke: 'var(--pn-color-text-muted)' });
+
+    // Files for this instrument, from the shared list. Only the CellTiter-Glo
+    // rows carry an instrument, which is why the other apps' rows are included
+    // too: an instrument reads for whatever app asked it to.
+    // Sorted the same way as the dashboard's My Data lists: pinned first, then
+    // newest to oldest within each group, so this tab reads as the same list.
+    const byPinnedThenDateDesc = (a, b) => {
+      if (!a.pinned !== !b.pinned) return a.pinned ? -1 : 1;
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+    };
+    const mine = (C.INSTRUMENT_DATA || []).concat(C.OTHER_INSTRUMENT_DATA || [])
+      .filter(f => f.instrument === 'MyGlo - Analytical Lab')
+      .sort(byPinnedThenDateDesc);
+
+    const TABS = ['Files', 'Actions', 'Incidents', 'Telemetry', 'About'];
+    const isList = tab === 'Files' || tab === 'Actions' || tab === 'Incidents';
+
+    let headers = [], listRows = [], gridCols = '1fr', listCount = '', pages = [], showPager = false;
+    const checkStyle = (on) => `width:20px;height:20px;border-radius:4px;padding:0;flex:none;cursor:pointer;`
+      + `display:flex;align-items:center;justify-content:center;`
+      + `border:2px solid ${on ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-default)'};`
+      + `background:${on ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-default)'};`;
+    // Fixed 24px square, same as the numbered buttons - per Cate's follow-up
+    // that arrows and numbers should render as matching squares, matching
+    // the same change on the dashboard.
+    const navStyle = (on) => `border:1px solid var(--pn-color-border-default);background:var(--pn-color-surface-default);border-radius:4px;`
+      + `width:24px;height:24px;display:flex;align-items:center;justify-content:center;`
+      + `font:400 var(--pn-font-size-xs)/1 var(--pn-font-family-sans);color:${on ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};`
+      + `cursor:${on ? 'pointer' : 'not-allowed'};`;
+
+    let page = 1, total = 1;
+    // A separate seeded generator (not the chart's) so adding it doesn't
+    // shift any telemetry values that are already keyed to seed 4242.
+    const timeRnd = mulberry32(777);
+    const withTime = (d) => {
+      const hh = Math.floor(timeRnd() * 24), mm = Math.floor(timeRnd() * 60), ss = Math.floor(timeRnd() * 60);
+      const dt = new Date(d); dt.setHours(hh, mm, ss, 0);
+      return dt;
+    };
+    // Same "YYYY-MM-DD hh:mm:ss AM/PM" shape as the Files tab's file dates,
+    // per Cate's ask that Actions/Incidents read as the same format.
+    const fmtFull = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} `
+      + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+
+    if (tab === 'Files') {
+      gridCols = '32px 32px 1fr 110px 190px 110px';
+      const allChecked = mine.length > 0 && mine.every((_, i) => !!s.checked['f' + i]);
+      const someChecked = mine.some((_, i) => !!s.checked['f' + i]);
+      headers = [
+        {
+          label: '', isCheck: true, isLabel: false, checked: allChecked, indeterminate: someChecked && !allChecked,
+          style: checkStyle(allChecked || someChecked),
+          onToggle: () => this.setState(st => {
+            const checked = { ...st.checked };
+            mine.forEach((_, i) => { checked['f' + i] = !allChecked; });
+            return { checked };
+          }),
+        },
+        { label: '', isCheck: false, isLabel: true },
+        { label: 'Name', isCheck: false, isLabel: true },
+        { label: 'Type', isCheck: false, isLabel: true },
+        { label: 'Date', isCheck: false, isLabel: true },
+        { label: '', isCheck: false, isLabel: true },
+      ];
+      listRows = mine.map((f, i) => ({
+        cells: [
+          { text: f.name, cls: 'id-cell' },
+          { text: 'Result', cls: 'id-cell id-cell--muted' },
+          { text: f.date, cls: 'id-cell id-cell--muted' },
+        ],
+        actions: [icon('rename')],
+        hasCheck: true, checked: !!s.checked['f' + i],
+        checkStyle: checkStyle(!!s.checked['f' + i]),
+        onToggle: () => this.setState(st => ({ checked: { ...st.checked, ['f' + i]: !st.checked['f' + i] } })),
+        hasPin: true, pinned: !!f.pinned, notPinned: !f.pinned,
+      }));
+      listCount = this._count(mine.length, 'File');
+    } else if (tab === 'Actions') {
+      // The one tab with enough rows to page, per 135.
+      gridCols = '1fr 220px 60px';
+      headers = ['Action', 'Date', ''].map(l => ({ label: l, isCheck: false, isLabel: true }));
+      const all = [];
+      t.actions.slice().reverse().forEach((a, n) => {
+        const d = t.points[a.i].date;
+        // Two events on the same day previously shared one timestamp; each now
+        // gets its own time so the column reads like a real event log.
+        all.push({ label: n % 2 ? 'Read job complete' : 'Read job received', date: withTime(d) });
+        all.push({ label: 'Plate detected', date: withTime(d) });
+      });
+      const per = 10;
+      total = Math.max(1, Math.ceil(all.length / per));
+      page = Math.min(Math.max(1, s.page), total);
+      listRows = all.slice((page - 1) * per, page * per).map(r => ({
+        cells: [
+          { text: r.label, cls: 'id-cell' },
+          { text: fmtFull(r.date), cls: 'id-cell id-cell--muted' },
+        ],
+        actions: [], hasCheck: false, checkStyle: '', onToggle: undefined, checked: false,
+      }));
+      listCount = this._count(all.length, 'Action');
+      showPager = total > 1;
+      pages = Array.from({ length: total }, (_, i) => i + 1).map(n => ({
+        label: String(n), onClick: () => this.setState({ page: n }),
+        style: `border:1px solid ${n === page ? 'var(--pn-color-text-primary)' : 'var(--pn-color-border-default)'};`
+          + `background:var(--pn-color-surface-default);border-radius:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;`
+          + `font:${n === page ? '600' : '400'} var(--pn-font-size-xs)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);`,
+      }));
+    } else if (tab === 'Incidents') {
+      gridCols = '32px 1fr 330px 190px 70px';
+      const allIncChecked = t.incidents.length > 0 && t.incidents.every((_, i) => !!s.checked['i' + i]);
+      const someIncChecked = t.incidents.some((_, i) => !!s.checked['i' + i]);
+      headers = [
+        {
+          label: '', isCheck: true, isLabel: false, checked: allIncChecked, indeterminate: someIncChecked && !allIncChecked,
+          style: checkStyle(allIncChecked || someIncChecked),
+          onToggle: () => this.setState(st => {
+            const checked = { ...st.checked };
+            t.incidents.forEach((_, i) => { checked['i' + i] = !allIncChecked; });
+            return { checked };
+          }),
+        },
+        { label: 'Name', isCheck: false, isLabel: true },
+        { label: 'Context', isCheck: false, isLabel: true },
+        { label: 'Date', isCheck: false, isLabel: true },
+        { label: '', isCheck: false, isLabel: true },
+      ];
+      listRows = t.incidents.map((inc, i) => ({
+        cells: [
+          { text: inc.label + '.', cls: 'id-cell' },
+          { text: (mine[i] || mine[0] || {}).name || '', cls: 'id-cell id-cell--muted' },
+          { text: fmtFull(withTime(t.points[inc.i].date)), cls: 'id-cell id-cell--muted' },
+        ],
+        // "Send" glyph (Feather icon, its two shapes combined into one path):
+        // sends the incident log to Promega Technical Services & Support, per Cate.
+        actions: [{ note: 'Sends this incident log directly to Promega Technical Services & Support.',
+                    path: 'M22 2L11 13M22 2L15 22L11 13L2 9Z', fill: 'none', stroke: 'var(--pn-color-text-muted)' }],
+        hasCheck: true, checked: !!s.checked['i' + i],
+        checkStyle: checkStyle(!!s.checked['i' + i]),
+        onToggle: () => this.setState(st => ({ checked: { ...st.checked, ['i' + i]: !st.checked['i' + i] } })),
+      }));
+      listCount = this._count(t.incidents.length, 'Incident');
+    }
+
+    const onPrevPage = () => this.setState(st => ({ page: Math.max(1, st.page - 1) }));
+    const onNextPage = () => this.setState(st => ({ page: Math.min(total, st.page + 1) }));
+
+    const anyChecked = Object.values(s.checked).some(Boolean);
+    // Download is live on Actions and needs a selection elsewhere, per 134, 135
+    // and 136. Both end up as notes here, but the enabled state is the tell for
+    // whether a selection is needed, so it is worth keeping right.
+    const dlOn = tab === 'Actions' || anyChecked;
+
+    const LEGEND = [
+      { key: 'temp',      label: 'Temperature (°C)', color: 'var(--pn-color-teal-500, #17A2A2)', kind: 'line' },
+      { key: 'hum',       label: 'Humidity (%)',          color: '#7C5CD6', kind: 'line' },
+      { key: 'results',   label: 'Results',               color: '#2E8FE0', kind: 'diamond' },
+      { key: 'actions',   label: 'Actions',               color: '#7A2FA8', kind: 'circle' },
+      { key: 'incidents', label: 'Incidents',             color: '#D93A2B', kind: 'square' },
+      { key: 'state',     label: 'State',                 color: 'var(--pn-color-border-strong)', kind: 'bar' },
+    ];
+
+    const hi = s.hoverIdx;
+    const tipRows = [];
+    if (hi != null) {
+      const p = t.points[hi];
+      if (!s.hidden.temp) tipRows.push({ color: 'var(--pn-color-teal-500, #17A2A2)', label: 'Temperature', value: p.temp.toFixed(1) + '°C' });
+      if (!s.hidden.hum)  tipRows.push({ color: '#7C5CD6', label: 'Humidity', value: p.hum.toFixed(1) + '%' });
+      ['results', 'actions', 'incidents'].forEach(k => {
+        if (s.hidden[k]) return;
+        const hits = t[k].filter(e => e.i === hi);
+        if (hits.length) tipRows.push({
+          color: LEGEND.find(l => l.key === k).color,
+          label: hits[0].label, value: hits.length > 1 ? `x${hits.length}` : '',
+        });
+      });
+      // State is always shown, never toggleable, per Cate's ask.
+      {
+        const seg = t.states.find(x => hi >= x.from && hi <= x.to) || t.states[t.states.length - 1];
+        const S = (CTG().STATUS || {})[seg.key] || {};
+        tipRows.push({ color: S.color || 'var(--pn-color-border-strong)', label: 'State', value: S.label || seg.key });
+      }
+    }
+
+    return {
+      note: s.note, noteX: s.noteX + 'px', noteY: s.noteY + 'px',
+      showNote: this.showNote, moveNote: this.moveNote, hideNote: this.hideNote,
+
+      instName: inst.name || 'MyGlo - Analytical Lab',
+      statusLabel: 'Reading - 2d 15h',
+      statusColor: (((CTG().STATUS || {}).reading) || {}).color || 'var(--pn-color-sol-500)',
+      // Enters the read screen already running, rather than at Ready to Read:
+      // this instrument is mid-read, so asking the user to press Start would be
+      // asking them to start something that is already going.
+      readHref: 'rpt-read-in-progress.dc.html?mode=timecourse&running=1',
+      rangeLabel: DATE_RANGE_LABEL,
+
+      // Guided-walkthrough cue: pulses Telemetry until the user clicks it,
+      // per Cate's ask - the other tabs stay functional but aren't marked as
+      // the interesting one.
+      tabs: TABS.map(l => ({
+        label: l, cls: 'id-tab' + (l === tab ? ' is-on' : '') + (l === 'Telemetry' && tab !== 'Telemetry' ? ' demo-cue' : ''),
+        onClick: () => this.setState({ tab: l, page: 1 }),
+      })),
+
+      isList, isTelemetry: tab === 'Telemetry', isAbout: tab === 'About',
+      showListChrome: isList,
+      headers, listRows, gridCols, listCount, pages, showPager,
+      onPrevPage, onNextPage, prevDisabled: page === 1, nextDisabled: page === total,
+      navStyle: navStyle(true),
+      // Primary sol-500 fill when active, per Cate's ask - same
+      // --pn-color-sol-500 used for the checked checkbox state.
+      downloadStyle: `border:1px solid ${dlOn ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-subtle)'};`
+        + `background:${dlOn ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-sunken)'};`
+        + `color:${dlOn ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};`
+        + `border-radius:var(--pn-border-radius-sm);padding:8px 12px;cursor:not-allowed;`
+        + `font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);`,
+      downloadNote: dlOn
+        ? 'Download saves the selected rows to your computer.'
+        : 'Select rows to download them.',
+      downloadLabel: tab === 'Actions' ? 'Download Actions' : 'Download',
+
+      chart: this._chart(),
+      legend: LEGEND.map(l => {
+        // State is always visible, not a toggle, per Cate's ask.
+        const interactive = l.key !== 'state';
+        const off = interactive && !!s.hidden[l.key];
+        const sw = l.kind === 'line'
+          ? `width:12px;height:3px;border-radius:2px;flex:none;background:${l.color};`
+          : l.kind === 'bar'
+          ? `width:12px;height:10px;border-radius:2px;flex:none;background:${l.color};`
+          : l.kind === 'circle'
+          ? `width:12px;height:12px;border-radius:50%;flex:none;background:${l.color};`
+          : l.kind === 'diamond'
+          ? `width:12px;height:12px;flex:none;background:${l.color};transform:rotate(45deg);`
+          : `width:12px;height:12px;border-radius:2px;flex:none;background:${l.color};`;
+        return {
+          label: l.label,
+          swatch: sw + (off ? 'opacity:.25;' : ''),
+          style: `color:${off ? 'var(--pn-color-text-disabled)' : 'var(--pn-color-text-primary)'};`
+            + (off ? 'text-decoration:line-through;' : '')
+            + (interactive ? '' : 'cursor:default;'),
+          interactive, notInteractive: !interactive,
+          onToggle: interactive ? (() => this.setState(st => ({ hidden: { ...st.hidden, [l.key]: !st.hidden[l.key] } }))) : undefined,
+        };
+      }),
+      stateKey: ['available', 'reading', 'offline'].map(k => {
+        const S = (CTG().STATUS || {})[k] || {};
+        return { label: S.label || k, color: S.color || 'var(--pn-color-border-default)' };
+      }),
+
+      tipOpen: hi != null && tipRows.length > 0,
+      tipX: hi == null ? '0px' : `${((hi / (DAYS - 1)) * 0.93 + 0.05) * 100}%`,
+      tipY: '8px',
+      tipDate: hi == null ? '' : this._fmtDay(t.points[hi].date) + ', 2026',
+      tipRows,
+
+      aboutSections: [
+        { title: 'Application & Instrument', rows: [
+          { k: 'Serial Number', v: 'PROMML00070' },
+          { k: 'Part Number', v: 'DE MML 002' },
+          { k: 'Firmware Version', v: '57' },
+        ]},
+        { title: 'Custom Properties', rows: [
+          { k: 'C2P Version', v: '26.7.16.2' },
+          { k: 'ESP', v: '34' },
+          { k: 'STM', v: '37' },
+          { k: 'STM Bootloader Version', v: '5' },
+          { k: 'Transmission Mode', v: '2.4 GHz Wi-Fi - PromegaGuest' },
+          { k: 'Wi-Fi MAC', v: 'F4 12 FA CB 57 C4' },
+        ]},
+        { title: 'System Report', rows: [
+          { k: 'SSID', v: 'PromegaGuest' },
+          { k: 'Uptime Hours', v: '868.85' },
+          { k: 'Wi-Fi Modulation Type', v: 'HT20' },
+          { k: 'Wi-Fi Signal Strength', v: '-65 dBm' },
+        ]},
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

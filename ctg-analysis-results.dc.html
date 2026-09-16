@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <script src="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/_ds_bundle.js"></script>
+  <script src="ctg-demo-data.js"></script>
+  <script src="ctg-detailed-data.js"></script>
+  <style>
+    body{margin:0;font-family:var(--pn-font-family-sans);}
+    .ar-pt{cursor:pointer;}
+  </style>
+</helmet>
+
+<div data-screen-label="CTG Analysis Results" style="min-height:100vh;display:flex;flex-direction:column;">
+
+  <div style="display:none;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);padding:8px 24px;font-size:13px;letter-spacing:.02em">Demo guide - Analysis Results from the plate map read. Curve fit, error bars, the legend and the x-axis units all work; hover a point or an EC50 marker. &rarr; <a href="ctg-app-home.dc.html" style="color:#9fd3ff">Back to CellTiter-Glo</a></div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <dc-import name="pronect-sidebar"
+                dashboard-href="user-dashboard.dc.html"
+                hint-size="284,900"
+                style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></dc-import>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+
+      <dc-import name="pronect-topbar"
+                  hint-size="1200,64"
+                  style="display:block;width:100%;flex:none;"></dc-import>
+
+      <div style="flex:1;min-height:0;padding:clamp(16px,2vw,28px) clamp(16px,2.4vw,32px);box-sizing:border-box;display:flex;flex-direction:column;gap:18px;background:var(--pn-color-surface-page);overflow:auto;">
+
+        <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;flex:none;">
+          <a href="ctg-app-home.dc.html" style="flex:none;display:block;">
+            <img src="assets/app-icon_ctg.svg" alt="" style="width:56px;height:56px;display:block;">
+          </a>
+          <div style="min-width:0;">
+            <h1 style="margin:0;font:600 26px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">CellTiter-Glo</h1>
+            <p style="margin:4px 0 0;display:flex;align-items:center;gap:8px;font:400 15px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">{{ analysisName }}
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 11h7M4 16h7M14 19l5-5 2 2-5 5h-2z"/></svg>
+            </p>
+          </div>
+          <span style="flex:1;min-width:16px;"></span>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button data-note="This opens a read-only copy of the plate map used in this analysis, with an option to save an editable copy."
+                    onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                    style="{{ ghostBtn }}">View Plate Map</button>
+            <button onClick="{{ openDetailed }}" style="{{ ghostBtn }}">Detailed Data</button>
+            <button data-note="Download saves this analysis and its source data as a zip file."
+                    onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                    style="{{ ghostBtn }}">Download</button>
+          </div>
+        </div>
+
+        <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-xl);padding:clamp(16px,1.6vw,26px);box-sizing:border-box;flex:none;">
+
+          <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--pn-color-border-subtle);">
+            <div style="display:flex;gap:4px;">
+              <button onClick="{{ tabControl }}" style="{{ tabControlStyle }}">Cell Viability (% of Control)</button>
+              <button onClick="{{ tabInhibition }}" style="{{ tabInhibitionStyle }}">Cell Viability (% Inhibition)</button>
+              <button onClick="{{ tabQuantified }}" style="{{ tabQuantifiedStyle }}">Quantified Results</button>
+            </div>
+            <span style="flex:1;min-width:16px;"></span>
+            <sc-if value="{{ isChartTab }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px;">
+                <span style="font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Curve fit</span>
+                <select onChange="{{ onCurveFitChange }}" style="padding:8px 12px;border:1px solid var(--pn-color-border-default);border-radius:4px;background:var(--pn-color-surface-default);font:400 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:pointer;">
+                  <option value="4PL" selected="{{ is4PL }}">4PL</option>
+                  <option value="5PL" selected="{{ is5PL }}">5PL</option>
+                </select>
+                <label style="display:flex;align-items:center;gap:8px;cursor:{{ errorBarCursor }};font:400 15px/1 var(--pn-font-family-sans);color:{{ errorBarLabelColor }};">
+                  <input type="checkbox" checked="{{ showErrorBars }}" disabled="{{ errorBarsDisabled }}" onChange="{{ onToggleErrorBars }}" style="width:17px;height:17px;accent-color:var(--pn-color-sol-500);cursor:{{ errorBarCursor }};">
+                  Show Error Bars
+                </label>
+              </div>
+            </sc-if>
+          </div>
+
+          <sc-if value="{{ isChartTab }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:flex-start;gap:16px;padding-top:16px;">
+
+              <div style="flex:1;min-width:0;">
+                <svg viewBox="0 0 1180 520" style="width:100%;height:auto;display:block;overflow:visible;">
+
+                  <sc-for list="{{ yTicks }}" as="t" hint-placeholder-count="12">
+                    <line x1="66" x2="74" y1="{{ t.y }}" y2="{{ t.y }}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line>
+                    <text x="58" y="{{ t.ty }}" text-anchor="end" font-family="Roboto, sans-serif" font-size="19" fill="#141414">{{ t.label }}</text>
+                  </sc-for>
+                  <sc-for list="{{ xTicks }}" as="t" hint-placeholder-count="11">
+                    <line y1="446" y2="454" x1="{{ t.x }}" x2="{{ t.x }}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line>
+                    <text y="478" x="{{ t.x }}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="19" fill="#141414">{{ t.label }}</text>
+                  </sc-for>
+
+                  <line x1="74" y1="14" x2="74" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+                  <line x1="74" y1="450" x2="1174" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+
+                  <sc-if value="{{ crosshair }}" hint-placeholder-val="{{ false }}">
+                    <line x1="74" x2="{{ crossX }}" y1="{{ crossY }}" y2="{{ crossY }}" stroke="{{ crossColor }}" stroke-width="1.2" stroke-dasharray="5 4"></line>
+                    <line x1="{{ crossX }}" x2="{{ crossX }}" y1="{{ crossY }}" y2="450" stroke="{{ crossColor }}" stroke-width="1.2" stroke-dasharray="5 4"></line>
+                    <rect x="14" y="{{ crossYBox }}" width="62" height="24" rx="3" fill="{{ crossColor }}"></rect>
+                    <text x="45" y="{{ crossYText }}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="15" fill="var(--pn-color-text-inverse)">{{ crossYLabel }}</text>
+                    <rect x="{{ crossXBox }}" y="454" width="62" height="24" rx="3" fill="{{ crossColor }}"></rect>
+                    <text x="{{ crossX }}" y="471" text-anchor="middle" font-family="Roboto, sans-serif" font-size="15" fill="var(--pn-color-text-inverse)">{{ crossXLabel }}</text>
+                  </sc-if>
+
+                  <sc-for list="{{ series }}" as="s" hint-placeholder-count="2">
+                    <path d="{{ s.curve }}" fill="none" stroke="{{ s.color }}" stroke-width="2.4"></path>
+                    <sc-for list="{{ s.bars }}" as="b" hint-placeholder-count="12">
+                      <path d="{{ b.d }}" stroke="var(--pn-color-neutral-900)" stroke-width="1.4" fill="none"></path>
+                    </sc-for>
+                    <sc-for list="{{ s.dots }}" as="p" hint-placeholder-count="12">
+                      <circle class="ar-pt" cx="{{ p.cx }}" cy="{{ p.cy }}" r="{{ p.r }}" fill="{{ p.fill }}" stroke="{{ p.stroke }}" stroke-width="{{ p.sw }}"
+                              data-note="{{ p.note }}"
+                              onMouseEnter="{{ p.onEnter }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ p.onLeave }}"></circle>
+                    </sc-for>
+                    <circle class="ar-pt" cx="{{ s.ecx }}" cy="{{ s.ecy }}" r="11" fill="var(--pn-color-surface-default)" fill-opacity="0.01" stroke="{{ s.color }}" stroke-width="2.6"
+                            onMouseEnter="{{ s.onEcEnter }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ s.onEcLeave }}"></circle>
+                  </sc-for>
+
+                  <text x="24" y="232" text-anchor="middle" transform="rotate(-90 24 232)" font-family="Roboto, sans-serif" font-size="21" fill="#141414">{{ yAxisLabel }}</text>
+                </svg>
+
+                <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-top:6px;">
+                  <span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">Compound Concentration (log {{ unit }})</span>
+                  <button onClick="{{ toggleUnitMenu }}" style="background:none;border:0;padding:4px;cursor:pointer;display:flex;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--pn-color-neutral-900)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+                </div>
+                <sc-if value="{{ unitMenuOpen }}">
+                  <div style="display:flex;justify-content:center;">
+                    <div style="background:var(--pn-color-surface-default);border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:6px 0;min-width:96px;">
+                      <sc-for list="{{ unitOptions }}" as="u" hint-placeholder-count="4">
+                        <button onClick="{{ u.onSelect }}" style="{{ u.style }}">{{ u.label }}</button>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="flex:none;width:200px;display:flex;flex-direction:column;gap:14px;padding-top:24px;">
+                <sc-for list="{{ legend }}" as="l" hint-placeholder-count="2">
+                  <button onClick="{{ l.onToggle }}" style="{{ l.style }}">
+                    <span style="width:19px;height:19px;border-radius:50%;flex:none;background:{{ l.color }};"></span>
+                    <span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">{{ l.name }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding-top:22px;overflow-x:auto;">
+              <table style="border-collapse:collapse;width:100%;min-width:760px;font:400 15px/1.3 var(--pn-font-family-sans);">
+                <tr>
+                  <sc-for list="{{ tableHead }}" as="h" hint-placeholder-count="6">
+                    <th style="border:1px solid var(--pn-color-border-default);padding:12px 10px;font-weight:700;color:#141414;">{{ h.label }}</th>
+                  </sc-for>
+                </tr>
+                <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="2">
+                  <tr>
+                    <td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;">
+                      <span style="display:inline-flex;align-items:center;gap:8px;">
+                        <span style="width:11px;height:11px;border-radius:50%;background:{{ r.color }};"></span>{{ r.name }}
+                      </span>
+                    </td>
+                    <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
+                      <td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;text-align:center;color:#141414;">{{ c.text }}</td>
+                    </sc-for>
+                  </tr>
+                </sc-for>
+              </table>
+            </div>
+          </sc-if>
+
+        <sc-if value="{{ isPlaceholder }}" hint-placeholder-val="{{ false }}">
+          <div style="padding-top:18px;display:flex;flex-direction:column;gap:40px;">
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+                <h2 style="margin:0;font:500 20px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Standard Curve</h2>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">
+                  <input type="checkbox" checked="{{ stdErrorBars }}" onChange="{{ onToggleStdErrorBars }}" style="width:17px;height:17px;accent-color:var(--pn-color-sol-500);cursor:pointer;">
+                  Show Error Bars
+                </label>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:16px;padding-top:12px;">
+                <div style="flex:1;min-width:0;">
+                    <svg viewBox="0 0 1180 520" style="width:100%;height:auto;display:block;overflow:visible;">
+                      <sc-for list="{{ std.yTicks }}" as="t" hint-placeholder-count="13">
+                        <line x1="66" x2="74" y1="{{ t.y }}" y2="{{ t.y }}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line>
+                        <text x="58" y="{{ t.ty }}" text-anchor="end" font-family="Roboto, sans-serif" font-size="19" fill="#141414">{{ t.label }}</text>
+                      </sc-for>
+                      <sc-for list="{{ std.xTicks }}" as="t" hint-placeholder-count="11">
+                        <line y1="446" y2="454" x1="{{ t.x }}" x2="{{ t.x }}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line>
+                        <text y="478" x="{{ t.x }}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="19" fill="#141414">{{ t.label }}</text>
+                      </sc-for>
+                      <line x1="74" y1="14" x2="74" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+                      <line x1="74" y1="450" x2="1174" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+                      <path d="{{ std.line }}" fill="none" stroke="{{ std.color }}" stroke-width="2"></path>
+                      <sc-for list="{{ std.bars }}" as="b" hint-placeholder-count="8">
+                        <path d="{{ b.d }}" stroke="var(--pn-color-neutral-900)" stroke-width="1.4" fill="none"></path>
+                      </sc-for>
+                      <sc-for list="{{ std.dots }}" as="p" hint-placeholder-count="32">
+                        <circle class="ar-pt" cx="{{ p.cx }}" cy="{{ p.cy }}" r="{{ p.r }}" fill="{{ p.fill }}" stroke="{{ p.stroke }}" stroke-width="{{ p.sw }}"
+                                data-note="{{ p.note }}" onMouseEnter="{{ p.onEnter }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ p.onLeave }}"></circle>
+                      </sc-for>
+                      <text x="24" y="232" text-anchor="middle" transform="rotate(-90 24 232)" font-family="Roboto, sans-serif" font-size="21" fill="#141414">Luminescence (RLU)</text>
+                    </svg>
+                  <div style="text-align:center;padding-top:6px;font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">ATP (µM)</div>
+                </div>
+                <div style="flex:none;width:236px;margin-top:14px;border:1px solid var(--pn-color-border-subtle);border-radius:10px;padding:16px 18px;">
+                  <div style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">ATP</div>
+                  <div style="display:flex;align-items:center;gap:10px;padding-top:8px;">
+                    <span style="width:17px;height:17px;border-radius:50%;flex:none;background:{{ std.color }};"></span>
+                    <span style="font:400 17px/1.2 var(--pn-font-family-sans);color:#141414;">{{ std.equation }}</span>
+                  </div>
+                  <div style="padding-top:6px;font:400 17px/1.2 var(--pn-font-family-sans);color:#141414;">R²: {{ std.r2 }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+                <h2 style="margin:0;font:500 20px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Quantified Values</h2>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <span style="font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Curve fit</span>
+                  <select onChange="{{ onQuantFitChange }}" style="padding:8px 12px;border:1px solid var(--pn-color-border-default);border-radius:4px;background:var(--pn-color-surface-default);font:400 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:pointer;">
+                    <option value="4PL" selected="{{ quantIs4PL }}">4PL</option>
+                    <option value="5PL" selected="{{ quantIs5PL }}">5PL</option>
+                  </select>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:{{ quantCursor }};font:400 15px/1 var(--pn-font-family-sans);color:{{ quantLabelColor }};">
+                    <input type="checkbox" checked="{{ quantErrorBars }}" disabled="{{ quantBarsDisabled }}" onChange="{{ onToggleQuantErrorBars }}" style="width:17px;height:17px;accent-color:var(--pn-color-sol-500);cursor:{{ quantCursor }};">
+                    Show Error Bars
+                  </label>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:16px;padding-top:12px;">
+                <div style="flex:1;min-width:0;">
+                    <svg viewBox="0 0 1180 520" style="width:100%;height:auto;display:block;overflow:visible;">
+                      <sc-for list="{{ quant.yTicks }}" as="t" hint-placeholder-count="13">
+                        <line x1="66" x2="74" y1="{{ t.y }}" y2="{{ t.y }}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line>
+                        <text x="58" y="{{ t.ty }}" text-anchor="end" font-family="Roboto, sans-serif" font-size="19" fill="#141414">{{ t.label }}</text>
+                      </sc-for>
+                      <sc-for list="{{ quant.xTicks }}" as="t" hint-placeholder-count="11">
+                        <line y1="446" y2="454" x1="{{ t.x }}" x2="{{ t.x }}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line>
+                        <text y="478" x="{{ t.x }}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="19" fill="#141414">{{ t.label }}</text>
+                      </sc-for>
+                      <line x1="74" y1="14" x2="74" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+                      <line x1="74" y1="{{ quant.zeroY }}" x2="1174" y2="{{ quant.zeroY }}" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+                      <sc-for list="{{ quant.series }}" as="s" hint-placeholder-count="2">
+                        <path d="{{ s.curve }}" fill="none" stroke="{{ s.color }}" stroke-width="2.4"></path>
+                        <sc-for list="{{ s.bars }}" as="b" hint-placeholder-count="12">
+                          <path d="{{ b.d }}" stroke="var(--pn-color-neutral-900)" stroke-width="1.4" fill="none"></path>
+                        </sc-for>
+                        <sc-for list="{{ s.dots }}" as="p" hint-placeholder-count="12">
+                          <circle class="ar-pt" cx="{{ p.cx }}" cy="{{ p.cy }}" r="{{ p.r }}" fill="{{ p.fill }}" stroke="{{ p.stroke }}" stroke-width="{{ p.sw }}"
+                                  data-note="{{ p.note }}" onMouseEnter="{{ p.onEnter }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ p.onLeave }}"></circle>
+                        </sc-for>
+                        <circle class="ar-pt" cx="{{ s.ecx }}" cy="{{ s.ecy }}" r="11" fill="var(--pn-color-surface-default)" fill-opacity="0.01" stroke="{{ s.color }}" stroke-width="2.6"
+                                onMouseEnter="{{ s.onEcEnter }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ s.onEcLeave }}"></circle>
+                      </sc-for>
+                      <text x="24" y="232" text-anchor="middle" transform="rotate(-90 24 232)" font-family="Roboto, sans-serif" font-size="21" fill="#141414">ATP (µM)</text>
+                    </svg>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-top:6px;">
+                    <span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">Compound Concentration (log {{ unit }})</span>
+                    <button onClick="{{ toggleUnitMenu }}" style="background:none;border:0;padding:4px;cursor:pointer;display:flex;">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--pn-color-neutral-900)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                  </div>
+                  <sc-if value="{{ unitMenuOpen }}">
+                    <div style="display:flex;justify-content:center;">
+                      <div style="background:var(--pn-color-surface-default);border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:6px 0;min-width:96px;">
+                        <sc-for list="{{ unitOptions }}" as="u" hint-placeholder-count="4">
+                          <button onClick="{{ u.onSelect }}" style="{{ u.style }}">{{ u.label }}</button>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+                <div style="flex:none;width:200px;display:flex;flex-direction:column;gap:14px;padding-top:24px;">
+                  <sc-for list="{{ legend }}" as="l" hint-placeholder-count="2">
+                    <button onClick="{{ l.onToggle }}" style="{{ l.style }}">
+                      <span style="width:19px;height:19px;border-radius:50%;flex:none;background:{{ l.color }};"></span>
+                      <span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">{{ l.name }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="padding-top:22px;overflow-x:auto;">
+                <table style="border-collapse:collapse;width:100%;min-width:760px;font:400 15px/1.3 var(--pn-font-family-sans);">
+                  <tr>
+                    <sc-for list="{{ quant.head }}" as="h" hint-placeholder-count="6">
+                      <th style="border:1px solid var(--pn-color-border-default);padding:12px 10px;font-weight:700;color:#141414;">{{ h.label }}</th>
+                    </sc-for>
+                  </tr>
+                  <sc-for list="{{ quant.rows }}" as="r" hint-placeholder-count="2">
+                    <tr>
+                      <td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;">
+                        <span style="display:inline-flex;align-items:center;gap:8px;">
+                          <span style="width:11px;height:11px;border-radius:50%;background:{{ r.color }};"></span>{{ r.name }}
+                        </span>
+                      </td>
+                      <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
+                        <td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;text-align:center;color:#141414;">{{ c.text }}</td>
+                      </sc-for>
+                    </tr>
+                  </sc-for>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </sc-if>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Data. The component owns its whole modal card and announces Close
+     on the document, because dc-import cannot pass callbacks down. -->
+<sc-if value="{{ detailedOpen }}" hint-placeholder-val="{{ false }}">
+  <dc-import name="ctg-detailed-data"
+              open="true"
+              analysis-name="{{ analysisName }}"
+              hint-size="1600,900"
+              style="position:fixed;inset:0;width:100%;height:100%;z-index:2100;"></dc-import>
+</sc-if>
+
+  <sc-if value="{{ note }}">
+    <div style="position:fixed;left:{{ noteX }};top:{{ noteY }};background:rgba(42,46,56,.9);color:var(--pn-color-text-inverse);font:400 var(--pn-font-size-xs)/1.4 var(--pn-font-family-sans);padding:10px 14px;border-radius:var(--pn-border-radius-sm);pointer-events:none;z-index:2000;box-shadow:0 4px 8px rgba(0,0,0,.4);max-width:320px;white-space:pre-line;">{{ note }}</div>
+  </sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:900}}">
+// Real analysis: CTG-DR-wStd-demo.zip, the same plate whose raw RLUs drive ctg-read-results.
+// That is the name of Cate's export and stays here as provenance; the name shown
+// on screen is CTG.ANALYSES[0].name from ctg-demo-data.js, so the demo's plate
+// map, its entry in the plate map list and the analysis it produces all read as
+// one experiment. A user who renamed the plate map would have renamed this too.
+// points[compound] = per concentration: x in uM, v/i = mean, vsd/isd = SD, vr/ir = replicates.
+// fits[model][modality][compound] = the fitted coefficients as exported.
+const D = {"points":{"Bortezomib":[{"x":1.409e-07,"v":100.118,"vsd":3.4477,"vr":[103.57,96.674],"i":-0.118,"isd":3.4477,"ir":[-3.57,3.326]},{"x":4.23e-07,"v":101.69,"vsd":0.9148,"vr":[100.779,102.609],"i":-1.69,"isd":0.9148,"ir":[-0.779,-2.609]},{"x":1.269e-06,"v":96.28,"vsd":3.0116,"vr":[99.296,93.273],"i":3.72,"isd":3.0116,"ir":[0.704,6.727]},{"x":3.809e-06,"v":80.326,"vsd":0.0047,"vr":[80.325,80.335],"i":19.674,"isd":0.0047,"ir":[19.675,19.665]},{"x":1.143e-05,"v":35.136,"vsd":0.9298,"vr":[34.211,36.07],"i":64.864,"isd":0.9298,"ir":[65.789,63.93]},{"x":3.43e-05,"v":15.774,"vsd":2.0507,"vr":[13.728,17.829],"i":84.226,"isd":2.0507,"ir":[86.272,82.171]},{"x":0.0001029,"v":2.436,"vsd":0.0284,"vr":[2.469,2.412],"i":97.564,"isd":0.0284,"ir":[97.531,97.588]},{"x":0.0003087,"v":0.899,"vsd":0.0289,"vr":[0.932,0.874],"i":99.101,"isd":0.0289,"ir":[99.068,99.126]},{"x":0.000926,"v":0.459,"vsd":0.0041,"vr":[0.459,0.467],"i":99.541,"isd":0.0041,"ir":[99.541,99.533]},{"x":0.002778,"v":0.461,"vsd":0.0027,"vr":[0.467,0.462],"i":99.539,"isd":0.0027,"ir":[99.533,99.538]},{"x":0.008333,"v":0.451,"vsd":0.0016,"vr":[0.454,0.456],"i":99.549,"isd":0.0016,"ir":[99.546,99.544]},{"x":0.025,"v":0.473,"vsd":0.0063,"vr":[0.471,0.483],"i":99.527,"isd":0.0063,"ir":[99.529,99.517]}],"Panobinostat":[{"x":2.823e-07,"v":103.499,"vsd":3.0666,"vr":[106.57,100.437],"i":-3.499,"isd":3.0666,"ir":[-6.57,-0.437]},{"x":8.47e-07,"v":100.942,"vsd":0.8463,"vr":[100.1,101.792],"i":-0.942,"isd":0.8463,"ir":[-0.1,-1.792]},{"x":2.541e-06,"v":98.609,"vsd":0.0124,"vr":[98.625,98.601],"i":1.391,"isd":0.0124,"ir":[1.375,1.399]},{"x":7.623e-06,"v":82.178,"vsd":0.4198,"vr":[82.602,81.762],"i":17.822,"isd":0.4198,"ir":[17.398,18.238]},{"x":2.287e-05,"v":35.833,"vsd":0.8299,"vr":[36.667,35.007],"i":64.167,"isd":0.8299,"ir":[63.333,64.993]},{"x":6.86e-05,"v":18.003,"vsd":0.5286,"vr":[18.535,17.478],"i":81.997,"isd":0.5286,"ir":[81.465,82.522]},{"x":0.0002058,"v":2.296,"vsd":0.0029,"vr":[2.297,2.303],"i":97.704,"isd":0.0029,"ir":[97.703,97.697]},{"x":0.0006173,"v":0.947,"vsd":0.0289,"vr":[0.923,0.98],"i":99.053,"isd":0.0289,"ir":[99.077,99.02]},{"x":0.001852,"v":0.465,"vsd":0.0019,"vr":[0.467,0.47],"i":99.535,"isd":0.0019,"ir":[99.533,99.53]},{"x":0.005557,"v":0.449,"vsd":0.0058,"vr":[0.448,0.459],"i":99.551,"isd":0.0058,"ir":[99.552,99.541]},{"x":0.01667,"v":0.457,"vsd":0.0113,"vr":[0.472,0.45],"i":99.543,"isd":0.0113,"ir":[99.528,99.55]},{"x":0.05,"v":0.451,"vsd":0.0053,"vr":[0.46,0.45],"i":99.549,"isd":0.0053,"ir":[99.54,99.55]}]},"fits":{"4PL":{"% of Control":{"Bortezomib":{"ec50":8.17784402787085e-06,"r2":0.997913487693112,"top":101.891621383749,"bottom":0.896233189820487,"hill":-1.53698070818896},"Panobinostat":{"ec50":1.66654314088634e-05,"r2":0.996895160249568,"top":103.774751264542,"bottom":0.896483788191659,"hill":-1.4927275669961}},"% Inhibition":{"Bortezomib":{"ec50":8.17784426738998e-06,"r2":0.997913487693146,"top":99.1037677348286,"bottom":-1.89162078897537,"hill":1.53698071800931},"Panobinostat":{"ec50":1.66654319282364e-05,"r2":0.996895160249589,"top":99.1035169595828,"bottom":-3.77475150398955,"hill":1.49272748264549}}},"5PL":{"% of Control":{"Bortezomib":{"ec50":8.17784402787085e-06,"r2":0.997913487693112,"top":101.891621383749,"bottom":0.896233189820487,"hill":-1.53698070818896,"asym":1.0},"Panobinostat":{"ec50":1.66654314088634e-05,"r2":0.996895160249568,"top":103.774751264542,"bottom":0.896483788191659,"hill":-1.4927275669961,"asym":1.0}},"% Inhibition":{"Bortezomib":{"ec50":8.17784426738998e-06,"r2":0.997913487693146,"top":99.1037677348286,"bottom":-1.89162078897537,"hill":1.53698071800931,"asym":1.0},"Panobinostat":{"ec50":1.66654319282364e-05,"r2":0.996895160249589,"top":99.1035169595828,"bottom":-3.77475150398955,"hill":1.49272748264549,"asym":1.0}}}}};
+
+// Standard curve and quantification, from the Standard Curve Analysis and Sample
+// Quantification sheets of the same export. a and b convert a viability percentage
+// into quantified ATP: a = control net RLU / (100 x slope), b = -intercept / slope,
+// which is just the standard curve inverted. That is why the quantified fit shares the
+// EC50, R2 and Hill Slope of the % of Control fit and differs only in Top and Bottom.
+const Q = {"std":[{"atp":0.0003053,"mean":143.2,"sd":58.3,"reps":[83.2,129.2,238.2,122.2]},{"atp":0.001221,"mean":352.8,"sd":24.4,"reps":[331.2,375.2,329.2,375.2]},{"atp":0.004883,"mean":1405.2,"sd":199.8,"reps":[1064.2,1564.2,1521.2,1471.2]},{"atp":0.01953,"mean":4984.2,"sd":189.5,"reps":[4747.2,4868.2,5236.2,5085.2]},{"atp":0.07813,"mean":19651.0,"sd":1105.3,"reps":[18201.2,19302.2,21273.2,19827.2]},{"atp":0.3125,"mean":79428.5,"sd":12014.8,"reps":[75085.2,71331.2,100064.2,71233.2]},{"atp":1.25,"mean":287318.2,"sd":8988.0,"reps":[272041.2,289590.2,293707.2,293934.2]},{"atp":5.0,"mean":1024888.8,"sd":70633.4,"reps":[932207.2,1046511.2,1125126.2,995710.2]}],"eq":{"text":"y = 205021.2705x + 6422.9366","slope":205021.270459323,"r2":0.99900497914404},"quant":{"Bortezomib":[{"x":1.409e-07,"q":3.74416182143741,"qsd":0.183866627727855,"qr":[3.87433002271824,3.6143033441177]},{"x":4.23e-07,"q":3.80344347534957,"qsd":0.0487853060195926,"qr":[3.76910191662141,3.83809475803884]},{"x":1.269e-06,"q":3.59943781336974,"qsd":0.160610401606249,"qr":[3.71316137945517,3.48602397124542]},{"x":3.809e-06,"q":2.99779048319931,"qsd":0.000244874989564734,"qr":[2.99777219241421,2.99811849794554]},{"x":1.143e-05,"q":1.29367705527419,"qsd":0.0495889098585862,"qr":[1.25876726282209,1.3288965716874]},{"x":3.43e-05,"q":0.563525985267526,"qsd":0.10936254991695,"qr":[0.486349846593956,0.641011847902212]},{"x":0.0001029,"q":0.0605489050408188,"qsd":0.00151408620308244,"qr":[0.0617743876428781,0.059633146399877]},{"x":0.0003087,"q":0.00257687134220726,"qsd":0.0015382288076874,"qr":[0.00381942534369826,0.00164404130183374]},{"x":0.000926,"q":-0.0140214064480729,"qsd":0.000206936610899651,"qr":[-0.0140128707483571,-0.0137202181866713]},{"x":0.002778,"q":-0.0139604371643884,"qsd":0.000127610910054785,"qr":[-0.0137153406439765,-0.0138958097236828]},{"x":0.008333,"q":-0.0143140590097587,"qsd":5.51830962399075e-05,"qr":[-0.0141982173707581,-0.0141201766876419]},{"x":0.025,"q":-0.0135019481510806,"qsd":0.000327649633924447,"qr":[-0.0135787694485231,-0.0131154028925206]}],"Panobinostat":[{"x":2.823e-07,"q":3.87167542010662,"qsd":0.163545452537509,"qr":[3.98747438060867,3.75618618356568]},{"x":8.47e-07,"q":3.77522932963171,"qsd":0.0451328748372137,"qr":[3.74347042976043,3.80729795346411]},{"x":2.541e-06,"q":3.68725065327491,"qsd":0.000658748211363805,"qr":[3.68787132058282,3.68693970992812]},{"x":7.623e-06,"q":3.06762713950294,"qsd":0.0223870923558275,"qr":[3.08361206629935,3.05195193666764]},{"x":2.287e-05,"q":1.31994993899953,"qsd":0.0442602921279203,"qr":[1.35140155368104,1.28880804827914]},{"x":6.86e-05,"q":0.647561168355606,"qsd":0.0281882153480474,"qr":[0.667648108558316,0.627783952114014]},{"x":0.0002058,"q":0.0552518936743057,"qsd":0.00014140668411476,"qr":[0.0553067660296217,0.0555067452801071]},{"x":0.0006173,"q":0.00440107231004881,"qsd":0.0015382288076874,"qr":[0.00346824226967529,0.00564362631153981]},{"x":0.001852,"q":-0.0137994782554612,"qsd":7.93257008448655e-05,"qr":[-0.0137007080158922,-0.0135885245339127]},{"x":0.005557,"q":-0.0143823446074854,"qsd":0.000303507029319487,"qr":[-0.0144420945054963,-0.0140128707483571]},{"x":0.01667,"q":-0.0141018859025365,"qsd":0.000596667228093992,"qr":[-0.0135251164788807,-0.0143689313650748]},{"x":0.05,"q":-0.0143213753238009,"qsd":0.00027246653768454,"qr":[-0.013973850406799,-0.0143591762796853]}]},"a":0.037710404304288736,"b":-0.03132814749225903};
+
+// Colours are the design system's plate group tokens, not hand-picked hexes.
+// They were #E8743B and #4A90D9, which were close to but not equal to
+// plate-group-1 and -2. The analysis workbooks behind Detailed Data fill their
+// series cells with exactly #E68B50 and #619CD1, so the workbook was on token
+// and this chart was the thing that had drifted. Resolved rather than left as
+// var(), because these are written into SVG attributes and read back for the
+// legend swatches.
+const TOK = (n, fallback) => {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  return v || fallback;
+};
+const SERIES = [
+  { name: 'Bortezomib',   color: TOK('--pn-color-plate-group-1', '#E68B50'), rows: ['G', 'H'] },
+  { name: 'Panobinostat', color: TOK('--pn-color-plate-group-2', '#619CD1'), rows: ['E', 'F'] },
+];
+// Replicate 1 sits in the first row, replicate 2 in the second, and the column is the
+// concentration rank. Verified against all 48 sample wells and against the well the app
+// names in its own focus-mode tooltip.
+
+const UNITS = [
+  { label: 'M',  shift: -6 },
+  { label: 'mM', shift: -3 },
+  { label: 'µM', shift: 0 },
+  { label: 'nM', shift: 3 },
+];
+
+const X0 = 74, X1 = 1174, Y0 = 14, Y1 = 450;
+// Inhibition runs slightly negative at the low concentrations, so that tab's axis
+// starts at -10 rather than 0. With error bars the data spans -6.57 to 99.56.
+const YD = { control: [0, 110], inhibition: [-10, 110] };
+const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+              '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+
+class Component extends DCLogic {
+  state = {
+    note: null, noteX: 0, noteY: 0,
+    detailedOpen: false,
+    tab: 'control',
+    model: '4PL',
+    errorBars: true,
+    hidden: {},
+    unit: 'µM',
+    unitMenuOpen: false,
+    stdErrorBars: false,
+    quantModel: '4PL',
+    quantErrorBars: true,
+    crossFor: null,
+    hoverPt: null,
+  };
+
+  showNote = (e) => {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    this.setState({ note, noteX: e.clientX + 16, noteY: e.clientY + 18 });
+  };
+  moveNote = (e) => {
+    if (!this.state.note) return;
+    this.setState({ noteX: e.clientX + 16, noteY: e.clientY + 18 });
+  };
+  hideNote = () => this.setState({ note: null });
+
+  tabControl    = () => this.setState({ tab: 'control', note: null });
+  tabInhibition = () => this.setState({ tab: 'inhibition', note: null });
+  tabQuantified = () => this.setState({ tab: 'quantified', note: null });
+
+  onCurveFitChange   = (e) => this.setState({ model: e.target.value, crossFor: null });
+  onToggleErrorBars  = (e) => this.setState({ errorBars: e.target.checked });
+  toggleUnitMenu     = () => this.setState(s => ({ unitMenuOpen: !s.unitMenuOpen }));
+  onToggleStdErrorBars   = (e) => this.setState({ stdErrorBars: e.target.checked });
+  onQuantFitChange       = (e) => this.setState({ quantModel: e.target.value });
+  onToggleQuantErrorBars = (e) => this.setState({ quantErrorBars: e.target.checked });
+
+  // --- formatting -----------------------------------------------------------
+  _sup(n) { return String(n).split('').map(c => SUP[c] || c).join(''); }
+  _sci(v, sig) {
+    const exp = Math.floor(Math.log10(Math.abs(v)));
+    const man = (v / Math.pow(10, exp)).toFixed(sig - 1);
+    return man + ' × 10' + this._sup(exp);
+  }
+
+  // --- model ----------------------------------------------------------------
+  // 4PL is the 5PL with asymmetry 1, so one expression covers both. In this export the
+  // 5PL coefficients are identical to the 4PL ones with asymmetry exactly 1, so the two
+  // curves coincide and only the table changes. Flagged for Stephanie's review.
+  _model(f, conc) {
+    const a = f.asym === undefined ? 1 : f.asym;
+    // The exponent is negated: the exported Hill Slope is negative for a falling curve,
+    // and (conc/ec50)^hill with hill negative produces a rising one. Both orientations
+    // pass through the midpoint at the EC50, so checking that value cannot tell them
+    // apart; the end behaviour is what distinguishes them.
+    return f.bottom + (f.top - f.bottom) / Math.pow(1 + Math.pow(conc / f.ec50, -f.hill), a);
+  }
+
+  _modality() { return this.state.tab === 'inhibition' ? '% Inhibition' : '% of Control'; }
+  _shift() { return (UNITS.find(u => u.label === this.state.unit) || UNITS[2]).shift; }
+
+  _domain() {
+    let lo = Infinity, hi = -Infinity;
+    SERIES.forEach(s => (D.points[s.name] || []).forEach(p => {
+      const l = Math.log10(p.x);
+      if (l < lo) lo = l;
+      if (l > hi) hi = l;
+    }));
+    const sh = this._shift();
+    return [lo + sh - 0.12, hi + sh + 0.12];
+  }
+
+  _sx(logv, d) { return X0 + (logv - d[0]) / (d[1] - d[0]) * (X1 - X0); }
+  _yd() { return YD[this.state.tab] || YD.control; }
+  _sy(pct) { const d = this._yd(); return Y1 - (pct - d[0]) / (d[1] - d[0]) * (Y1 - Y0); }
+
+  render_visible() { return SERIES.filter(s => !this.state.hidden[s.name]); }
+
+  _fmtRLU(v) {
+    if (v === 0) return '0';
+    return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : Math.round(v / 1000) + 'K';
+  }
+
+  // The standard curve is a straight line through the ATP standards, one series, so it
+  // plots the individual replicate wells the way focus mode does on the other tabs.
+  _stdChart() {
+    const XD = [0, 5.2], YD = [0, 1.2e6];
+    const sx = v => X0 + (v - XD[0]) / (XD[1] - XD[0]) * (X1 - X0);
+    const sy = v => Y1 - (v - YD[0]) / (YD[1] - YD[0]) * (Y1 - Y0);
+    const yTicks = [], xTicks = [];
+    for (let v = 0; v <= YD[1] + 1; v += 1e5) yTicks.push({ y: sy(v), ty: sy(v) + 7, label: this._fmtRLU(v) });
+    for (let v = 0; v <= 5.0001; v += 0.5) xTicks.push({ x: sx(v), label: v === 0 ? '0' : v.toFixed(1) });
+
+    const slope = Q.eq.slope, inter = -Q.b * slope;
+    const dots = [], bars = [];
+    Q.std.forEach((pt, i) => {
+      const cx = sx(pt.atp);
+      if (this.state.stdErrorBars) {
+        const id = 'std:' + i;
+        dots.push(Object.assign({ cx, cy: sy(pt.mean) }, this._dotStyle(id, '#7BA7AE'),
+          { note: 'ATP: ' + pt.atp + ' µM\nAverage RLU: ' + Math.round(pt.mean).toLocaleString('en-US') +
+                  '\nStandard Deviation: ' + Number(pt.sd).toPrecision(4) }, this._dotHandlers(id)));
+        const hi = sy(Math.min(YD[1], pt.mean + pt.sd)), lo = sy(Math.max(0, pt.mean - pt.sd));
+        bars.push({ d: 'M' + (cx - 6) + ' ' + hi + 'H' + (cx + 6) + 'M' + cx + ' ' + hi + 'V' + lo +
+                         'M' + (cx - 6) + ' ' + lo + 'H' + (cx + 6) });
+      } else {
+        pt.reps.forEach((v, ri) => {
+          const id = 'std:' + i + ':' + ri;
+          dots.push(Object.assign({ cx, cy: sy(v) }, this._dotStyle(id, '#7BA7AE'),
+            { note: 'ATP: ' + pt.atp + ' µM\nRLU: ' + Math.round(v).toLocaleString('en-US') },
+            this._dotHandlers(id)));
+        });
+      }
+    });
+    const yAt = x => Math.max(YD[0], Math.min(YD[1], slope * x + inter));
+    return {
+      yTicks, xTicks, dots, bars, color: '#7BA7AE',
+      line: 'M' + sx(XD[0]) + ' ' + sy(yAt(XD[0])) + 'L' + sx(5.0) + ' ' + sy(yAt(5.0)),
+      equation: 'y=' + Math.trunc(slope) + 'x+' + Math.trunc(inter),
+      r2: Q.eq.r2.toFixed(3),
+    };
+  }
+
+  // Quantified values: the same dose response, read in ATP rather than percent.
+  _quantChart(d, sh, visible, focus) {
+    const YD = [-0.5, 4.5];
+    const sy = v => Y1 - (v - YD[0]) / (YD[1] - YD[0]) * (Y1 - Y0);
+    const yTicks = [];
+    for (let v = YD[0]; v <= YD[1] + 1e-9; v += 0.5) yTicks.push({ y: sy(v), ty: sy(v) + 7, label: v === 0 ? '0' : v.toFixed(1) });
+    const xTicks = [];
+    for (let v = Math.ceil(d[0] * 2) / 2; v <= d[1]; v += 0.5) xTicks.push({ x: this._sx(v, d), label: v.toFixed(1) });
+
+    const base = (D.fits[this.state.quantModel] || {})['% of Control'] || {};
+    const xf = f => ({ ec50: f.ec50, r2: f.r2, hill: f.hill, asym: f.asym,
+                       top: Q.a * f.top + Q.b, bottom: Q.a * f.bottom + Q.b });
+
+    const series = visible.map(s => {
+      const f = xf(base[s.name]);
+      const pts = Q.quant[s.name] || [];
+      let curve = '';
+      for (let i = 0; i <= 180; i++) {
+        const lg = d[0] + (d[1] - d[0]) * i / 180;
+        const y = Math.max(YD[0], Math.min(YD[1], this._model(f, Math.pow(10, lg - sh))));
+        curve += (i ? 'L' : 'M') + this._sx(lg, d).toFixed(1) + ' ' + sy(y).toFixed(1);
+      }
+      const dots = [], bars = [];
+      pts.forEach((p, ci) => {
+        const cx = this._sx(Math.log10(p.x) + sh, d);
+        if (focus) {
+          (p.qr || []).forEach((val, ri) => {
+            const id = 'q:' + s.name + ':' + ci + ':' + ri;
+            dots.push(Object.assign({ cx, cy: sy(val) }, this._dotStyle(id, s.color),
+              { note: 'X: ' + this._sci(p.x, 4) + ' µM\nY: ' + val.toFixed(3) + '\nWell: ' + s.rows[ri] + (ci + 1) },
+              this._dotHandlers(id)));
+          });
+        } else {
+          const id = 'q:' + s.name + ':' + ci;
+          dots.push(Object.assign({ cx, cy: sy(p.q) }, this._dotStyle(id, s.color),
+            { note: 'Average: ' + p.q.toFixed(3) + '\nStandard Deviation: ' + Number(p.qsd).toPrecision(4) },
+            this._dotHandlers(id)));
+          if (this.state.quantErrorBars) {
+            const hi = sy(Math.min(YD[1], p.q + p.qsd)), lo = sy(Math.max(YD[0], p.q - p.qsd));
+            bars.push({ d: 'M' + (cx - 6) + ' ' + hi + 'H' + (cx + 6) + 'M' + cx + ' ' + hi + 'V' + lo +
+                             'M' + (cx - 6) + ' ' + lo + 'H' + (cx + 6) });
+          }
+        }
+      });
+      const ecY = f.bottom + (f.top - f.bottom) / 2;
+      return { color: s.color, curve, dots, bars,
+        ecx: this._sx(Math.log10(f.ec50) + sh, d), ecy: sy(ecY),
+        onEcEnter: (e) => {
+          let t = 'EC50 or IC50: ' + this._sci(f.ec50, 4) + ' µM\nTop: ' + Number(f.top).toPrecision(4) +
+                  '\nBottom: ' + Number(f.bottom).toPrecision(4) + '\nHill Slope: ' + f.hill.toFixed(3) +
+                  '\nR²: ' + f.r2.toFixed(4);
+          if (f.asym !== undefined) t += '\nAsymmetry Factor: ' + f.asym;
+          this.setState({ note: t, noteX: e.clientX + 16, noteY: e.clientY + 18 });
+        },
+        onEcLeave: () => this.setState({ note: null }),
+      };
+    });
+
+    const head = ['Name', 'EC₅₀ or IC₅₀', 'R²', 'Top', 'Bottom', 'Hill Slope'];
+    if (this.state.quantModel === '5PL') head.push('Asymmetry Factor');
+    const rows = SERIES.map(s => {
+      const f = xf(base[s.name]);
+      const cells = [
+        { text: this._sci(f.ec50, 4) + 'µM' },
+        { text: f.r2.toFixed(4) },
+        { text: Number(f.top).toPrecision(4) },
+        { text: Number(f.bottom).toPrecision(4) },
+        { text: f.hill.toFixed(3) },
+      ];
+      if (this.state.quantModel === '5PL') cells.push({ text: String(f.asym) });
+      return { name: s.name, color: s.color, cells };
+    });
+    return { yTicks, xTicks, series, zeroY: Y1, head: head.map(h => ({ label: h })), rows };
+  }
+
+  renderVals() {
+    const st = this.state;
+    const d = this._domain(), sh = this._shift();
+    const modality = this._modality();
+    const fits = (D.fits[st.model] || {})[modality] || {};
+    const visible = SERIES.filter(s => !st.hidden[s.name]);
+    // One series visible is "focus mode": points become per-well and the error bar
+    // control is disabled, because a single well has no standard deviation.
+    const focus = visible.length === 1;
+    const isChartTab = st.tab !== 'quantified';
+    const meanKey = st.tab === 'inhibition' ? 'i' : 'v';
+    const sdKey   = st.tab === 'inhibition' ? 'isd' : 'vsd';
+    const repKey  = st.tab === 'inhibition' ? 'ir' : 'vr';
+
+    // ticks
+    const yTicks = [];
+    const yd = this._yd();
+    for (let v = yd[0]; v <= yd[1]; v += 10) yTicks.push({ y: this._sy(v), ty: this._sy(v) + 7, label: String(v) });
+    const xTicks = [];
+    for (let v = Math.ceil(d[0] * 2) / 2; v <= d[1]; v += 0.5) {
+      xTicks.push({ x: this._sx(v, d), label: v.toFixed(1) });
+    }
+
+    const series = visible.map(s => {
+      const f = fits[s.name];
+      const pts = D.points[s.name] || [];
+      let curve = '';
+      for (let i = 0; i <= 180; i++) {
+        const lg = d[0] + (d[1] - d[0]) * i / 180;
+        const y = Math.max(yd[0], Math.min(yd[1], this._model(f, Math.pow(10, lg - sh))));
+        curve += (i ? 'L' : 'M') + this._sx(lg, d).toFixed(1) + ' ' + this._sy(y).toFixed(1);
+      }
+
+      const dots = [], bars = [];
+      pts.forEach((p, ci) => {
+        const cx = this._sx(Math.log10(p.x) + sh, d);
+        if (focus) {
+          (p[repKey] || []).forEach((val, ri) => {
+            const id = s.name + ':' + ci + ':' + ri;
+            const well = s.rows[ri] + (ci + 1);
+            dots.push(Object.assign({ cx, cy: this._sy(val) },
+              this._dotStyle(id, s.color),
+              { note: 'X: ' + this._sci(p.x, 4) + ' µM\nY: ' + val.toFixed(2) + '\nWell: ' + well },
+              this._dotHandlers(id)));
+          });
+        } else {
+          const id = s.name + ':' + ci;
+          dots.push(Object.assign({ cx, cy: this._sy(p[meanKey]) },
+            this._dotStyle(id, s.color),
+            { note: 'Average: ' + p[meanKey].toFixed(2) + '\nStandard Deviation: ' + Number(p[sdKey]).toPrecision(4) },
+            this._dotHandlers(id)));
+          if (st.errorBars) {
+            const hiY = this._sy(Math.min(yd[1], p[meanKey] + p[sdKey]));
+            const loY = this._sy(Math.max(yd[0], p[meanKey] - p[sdKey]));
+            bars.push({ d: 'M' + (cx - 6) + ' ' + hiY + 'H' + (cx + 6) + 'M' + cx + ' ' + hiY + 'V' + loY +
+                             'M' + (cx - 6) + ' ' + loY + 'H' + (cx + 6) });
+          }
+        }
+      });
+
+      const ecY = f.bottom + (f.top - f.bottom) / 2;
+      return {
+        color: s.color, curve, dots, bars,
+        ecx: this._sx(Math.log10(f.ec50) + sh, d), ecy: this._sy(ecY),
+        onEcEnter: (e) => {
+          let t = 'EC50 or IC50: ' + this._sci(f.ec50, 4) + ' µM\nTop: ' + f.top.toFixed(1) +
+                  '\nBottom: ' + f.bottom.toFixed(4) + '\nHill Slope: ' + f.hill.toFixed(3) +
+                  '\nR²: ' + f.r2.toFixed(4);
+          if (f.asym !== undefined) t += '\nAsymmetry Factor: ' + f.asym;
+          this.setState({ note: t, noteX: e.clientX + 16, noteY: e.clientY + 18, crossFor: s.name });
+        },
+        onEcLeave: () => this.setState({ note: null, crossFor: null }),
+      };
+    });
+
+    // crosshair follows the EC50 marker being hovered
+    const cs = SERIES.find(s => s.name === st.crossFor);
+    const cf = cs && fits[cs.name];
+    const cy = cf && (cf.bottom + (cf.top - cf.bottom) / 2);
+    const cxv = cf && (Math.log10(cf.ec50) + sh);
+
+    const legend = SERIES.map(s => {
+      const on = !st.hidden[s.name];
+      return {
+        name: s.name, color: s.color,
+        style: 'display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:var(--pn-border-radius-full);cursor:pointer;text-align:left;width:100%;'
+             + (on ? 'background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-subtle);box-shadow:0 1px 4px rgba(0,0,0,.12);'
+                   : 'background:transparent;border:1px solid transparent;'),
+        // Hiding the last visible series would leave an empty chart, so the final one holds.
+        onToggle: () => this.setState(p => {
+          const next = Object.assign({}, p.hidden);
+          if (!next[s.name] && SERIES.filter(x => !next[x.name]).length === 1) return null;
+          next[s.name] = !next[s.name];
+          return { hidden: next, crossFor: null, note: null, hoverPt: null };
+        }),
+      };
+    });
+
+    const head = ['Name', 'EC₅₀ or IC₅₀', 'R²', 'Top', 'Bottom', 'Hill Slope'];
+    if (st.model === '5PL') head.push('Asymmetry Factor');
+    const tableRows = SERIES.map(s => {
+      const f = fits[s.name];
+      const cells = [
+        { text: this._sci(f.ec50, 4) + 'µM' },
+        { text: f.r2.toFixed(4) },
+        { text: f.top.toFixed(1) },
+        // 4 significant figures, not 4 decimals: the app shows 0.8962, -1.892 and -3.775.
+        // Both rules agree on the % of Control values, so only the inhibition tab reveals it.
+        { text: Number(f.bottom).toPrecision(4) },
+        { text: f.hill.toFixed(3) },
+      ];
+      if (st.model === '5PL') cells.push({ text: String(f.asym) });
+      return { name: s.name, color: s.color, cells };
+    });
+
+    return {
+      // From the shared list, not a literal. The same name appears in the
+      // dashboard's My Data, and a literal here is exactly the drift
+      // ctg-demo-data.js exists to prevent.
+      analysisName: (window.CTG && window.CTG.ANALYSES && window.CTG.ANALYSES[0].name) || '',
+      openDetailed: this.openDetailed,
+      detailedOpen: this.state.detailedOpen,
+      note: st.note, noteX: st.noteX + 'px', noteY: st.noteY + 'px',
+      showNote: this.showNote, moveNote: this.moveNote, hideNote: this.hideNote,
+
+      ghostBtn: 'background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);'
+              + 'padding:12px 20px;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:not-allowed;',
+
+      tabControl: this.tabControl, tabInhibition: this.tabInhibition, tabQuantified: this.tabQuantified,
+      tabControlStyle:    this._tab(st.tab === 'control'),
+      tabInhibitionStyle: this._tab(st.tab === 'inhibition'),
+      tabQuantifiedStyle: this._tab(st.tab === 'quantified'),
+      isChartTab, isPlaceholder: !isChartTab,
+      placeholderText: 'Quantified Results is not built yet. It reports interpolated sample concentrations against the ATP standard curve on this plate.',
+
+      onCurveFitChange: this.onCurveFitChange,
+      is4PL: st.model === '4PL', is5PL: st.model === '5PL',
+      showErrorBars: st.errorBars && !focus,
+      errorBarsDisabled: focus,
+      errorBarCursor: focus ? 'not-allowed' : 'pointer',
+      errorBarLabelColor: focus ? 'var(--pn-color-text-muted)' : 'var(--pn-color-text-primary)',
+      onToggleErrorBars: this.onToggleErrorBars,
+
+      std: this._stdChart(),
+      quant: this._quantChart(d, sh, visible, focus),
+      stdErrorBars: st.stdErrorBars, onToggleStdErrorBars: this.onToggleStdErrorBars,
+      quantIs4PL: st.quantModel === '4PL', quantIs5PL: st.quantModel === '5PL',
+      onQuantFitChange: this.onQuantFitChange,
+      quantErrorBars: st.quantErrorBars && !focus, quantBarsDisabled: focus,
+      onToggleQuantErrorBars: this.onToggleQuantErrorBars,
+      quantCursor: focus ? 'not-allowed' : 'pointer',
+      quantLabelColor: focus ? 'var(--pn-color-text-muted)' : 'var(--pn-color-text-primary)',
+      yAxisLabel: st.tab === 'inhibition' ? '% Inhibition' : '% of Control',
+      yTicks, xTicks, series, legend, tableHead: head.map(h => ({ label: h })), tableRows,
+
+      unit: st.unit,
+      unitMenuOpen: st.unitMenuOpen,
+      unitOptions: UNITS.map(u => ({
+        label: u.label,
+        style: 'display:block;width:100%;text-align:left;padding:9px 20px;border:0;cursor:pointer;'
+             + 'font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);'
+             + (u.label === st.unit ? 'background:var(--pn-color-surface-page);' : 'background:none;'),
+        onSelect: () => this.setState({ unit: u.label, unitMenuOpen: false, crossFor: null, note: null }),
+      })),
+      toggleUnitMenu: this.toggleUnitMenu,
+
+      crosshair: !!cf,
+      crossX: cf ? this._sx(cxv, d) : 0,
+      crossY: cf ? this._sy(cy) : 0,
+      crossColor: cs ? cs.color : 'transparent',
+      crossYBox: cf ? this._sy(cy) - 12 : 0,
+      crossYText: cf ? this._sy(cy) + 5 : 0,
+      crossXBox: cf ? this._sx(cxv, d) - 31 : 0,
+      crossYLabel: cf ? cy.toFixed(3) : '',
+      crossXLabel: cf ? cxv.toFixed(3) : '',
+    };
+  }
+
+  openDetailed = () => this.setState({ detailedOpen: true, note: null });
+
+  componentDidMount() {
+    // Detailed Data is a dc-import and cannot call back into this page, so it
+    // announces Close on the document. Same contract the plate map editor uses
+    // for Select Instrument and Open Plate Map.
+    this._onDetailedClose = () => this.setState({ detailedOpen: false });
+    document.addEventListener('ctg:detailed-data-close', this._onDetailedClose);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('ctg:detailed-data-close', this._onDetailedClose);
+  }
+
+  _tab(active) {
+    return 'background:' + (active ? 'var(--pn-color-sol-50)' : 'transparent') + ';border:0;padding:14px 18px;cursor:pointer;'
+         + 'font:400 17px/1 var(--pn-font-family-sans);'
+         + 'color:' + (active ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-muted)') + ';'
+         + 'border-bottom:4px solid ' + (active ? 'var(--pn-color-sol-500)' : 'transparent') + ';margin-bottom:-1px;';
+  }
+  // Hovering a point turns it into an open ring, as the app does.
+  _dotStyle(id, color) {
+    const on = this.state.hoverPt === id;
+    return on ? { r: 7, fill: 'var(--pn-color-surface-default)', stroke: color, sw: 2.4 }
+              : { r: 5, fill: color, stroke: 'none', sw: 0 };
+  }
+  _dotHandlers(id) {
+    return {
+      onEnter: (e) => { this.setState({ hoverPt: id }); this.showNote(e); },
+      onLeave: () => this.setState({ hoverPt: null, note: null }),
+    };
+  }
+}
+</script>
+</body>
+</html>

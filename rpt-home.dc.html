@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
+  <script src="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/_ds_bundle.js"></script>
+  <style>
+    body { margin: 0; background: var(--pn-color-surface-default); }
+    a { color: #000; }
+    a:hover { color: #FDB913; }
+    @keyframes mui-snackbar-in { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .rpt-well { transition: background 0.1s ease; }
+    .rpt-well:hover { outline: 1px solid #3B82F6; outline-offset: -1px; }
+  </style>
+</helmet>
+
+<div data-screen-label="RPT Home" style="min-height:100vh;display:flex;flex-direction:column;">
+
+  <div style="display:none;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);padding:8px 24px;font-size:13px;letter-spacing:.02em">Demo guide - RPT Home (Select Wells grid, Endpoint / Time Course tabs) → <a href="rpt-read-in-progress.dc.html" style="color:#9fd3ff">Read in Progress</a> → <a href="rpt-results.dc.html" style="color:#9fd3ff">Results</a></div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <!-- Shared platform sidebar. Markup lives in pronect-sidebar; do not inline it here. -->
+    <dc-import name="pronect-sidebar"
+                dashboard-href="user-dashboard.dc.html"
+                hint-size="284,900"
+                style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></dc-import>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+
+      <!-- Shared platform top bar. Markup lives in pronect-topbar; do not inline it here. -->
+      <dc-import name="pronect-topbar"
+                  hint-size="1200,64"
+                  style="display:block;width:100%;flex:none;"></dc-import>
+
+    <div style="flex:1; min-height:0; padding:clamp(16px, 2.6vw, 36px); box-sizing:border-box; display:flex; flex-direction:column; background:whitesmoke;">
+      <div style="display: flex; align-items: center; margin-left: 16px; margin-bottom: 24px">
+        <img src="assets/rpt-icon.svg" alt="" style="width:clamp(45px, calc(3.58px + 3.03vw), 120px); height:clamp(45px, calc(3.58px + 3.03vw), 120px); margin-right:12px;">
+        <h1 style="font-family:var(--font-sans); font-size:var(--pn-font-size-2xl); font-weight:var(--pn-font-weight-bold); line-height:var(--pn-font-line-height-tight); margin:0; color:#000;">Read Plate Tool</h1>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; flex:1; min-height:0; gap:24px; background:var(--pn-color-surface-default); border:1px solid var(--pn-color-border-default); border-radius:16px; padding:clamp(20px, calc(8px + 0.808vw), 40px); box-sizing:border-box;">
+
+        <div style="width:67%; min-height:0; display:flex; flex-direction:column; gap:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="margin:0; font-family:var(--font-sans); font-size:var(--pn-font-size-lg); font-weight:var(--pn-font-weight-semibold); line-height:var(--pn-font-line-height-snug); color:#000;">Select Wells</h4>
+            <span style="padding:4px 12px; font-family:var(--font-sans); font-size:var(--pn-font-size-xs); font-weight:var(--pn-font-weight-regular); line-height:var(--pn-font-line-height-normal); letter-spacing:var(--pn-font-letter-spacing-normal); white-space:nowrap; color:#666666; background:#F3F4F6; border-radius:clamp(18px, calc(8.06px + 0.73vw), 36px);">{{ wellsCount }} / 96 wells selected</span>
+          </div>
+
+          <div style="width:100%; flex:1; min-height:0;">
+            <div style="height:100%; border:1px solid var(--pn-color-neutral-300); border-radius:var(--pn-border-radius-sm); padding:2px; box-sizing:border-box;">
+              <div style="display:grid; grid-template-columns:28px repeat(12, 1fr); grid-template-rows:28px repeat(8, 1fr); gap:2px; user-select:none; height:100%;">
+                <button onClick="{{ onCornerClick }}" style="background:var(--pn-color-neutral-0); border:1px solid var(--pn-color-neutral-300); border-radius:var(--pn-border-radius-sm); cursor:pointer;"></button>
+                <sc-for list="{{ colHeaders }}" as="col" hint-placeholder-count="12">
+                  <button onClick="{{ col.onClick }}" style="background:var(--pn-color-neutral-0); border:1px solid var(--pn-color-neutral-300); border-radius:var(--pn-border-radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-medium); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal); color:var(--pn-color-text-muted); font-variant-numeric:tabular-nums;">{{ col.label }}</button>
+                </sc-for>
+                <sc-for list="{{ rows }}" as="row" hint-placeholder-count="8">
+                  <button onClick="{{ row.onClick }}" style="background:var(--pn-color-neutral-0); border:1px solid var(--pn-color-neutral-300); border-radius:var(--pn-border-radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-medium); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal); color:var(--pn-color-text-muted); font-variant-numeric:tabular-nums;">{{ row.label }}</button>
+                  <sc-for list="{{ row.wells }}" as="well" hint-placeholder-count="12">
+                    <div class="rpt-well" onMouseDown="{{ well.onDown }}" onMouseEnter="{{ well.onEnter }}" style="{{ well.style }}"></div>
+                  </sc-for>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="width:100%; display:flex; flex-direction:row; justify-content:flex-start; flex-shrink:0;">
+            <button onClick="{{ onDeselectAll }}" disabled="{{ deselectAllDisabled }}" style="padding:8px 16px; margin-right:16px; font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-medium); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal); color:var(--pn-color-text-primary); background:var(--pn-color-sol-500); border:none; border-radius:4px; cursor:pointer; box-shadow:0 1px 5px 0 rgba(0,0,0,.12), 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2); opacity:{{ deselectAllOpacity }};">Deselect All</button>
+            <button onClick="{{ onSelectAll }}" disabled="{{ selectAllDisabled }}" style="padding:8px 16px; font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-medium); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal); color:var(--pn-color-text-primary); background:var(--pn-color-sol-500); border:none; border-radius:4px; cursor:pointer; box-shadow:0 1px 5px 0 rgba(0,0,0,.12), 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2); opacity:{{ selectAllOpacity }};">Select All</button>
+          </div>
+        </div>
+
+        <div style="width:30%; min-height:0; display:flex; flex-direction:column; gap:24px;">
+          <h4 style="margin:0; font-family:var(--font-sans); font-size:var(--pn-font-size-lg); font-weight:var(--pn-font-weight-semibold); line-height:var(--pn-font-line-height-snug); color:#000;">Read Protocol</h4>
+
+          <div style="width:100%; flex:1; min-height:0; display:flex; flex-direction:column; gap:24px;">
+            <div style="display:flex; border-bottom:1px solid rgba(0,0,0,0.15);">
+              <button onClick="{{ onSelectEndpoint }}" style="{{ endpointTabStyle }}">Endpoint</button>
+              <button class="{{ timeCourseCue }}" onClick="{{ onSelectTimeCourse }}" style="{{ timeCourseTabStyle }}">Time Course</button>
+            </div>
+
+            <sc-if value="{{ isEndpoint }}" hint-placeholder-val="{{ true }}">
+              <div style="width:44%;">
+                <label style="display: block; font-family: var(--font-sans); font-size: var(--pn-font-size-sm); font-weight: var(--pn-font-weight-semibold); color: #505050; line-height: var(--pn-font-line-height-tight); margin-bottom: 8px">Integration Time (sec)</label>
+                <input type="number" min="0.1" max="30" step="0.1" value="{{ integrationTime }}" onChange="{{ onIntegrationTimeChange }}" style="{{ integrationInputStyle }}">
+                <div style="{{ integrationHelperStyle }}">{{ integrationHelperText }}</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isTimeCourse }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; justify-content:space-between; flex:1; min-height:0;">
+                <div style="width:44%; display:flex; flex-direction:column; gap:12px;">
+                  <div>
+                    <label style="display: block; font-family: var(--font-sans); font-size: var(--pn-font-size-sm); font-weight: var(--pn-font-weight-semibold); color: #505050; line-height: var(--pn-font-line-height-tight); margin-bottom: 8px">Integration Time (sec)</label>
+                    <input type="number" min="0.1" max="30" step="0.1" value="{{ integrationTime }}" onChange="{{ onIntegrationTimeChange }}" style="{{ integrationInputStyle }}">
+                    <div style="{{ integrationHelperStyle }}">{{ integrationHelperText }}</div>
+                  </div>
+
+                  <div>
+                    <label style="display: block; font-family: var(--font-sans); font-size: var(--pn-font-size-sm); font-weight: var(--pn-font-weight-semibold); color: #505050; line-height: var(--pn-font-line-height-tight); margin-bottom: 8px">Read Interval</label>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:nowrap; max-width:100%;">
+                      <input type="number" min="0" max="6" step="1" value="{{ hours }}" onChange="{{ onHoursChange }}" style="{{ hoursInputStyle }}">
+                      <span style="font-family:var(--font-sans); font-size:var(--pn-font-size-xs); font-weight:var(--pn-font-weight-regular); line-height:var(--pn-font-line-height-normal); letter-spacing:var(--pn-font-letter-spacing-normal); color:#666;">hr</span>
+                      <input type="number" min="0" max="59" step="1" value="{{ minutes }}" onChange="{{ onMinutesChange }}" style="{{ minutesInputStyle }}">
+                      <span style="font-family:var(--font-sans); font-size:var(--pn-font-size-xs); font-weight:var(--pn-font-weight-regular); line-height:var(--pn-font-line-height-normal); letter-spacing:var(--pn-font-letter-spacing-normal); color:#666;">min</span>
+                    </div>
+                    <div style="{{ readIntervalHelperStyle }}">{{ readIntervalHelperText }}</div>
+                  </div>
+
+                  <div>
+                    <label style="display: block; font-family: var(--font-sans); font-size: var(--pn-font-size-sm); font-weight: var(--pn-font-weight-semibold); color: #505050; line-height: var(--pn-font-line-height-tight); margin-bottom: 8px">Number of Reads</label>
+                    <input type="number" min="2" max="300" step="1" value="{{ numberOfReads }}" onChange="{{ onNumberOfReadsChange }}" style="{{ numberOfReadsInputStyle }}">
+                    <div style="{{ numberOfReadsHelperStyle }}">{{ numberOfReadsHelperText }}</div>
+                  </div>
+
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" checked="{{ includeTimepointZero }}" onChange="{{ onToggleTimepointZero }}" style="width:18px; height:18px; accent-color:#FDB913;">
+                    <span style="font-family: var(--font-sans); font-size: var(--pn-font-size-sm); font-weight: var(--pn-font-weight-semibold); line-height: var(--pn-font-line-height-tight); color: #505050; white-space: nowrap; display: block">Include time point 0 read</span>
+                  </label>
+
+                  <sc-if value="{{ isValidationError }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; flex-direction:column; gap:8px; padding:12px 16px; border-radius:8px; background:rgba(220,38,38,0.07); border:1px solid #d32f2f;">
+                      <div style="display: flex; align-items: center; gap: 8px">
+                        <span class="material-symbols-outlined" style="font-size:20px; color:#d32f2f;">error</span>
+                        <div style="font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-semibold); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal); color:#d32f2f;">Timing conflict</div>
+                      </div>
+                      <div style="width: 100%; white-space: pre-line; font-family: var(--font-sans); font-size: var(--pn-font-size-xs); font-weight: var(--pn-font-weight-regular); line-height: var(--pn-font-line-height-normal); letter-spacing: var(--pn-font-letter-spacing-normal); color: var(--pn-color-text-primary); position: relative">{{ validationErrorText }} <a href="#" onClick="{{ onOpenFixModal }}" style="color: var(--pn-color-action-primary-default); font-weight: 500; text-decoration: underline; cursor: pointer">More guidance</a></div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ isValidationWarning }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; flex-direction:column; gap:8px; padding:12px 16px; border-radius:8px; background:rgba(253,184,19,0.12); border:1px solid #FDB913;">
+                      <div style="display: flex; align-items: center; gap: 8px">
+                        <span class="material-symbols-outlined" style="font-size:20px; color:#93700a;">warning</span>
+                        <div style="font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-semibold); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal); color:#93700a;">Timing risk</div>
+                      </div>
+                      <div style="width:100%; white-space:pre-line; font-family:var(--font-sans); font-size:var(--pn-font-size-xs); font-weight:var(--pn-font-weight-regular); line-height:var(--pn-font-line-height-normal); letter-spacing:var(--pn-font-letter-spacing-normal); color:var(--pn-color-text-primary);">{{ validationWarningText }} <a href="#" onClick="{{ onOpenMarginModal }}" style="color:var(--pn-color-action-primary-default); font-weight:500; text-decoration:underline; cursor:pointer;">More guidance</a></div>
+                    </div>
+                  </sc-if>
+                </div>
+
+                <div style="width:50%; min-width:0; min-height:0; display:flex; flex-direction:column; border-radius:clamp(10px, 1.1vw, 20px); border:1px solid #d9d9d9;">
+                  <div style="width:100%; border-bottom:1px solid #d9d9d9;">
+                    <h4 style="font-family: var(--font-sans); font-size: var(--pn-font-size-sm); font-weight: var(--pn-font-weight-bold); line-height: var(--pn-font-line-height-tight); letter-spacing: var(--pn-font-letter-spacing-wider); text-transform: uppercase; color: #6B7280; margin: 0; padding: 8px 0 8px 16px">READ PREVIEW</h4>
+                  </div>
+                  <div style="width:100%; min-width:0; flex:1; padding:15px 15px 0 15px; overflow-y:auto; box-sizing:border-box;">
+                    <sc-if value="{{ previewLinesEmptyMessage }}" hint-placeholder-val="{{ false }}">
+                      <span style="display: block; max-width: 100%; font-family: var(--font-sans); font-size: var(--pn-font-size-xs); font-weight: var(--pn-font-weight-regular); line-height: var(--pn-font-line-height-normal); letter-spacing: var(--pn-font-letter-spacing-normal); font-style: italic; color: #666; word-wrap: break-word; overflow-wrap: break-word; text-align: center">Enter valid settings to see a read preview.</span>
+                    </sc-if>
+                    <sc-for list="{{ previewLines }}" as="line" hint-placeholder-count="3">
+                      <span style="display:block; font-family:var(--font-sans); font-weight:var(--pn-font-weight-regular); line-height:var(--pn-font-line-height-normal); letter-spacing:var(--pn-font-letter-spacing-normal); color:var(--pn-color-text-primary); font-size:var(--pn-font-size-sm);">• {{ line.text }}</span>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="width:100%; display:flex; flex-direction:row; justify-content:flex-end; flex-shrink:0;">
+            <button onClick="{{ onReadPlate }}" disabled="{{ readDisabled }}" style="padding:8px 16px; font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-semibold); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal); color:#000; background:#FDB713; border:none; border-radius:4px; cursor:pointer; box-shadow:0 1px 5px 0 rgba(0,0,0,.12), 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2); opacity:{{ readOpacity }};">Read Plate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; bottom:24px; left:24px; z-index:1400; animation:mui-snackbar-in 0.2s ease-out;">
+    <div style="display:flex; align-items:center; gap:8px; background:#2e7d32; color:var(--pn-color-text-inverse); border-radius:4px; padding:6px 16px; box-shadow:0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);">
+      <span class="material-symbols-outlined" style="font-size:20px;">check_circle</span>
+      <span style="font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-medium); line-height:var(--pn-font-line-height-tight); letter-spacing:var(--pn-font-letter-spacing-normal);">Time course reads scheduled.</span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isFixModalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:1000;" onClick="{{ onCloseFixModal }}">
+    <div style="background:var(--pn-color-surface-default); border-radius:12px; padding:24px; width:420px; max-width:90vw;" onClick="{{ stopPropagation }}">
+      <div style="font-family:var(--font-sans); font-size:var(--pn-font-size-md); font-weight:var(--pn-font-weight-semibold); color:#232323; margin-bottom:12px;">Timing conflict</div>
+      <div style="font-family:var(--font-sans); font-size:var(--pn-font-size-sm); color:#505050; margin-bottom:20px;"><div dir="ltr"><p dir="ltr">At your current settings, MyGlo can't complete a read before the next one is scheduled to start.</p>
+
+<p dir="ltr">To fix this, do one of the following:</p>
+
+<ul dir="ltr">
+<li><b>Increase the read interval</b>: adds time between reads without affecting your signal-to-noise ratio.</li>
+<li><b>Decrease the integration time</b>: shortens each read, but reduces your signal-to-noise ratio, so use this only if your signal is strong.</li>
+</ul>
+
+<p dir="ltr">The Read Plate button stays disabled until this is resolved.</p>
+
+</div>
+
+
+
+<ul dir="ltr">
+
+
+</ul>
+
+</div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button onClick="{{ onCloseFixModal }}" style="font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-semibold); color:var(--pn-color-text-inverse); background:#232323; border:none; border-radius:6px; padding:8px 16px; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isMarginModalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:1000;" onClick="{{ onCloseMarginModal }}">
+    <div style="background:var(--pn-color-surface-default); border-radius:12px; padding:24px; width:420px; max-width:90vw;" onClick="{{ stopPropagation }}">
+      <div style="font-family:var(--font-sans); font-size:var(--pn-font-size-md); font-weight:var(--pn-font-weight-semibold); color:#232323; margin-bottom:12px;">Timing risk<br></div>
+      <div style="font-family:var(--font-sans); font-size:var(--pn-font-size-sm); color:#505050; margin-bottom:20px;"><p dir="ltr">At your current settings, each read uses most of the time between reads. Your run will proceed, but there isn't much room if a read takes longer than expected.<br><br><span style="font-size: 13.3328px;">To reduce this risk, do one of the following:</span></p>
+
+
+
+<ul dir="ltr">
+<li><b>Increase read interval</b>: recommended, since it doesn't affect your data.</li>
+<li><b>Decrease integration time</b>: only if your signal-to-noise ratio can tolerate a shorter read.</li>
+</ul>
+
+<p dir="ltr">To continue as configured, select the Read Plate button.</p></div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button onClick="{{ onCloseMarginModal }}" style="font-family:var(--font-sans); font-size:var(--pn-font-size-sm); font-weight:var(--pn-font-weight-semibold); color:var(--pn-color-text-inverse); background:#232323; border:none; border-radius:6px; padding:8px 16px; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1400,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    wells: Array.from({ length: 8 }, () => Array.from({ length: 12 }, () => ({ isSelected: true }))),
+    dragging: false, dragStart: null, dragEnd: null,
+    selectedTab: 'Endpoint',
+    integrationTime: '1',
+    hours: '0', minutes: '5',
+    numberOfReads: '12',
+    includeTimepointZero: true,
+    showToast: false,
+    isFixModalOpen: false,
+    isMarginModalOpen: false,
+  };
+
+  componentDidMount() {
+    this._onUp = () => this.handleGlobalMouseUp();
+    window.addEventListener('mouseup', this._onUp);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('mouseup', this._onUp);
+    clearTimeout(this._toastTimer);
+  }
+
+  formatMinutes(total) {
+    if (!Number.isFinite(total)) return '-';
+    const t = Math.round(total);
+    if (t < 60) return `${t} min`;
+    if (t < 1440) {
+      const h = Math.floor(t / 60), m = t % 60;
+      return m ? `${h} hr ${m} min` : `${h} hr`;
+    }
+    const d = Math.floor(t / 1440), remMin = t % 1440, h = Math.floor(remMin / 60), m = remMin % 60;
+    let parts = [`${d} day${d !== 1 ? 's' : ''}`];
+    if (h) parts.push(`${h} hr`);
+    if (m) parts.push(`${m} min`);
+    return parts.join(' ');
+  }
+
+  onWellDown(r, c) { this.setState({ dragging: true, dragStart: { r, c }, dragEnd: { r, c } }); }
+  onWellEnter(r, c) { if (this.state.dragging) this.setState({ dragEnd: { r, c } }); }
+
+  handleGlobalMouseUp() {
+    if (!this.state.dragging) return;
+    const { dragStart, dragEnd, wells } = this.state;
+    if (dragStart && dragEnd) {
+      const r0 = Math.min(dragStart.r, dragEnd.r), r1 = Math.max(dragStart.r, dragEnd.r);
+      const c0 = Math.min(dragStart.c, dragEnd.c), c1 = Math.max(dragStart.c, dragEnd.c);
+      let allSelected = true;
+      for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) if (!wells[r][c].isSelected) allSelected = false;
+      const newWells = wells.map((row, r) => row.map((w, c) => (r >= r0 && r <= r1 && c >= c0 && c <= c1) ? { ...w, isSelected: !allSelected } : w));
+      this.setState({ wells: newWells, dragging: false, dragStart: null, dragEnd: null });
+    } else {
+      this.setState({ dragging: false, dragStart: null, dragEnd: null });
+    }
+  }
+
+  toggleColumn(c) {
+    this.setState(s => {
+      const selectAll = !s.wells.every(row => row[c].isSelected);
+      return { wells: s.wells.map(row => row.map((w, ci) => ci === c ? { ...w, isSelected: selectAll } : w)) };
+    });
+  }
+  toggleRow(r) {
+    this.setState(s => {
+      const selectAll = !s.wells[r].every(w => w.isSelected);
+      return { wells: s.wells.map((row, ri) => ri === r ? row.map(w => ({ ...w, isSelected: selectAll })) : row) };
+    });
+  }
+  toggleAll() {
+    this.setState(s => {
+      const selectAll = !s.wells.every(row => row.every(w => w.isSelected));
+      return { wells: s.wells.map(row => row.map(w => ({ ...w, isSelected: selectAll }))) };
+    });
+  }
+  selectAll() { this.setState(s => ({ wells: s.wells.map(row => row.map(w => ({ ...w, isSelected: true }))) })); }
+  deselectAll() { this.setState(s => ({ wells: s.wells.map(row => row.map(w => ({ ...w, isSelected: false }))) })); }
+
+  onSelectEndpoint() { this.setState({ selectedTab: 'Endpoint', integrationTime: '1', hours: '0', minutes: '5', numberOfReads: '12', includeTimepointZero: true }); }
+  onSelectTimeCourse() { this.setState({ selectedTab: 'Time Course', integrationTime: '1', hours: '0', minutes: '5', numberOfReads: '12', includeTimepointZero: true }); }
+
+  onIntegrationTimeChange(e) { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) this.setState({ integrationTime: v }); }
+  onHoursChange(e) { const v = e.target.value; if (/^\d*$/.test(v)) this.setState({ hours: v }); }
+  onMinutesChange(e) { const v = e.target.value; if (/^\d{0,2}$/.test(v)) this.setState({ minutes: v }); }
+  onNumberOfReadsChange(e) { const v = e.target.value; if (/^\d*$/.test(v)) this.setState({ numberOfReads: v }); }
+  toggleTimepointZero() { this.setState(s => ({ includeTimepointZero: !s.includeTimepointZero })); }
+
+  // Goes to the read flow rather than raising a toast. The toast was a
+  // placeholder from before the read screens existed; the tab the user is on is
+  // carried across as ?mode, because a time course read shows a different
+  // in-progress screen and a different results screen from an endpoint read.
+  onReadPlate() {
+    const mode = this.state.selectedTab === 'Time Course' ? '?mode=timecourse' : '';
+    window.location.href = 'rpt-read-in-progress.dc.html' + mode;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const wells = s.wells;
+    const wellsCount = wells.reduce((n, row) => n + row.filter(w => w.isSelected).length, 0);
+
+    let pr = null;
+    if (s.dragging && s.dragStart && s.dragEnd) {
+      pr = { r0: Math.min(s.dragStart.r, s.dragEnd.r), r1: Math.max(s.dragStart.r, s.dragEnd.r), c0: Math.min(s.dragStart.c, s.dragEnd.c), c1: Math.max(s.dragStart.c, s.dragEnd.c) };
+    }
+    const inPreview = (r, c) => pr && r >= pr.r0 && r <= pr.r1 && c >= pr.c0 && c <= pr.c1;
+
+    const colHeaders = Array.from({ length: 12 }, (_, c) => ({ label: String(c + 1).padStart(2, '0'), onClick: () => this.toggleColumn(c) }));
+    const rows = wells.map((row, r) => ({
+      label: String.fromCharCode(65 + r),
+      onClick: () => this.toggleRow(r),
+      wells: row.map((w, c) => ({
+        key: `${r}-${c}`,
+        onDown: () => this.onWellDown(r, c),
+        onEnter: () => this.onWellEnter(r, c),
+        style: {
+          width: '100%', height: '100%', borderRadius: 3, cursor: 'pointer', boxSizing: 'border-box',
+          background: w.isSelected ? 'rgba(147,197,253,0.7)' : '#ffffff',
+          border: inPreview(r, c) ? '2px solid #FDB913' : '1px solid rgba(0,0,0,0.09)',
+        },
+      })),
+    }));
+
+    const isEndpoint = s.selectedTab === 'Endpoint';
+    const isTimeCourse = !isEndpoint;
+
+    const intTimeNum = s.integrationTime === '' ? NaN : parseFloat(s.integrationTime);
+    const integrationTimeError = !(intTimeNum >= 0.1 && intTimeNum <= 30);
+
+    const hoursNum = s.hours === '' ? 0 : parseInt(s.hours, 10);
+    const minutesNum = s.minutes === '' ? 0 : parseInt(s.minutes, 10);
+    const hoursError = !(hoursNum >= 0 && hoursNum <= 24);
+    const minutesError = !(minutesNum >= 0 && minutesNum <= 59);
+    const totalMinutes = hoursNum * 60 + minutesNum;
+    const readIntervalError = hoursError || minutesError || totalMinutes < 5 || totalMinutes > 360;
+
+    const numReadsNum = s.numberOfReads === '' ? NaN : parseInt(s.numberOfReads, 10);
+    const numberOfReadsError = !(Number.isInteger(numReadsNum) && numReadsNum >= 2 && numReadsNum <= 300);
+
+    const tcFieldsHaveError = integrationTimeError || readIntervalError || numberOfReadsError;
+
+    const overhead = this.props.perWellOverheadSec ?? 0.05;
+    const warnPct = (this.props.warningThresholdPercent ?? 60) / 100;
+    const perReadTimeSec = 96 * ((isNaN(intTimeNum) ? 0 : intTimeNum) + overhead);
+    const intervalSec = totalMinutes * 60;
+    const ratio = intervalSec > 0 ? perReadTimeSec / intervalSec : Infinity;
+
+    let validation = null;
+    if (isTimeCourse && !tcFieldsHaveError && wellsCount > 0) {
+      if (ratio >= 0.85) validation = 'error';
+      else if (ratio >= warnPct) validation = 'warning';
+    }
+    const isValidationError = validation === 'error';
+    const isValidationWarning = validation === 'warning';
+
+    let previewLines = [];
+    let hasLines = false;
+    let emptyMsg = false;
+    if (isTimeCourse) {
+      if (tcFieldsHaveError) {
+        emptyMsg = true;
+      } else {
+        if (s.includeTimepointZero) previewLines.push({ key: '0', text: 'Read 0 at 0 min' });
+        for (let i = 1; i <= numReadsNum; i++) previewLines.push({ key: String(i), text: `Read ${i} at ${this.formatMinutes(i * totalMinutes)}` });
+        hasLines = previewLines.length > 0;
+      }
+    }
+
+    const canRead = wellsCount > 0 && (isEndpoint ? !integrationTimeError : (!tcFieldsHaveError && !isValidationError));
+
+    const tabStyle = (active) => ({
+      background: active ? 'rgba(253,185,19,0.05)' : 'none', border: 'none', cursor: 'pointer', padding: '9px 16px', whiteSpace: 'nowrap',
+      boxSizing: 'border-box', fontFamily: 'var(--font-sans)', fontSize: 'var(--pn-font-size-sm)', fontWeight: active ? 'var(--pn-font-weight-semibold)' : 'var(--pn-font-weight-regular)', lineHeight: 'var(--pn-font-line-height-tight)', letterSpacing: 'var(--pn-font-letter-spacing-normal)', textTransform: 'capitalize',
+      color: '#000',
+      borderBottom: active ? '4px solid #FDB913' : '4px solid transparent',
+    });
+    const inputStyle = (hasError) => ({
+      width: '100%', boxSizing: 'border-box', padding: '6px 8px', fontSize: 'var(--pn-font-size-sm)', lineHeight: 'var(--pn-font-line-height-normal)', letterSpacing: 'var(--pn-font-letter-spacing-normal)', fontWeight: 'var(--pn-font-weight-regular)',
+      fontFamily: 'var(--font-sans)', color: 'var(--pn-color-text-primary)',
+      border: hasError ? '1px solid #d32f2f' : '1px solid var(--pn-color-neutral-400)',
+      borderRadius: 'var(--pn-border-radius-sm)', background: hasError ? 'rgba(220,38,38,0.05)' : 'var(--pn-color-surface-default)', outline: 'none',
+    });
+    const helperStyle = (hasError) => ({ fontSize: 'var(--pn-font-size-xs)', lineHeight: 'var(--pn-font-line-height-normal)', letterSpacing: 'var(--pn-font-letter-spacing-normal)', fontWeight: 'var(--pn-font-weight-regular)', marginTop: 4, fontFamily: 'var(--font-sans)', color: hasError ? '#d32f2f' : 'var(--pn-color-neutral-800)' });
+
+    return {
+      wellsCount, colHeaders, rows,
+      onCornerClick: () => this.toggleAll(),
+      onSelectAll: () => this.selectAll(),
+      onDeselectAll: () => this.deselectAll(),
+      selectAllDisabled: wellsCount === 96,
+      deselectAllDisabled: wellsCount === 0,
+      selectAllOpacity: wellsCount === 96 ? 0.4 : 1,
+      deselectAllOpacity: wellsCount === 0 ? 0.4 : 1,
+      isEndpoint, isTimeCourse,
+      onSelectEndpoint: () => this.onSelectEndpoint(),
+      onSelectTimeCourse: () => this.onSelectTimeCourse(),
+      endpointTabStyle: tabStyle(isEndpoint),
+      timeCourseTabStyle: tabStyle(isTimeCourse),
+      // Guided-walkthrough cue: pulses Time Course while the user is still on
+      // the default Endpoint tab, then stops once they've switched.
+      timeCourseCue: isEndpoint ? 'demo-cue' : '',
+      integrationTime: s.integrationTime,
+      onIntegrationTimeChange: (e) => this.onIntegrationTimeChange(e),
+      integrationInputStyle: { ...inputStyle(integrationTimeError), width: '9ch', flexShrink: 0 },
+      integrationHelperText: integrationTimeError ? 'Enter a value between 0.1 and 30 sec' : 'Range: 0.1 - 30 sec',
+      integrationHelperStyle: helperStyle(integrationTimeError),
+      hours: s.hours, minutes: s.minutes,
+      onHoursChange: (e) => this.onHoursChange(e),
+      onMinutesChange: (e) => this.onMinutesChange(e),
+      hoursInputStyle: { ...inputStyle(hoursError), width: 50, minWidth: 0, flexShrink: 1, boxSizing: 'border-box' },
+      minutesInputStyle: { ...inputStyle(minutesError), width: 50, minWidth: 0, flexShrink: 1, boxSizing: 'border-box' },
+      readIntervalHelperText: minutesNum > 59 ? 'Enter a value between 0 and 59 minutes. Use hr for longer interval.' : (readIntervalError ? 'Enter a total between 5 min and 6 hr' : 'Range: 5 min - 6 hr'),
+      readIntervalHelperStyle: helperStyle(readIntervalError),
+      numberOfReads: s.numberOfReads,
+      onNumberOfReadsChange: (e) => this.onNumberOfReadsChange(e),
+      numberOfReadsInputStyle: { ...inputStyle(numberOfReadsError), width: '9ch', flexShrink: 0 },
+      numberOfReadsHelperText: numberOfReadsError ? 'Enter a value between 2 and 300' : 'Range: 2 - 300',
+      numberOfReadsHelperStyle: helperStyle(numberOfReadsError),
+      includeTimepointZero: s.includeTimepointZero,
+      onToggleTimepointZero: () => this.toggleTimepointZero(),
+      isValidationError, isValidationWarning,
+      validationErrorText: `MyGlo can't finish a read before the next one starts. Increase the interval or lower the integration time.`,
+      validationWarningText: `Little margin here if a read runs long. Increase the interval or decrease the integration time.`,
+      isFixModalOpen: this.state.isFixModalOpen,
+      onOpenFixModal: () => this.setState({ isFixModalOpen: true }),
+      onCloseFixModal: () => this.setState({ isFixModalOpen: false }),
+      isMarginModalOpen: this.state.isMarginModalOpen,
+      onOpenMarginModal: () => this.setState({ isMarginModalOpen: true }),
+      onCloseMarginModal: () => this.setState({ isMarginModalOpen: false }),
+      stopPropagation: (e) => e.stopPropagation(),
+      previewLinesEmptyMessage: emptyMsg,
+      previewLines, hasPreviewLines: hasLines,
+      readDisabled: !canRead,
+      readOpacity: canRead ? 1 : 0.4,
+      showToast: s.showToast,
+      onReadPlate: () => this.onReadPlate(),
+    };
+  }
+}
+</script>
+</body>
+</html>
+</body>
+</html>

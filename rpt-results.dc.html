@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/ui_kits/pronect/styles.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <link rel="stylesheet" href="read-flow.css">
+  <script src="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/_ds_bundle.js"></script>
+  <style>
+    body{margin:0;background:var(--pn-color-surface-page);font-family:var(--pn-font-family-sans)}
+    .rpt-grid{display:grid;grid-template-columns:34px repeat(12,1fr);grid-template-rows:28px repeat(8,minmax(54px,1fr));gap:var(--pn-spacing-2);width:100%;}
+    .rpt-head{display:flex;align-items:center;justify-content:center;font:500 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);border:1px solid var(--pn-color-border-subtle);border-radius:var(--pn-border-radius-sm);background:var(--pn-color-surface-default);}
+    .rpt-rowlabel{display:flex;align-items:center;justify-content:center;font:500 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);border:1px solid var(--pn-color-border-subtle);border-radius:var(--pn-border-radius-sm);background:var(--pn-color-surface-default);}
+    /* Read Protocol and the reads list. Fixed width so the heat map keeps the
+       rest, matching 122 and 123. */
+    .rpt-side{width:196px;min-width:196px;flex:none;display:flex;flex-direction:column;min-height:0;
+              border:1px solid var(--pn-color-border-subtle);border-radius:var(--pn-border-radius-md);overflow:hidden;}
+    .rpt-side__title{font:700 11px/1 var(--pn-font-family-sans);letter-spacing:.08em;text-transform:uppercase;
+                     color:var(--pn-color-text-muted);padding:14px 16px 10px;}
+    .rpt-side__row{font:400 13px/1.5 var(--pn-font-family-sans);color:var(--pn-color-text-primary);padding:0 16px;}
+    .rpt-reads{flex:1;min-height:0;overflow:auto;padding-bottom:8px;}
+    .rpt-read{font:400 13px/1 var(--pn-font-family-sans);padding:9px 16px;cursor:pointer;border-left:3px solid transparent;}
+    .rpt-read.is-done{color:var(--pn-color-text-primary);}
+    .rpt-read.is-done:hover{background:var(--pn-color-surface-hover);}
+    /* Scheduled reads are informational only: no hover, no pointer. */
+    .rpt-read.is-pending{color:var(--pn-color-text-disabled);cursor:default;}
+    .rpt-read.is-active{font-weight:var(--pn-font-weight-semibold);background:var(--pn-color-sol-50);border-left-color:var(--pn-color-sol-500);}
+  </style>
+</helmet>
+
+<!-- Read Plate Tool results.
+     ==================================================================
+     Built from 124 (endpoint, complete), 122 (time course, complete) and
+     123 (time course, in progress).
+
+     Three states, one page, branching on ?mode and ?progress:
+       endpoint            three buttons, no sidebar
+       timecourse          two buttons, sidebar, all reads done
+       timecourse+partial  two buttons, sidebar, later reads greyed
+
+     The missing button on time course is not an oversight. CH apps do
+     not accept a time course read, so there is nothing to hand off to
+     and Analyze With Plate Map does not appear. Confirmed by 122 and
+     123 and stated in the Brain Dump.
+
+     Heat map maths is the same as ctg-read-results: a logarithmic ramp,
+     shifted when the plate contains non-positive wells. This plate
+     exercises that shift properly for the first time; see the data note. -->
+<div data-screen-label="RPT Results" class="read-page">
+
+  <div style="display:none;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);padding:8px 24px;font-size:13px;letter-spacing:.02em">Demo guide - {{ guideText }}</div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <dc-import name="pronect-sidebar"
+                dashboard-href="user-dashboard.dc.html"
+                hint-size="284,900"
+                style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></dc-import>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+
+      <dc-import name="pronect-topbar"
+                  hint-size="1200,64"
+                  style="display:block;width:100%;flex:none;"></dc-import>
+
+      <div class="read-body">
+
+        <div class="read-header">
+          <a href="rpt-home.dc.html" style="display:block;flex-shrink:0;">
+            <img class="read-header__icon" src="assets/rpt-icon.svg" alt="">
+          </a>
+          <div style="min-width:0;">
+            <div class="read-header__name">Read Plate Tool</div>
+            <div class="read-header__file">{{ fileName }}</div>
+          </div>
+          <span style="flex:1;min-width:16px;"></span>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <sc-if value="{{ isEndpoint }}" hint-placeholder-val="{{ true }}">
+              <button data-note="Sends this instrument data file to a Cell Health app for analysis."
+                      onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                      style="{{ ghostBtn }}">Analyze With Plate Map</button>
+            </sc-if>
+            <button data-note="Takes you back to Read Plate Tool's home screen to begin another read."
+                    onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                    style="{{ ghostBtn }}cursor:not-allowed;">Read Another Plate</button>
+            <button data-note="Download saves the instrument data file to your computer."
+                    onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                    style="{{ ghostBtn }}">Download Results</button>
+          </div>
+        </div>
+
+        <div class="read-card" style="align-items:stretch;gap:0;">
+          <div style="flex:1;min-height:0;display:flex;gap:20px;">
+
+            <sc-if value="{{ isTimeCourse }}" hint-placeholder-val="{{ false }}">
+              <div class="rpt-side">
+                <div class="rpt-side__title">Read Protocol</div>
+                <div class="rpt-side__row">Integration Time: {{ protoIntegration }}</div>
+                <div class="rpt-side__row">Read Interval: {{ protoInterval }}</div>
+                <div class="rpt-side__row">Number of Reads: {{ protoCount }}</div>
+                <div class="rpt-side__row" style="padding-bottom:12px;">{{ protoT0 }}</div>
+                <div class="rpt-side__title" style="border-top:1px solid var(--pn-color-border-subtle);">Reads</div>
+                <div class="rpt-reads">
+                  <sc-for list="{{ reads }}" as="rd" hint-placeholder-count="13">
+                    <div class="{{ rd.cls }}" onClick="{{ rd.onSelect }}" data-note="{{ rd.note }}"
+                         onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}">{{ rd.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+              <div class="rpt-grid" style="flex:1;">
+                <div class="rpt-head"></div>
+                <sc-for list="{{ colHeaders }}" as="c" hint-placeholder-count="12">
+                  <div class="rpt-head">{{ c.label }}</div>
+                </sc-for>
+                <sc-for list="{{ plateRows }}" as="row" hint-placeholder-count="8">
+                  <div class="rpt-rowlabel">{{ row.label }}</div>
+                  <sc-for list="{{ row.wells }}" as="w" hint-placeholder-count="12">
+                    <div title="{{ w.title }}" style="{{ w.style }}">{{ w.display }}</div>
+                  </sc-for>
+                </sc-for>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ note }}">
+  <div style="position:fixed;left:{{ noteX }};top:{{ noteY }};background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 12px/1.3 var(--pn-font-family-sans);padding:6px 10px;border-radius:6px;pointer-events:none;z-index:2000;box-shadow:var(--pn-shadow-xs);max-width:240px;">{{ note }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:900}}">
+// Real BacTiter-Glo plate, from DL-BTG-LA-ATP.xlsx's hidden RawReadJson sheet.
+// Chosen over the CellTiter-Glo plate because 22 of its 96 wells sit at or below
+// zero, down to -73 RLU, which is what 124 shows and what the CellTiter-Glo plate
+// cannot show: that one is entirely positive. So this is also the first time the
+// heat map's non-positive shift is exercised by real data rather than reasoned
+// about.
+const WELLS = [[327184, 71333, 18483, 4765, 1192, 342, -22, 63, 47, -6, 61, -16], [325456, 75093, 18310, 4691, 1165, 331, -43, 78, 78, -9, 16, -1], [332745, 74920, 18550, 4506, 1286, 326, 28, 85, 13, 76, 58, -15], [325612, 75555, 18845, 4935, 1390, 366, 30, 188, -62, 6, -13, 17], [28239, 7624, 1970, 549, 214, -13, 72, -17, 115, -57, -49, 1], [28989, 7557, 1764, 558, 130, 13, 15, 41, -10, 9, 49, -52], [27979, 7301, 1749, 465, 51, 119, -36, -2, 6, 93, 3, 10], [27658, 7022, 1694, 494, 100, -1, -28, 30, -26, -73, -39, 13]];
+const ROW_LABELS = ['A','B','C','D','E','F','G','H'];
+
+// Same ramp as ctg-read-results: blue low through cyan, green and yellow to red
+// high, positioned logarithmically, anchored against the live app well by well.
+const RAMP = [
+  [0.00, [ 91,141,239]], [0.10, [ 43,184,245]], [0.22, [ 34,220,240]],
+  [0.34, [ 36,227,196]], [0.45, [ 44,229,149]], [0.58, [111,232, 79]],
+  [0.70, [185,230, 43]], [0.80, [245,216, 21]], [0.88, [251,174, 18]],
+  [0.95, [249,125, 24]], [1.00, [240, 74, 30]],
+];
+
+// Every 5 minutes for 60 minutes, with a timepoint 0 read, so Read 0 through
+// Read 12 inclusive. Cate confirmed 13 reads.
+const READ_COUNT = 13;
+
+class Component extends DCLogic {
+  state = { note: null, noteX: 0, noteY: 0, selectedRead: null, fileName: null };
+
+  showNote = (e) => {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    this.setState({ note, noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  moveNote = (e) => {
+    if (!this.state.note) return;
+    this.setState({ noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  hideNote = () => this.setState({ note: null });
+
+  _q(k) { return new URLSearchParams(window.location.search).get(k); }
+  _isTimeCourse() { return this._q('mode') === 'timecourse'; }
+  // How many reads have finished. Absent means the run is complete, which is
+  // what View Results shows after a finished read; ?progress=N is the partial
+  // state in 123, where later reads are still scheduled.
+  _doneCount() {
+    const p = parseInt(this._q('progress'), 10);
+    if (!Number.isFinite(p)) return READ_COUNT;
+    return Math.max(1, Math.min(READ_COUNT, p));
+  }
+
+  _stamp() {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    let h = d.getHours();
+    const ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return 'Read Plate Tool ' + d.getFullYear() + ' ' + p(d.getMonth() + 1) + ' ' + p(d.getDate())
+         + ' ' + h + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' ' + ap;
+  }
+
+  // Always the first read, whatever the state. 123 shows Read 55 selected
+  // mid-run, but that is a screenshot of someone part-way through looking around,
+  // not the arrival state, so do not read a rule into it.
+  componentDidMount() {
+    this.setState({ fileName: this._stamp(), selectedRead: 0 });
+  }
+
+  _ramp(t) {
+    t = Math.max(0, Math.min(1, t));
+    for (let i = 0; i < RAMP.length - 1; i++) {
+      const [p0, c0] = RAMP[i], [p1, c1] = RAMP[i + 1];
+      if (t <= p1) {
+        const f = (t - p0) / (p1 - p0);
+        return 'rgb(' + c0.map((v, k) => Math.round(v + (c1[k] - v) * f)).join(',') + ')';
+      }
+    }
+    return 'rgb(' + RAMP[RAMP.length - 1][1].join(',') + ')';
+  }
+
+  // ---- the time course series -------------------------------------------
+  //
+  // Read 0 IS the measured BacTiter-Glo plate. Reads 1 to 12 are derived from it
+  // by letting each well drift, which is Cate's call and worth recording why:
+  // most real time course files on hand were run without a plate, so their
+  // numbers are made up anyway. Deriving from one real plate keeps the shape of
+  // real data, its dynamic range and its negative wells, and only the drift is
+  // invented.
+  //
+  // Two properties matter, and a plain random number per read gives neither.
+  //
+  // 1. DETERMINISTIC. A seeded generator, so every load produces the same series.
+  //    A demo whose numbers change when the presenter refreshes invites exactly
+  //    the question you do not want asked.
+  // 2. A WALK, not independent noise. Each read carries the previous read's
+  //    offset and adds a small step, so consecutive reads look related and Read 0
+  //    against Read 12 looks different. Independent draws per read would make
+  //    every read look like a different plate.
+  //
+  // The adjustment is proportional plus absolute, because this plate spans
+  // 327,184 down to -73. Proportional alone would never move a background well
+  // off zero; absolute alone would be invisible in the bright corner.
+  _mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  _series() {
+    if (this._cachedSeries) return this._cachedSeries;
+    const out = [WELLS.map(row => row.slice())];
+    // One generator per well, seeded from its position, so a well's drift is its
+    // own and does not depend on how many reads have been built.
+    const rngs = WELLS.map((row, r) => row.map((_, c) => this._mulberry32(1000 + r * 12 + c)));
+    let prop = WELLS.map(row => row.map(() => 0));
+    let abs  = WELLS.map(row => row.map(() => 0));
+    for (let i = 1; i < READ_COUNT; i++) {
+      const plate = WELLS.map((row, r) => row.map((v, c) => {
+        const rnd = rngs[r][c];
+        prop[r][c] = Math.max(-0.28, Math.min(0.28, prop[r][c] + (rnd() - 0.5) * 0.14));
+        abs[r][c]  = Math.max(-45,   Math.min(45,   abs[r][c]  + (rnd() - 0.5) * 22));
+        return Math.round(v * (1 + prop[r][c]) + abs[r][c]);
+      }));
+      out.push(plate);
+    }
+    this._cachedSeries = out;
+    return out;
+  }
+
+  _wellsForRead(i) {
+    if (!this._isTimeCourse()) return WELLS;
+    const s = this._series();
+    return s[Math.max(0, Math.min(s.length - 1, i))];
+  }
+
+  renderVals() {
+    const tc = this._isTimeCourse();
+    const done = this._doneCount();
+    const sel = this.state.selectedRead == null ? 0 : this.state.selectedRead;
+    const wells = this._wellsForRead(sel);
+
+    // The colour scale is computed from the SELECTED READ, not from the whole
+    // run. Settled by Melanie and raised by the devs, so this is the product's
+    // rule rather than a judgement.
+    //
+    // It is also the right one, and an earlier version of this file got it
+    // wrong. Scaling across the run sounds better, because then a well that has
+    // not moved keeps its colour between reads. It fails on the case that
+    // actually occurs: a single extreme well in a single read stretches the ramp
+    // for every other read in the run, so 299 reads render washed out because of
+    // one, and the user has to work out which read did it before the screen is
+    // readable again. 122 shows exactly such a well, 1,266,554,496 among
+    // neighbours around 2,000,000.
+    //
+    // The cost is real but smaller: colour is comparable within a read, not
+    // across reads. The numbers in the cells stay comparable either way.
+    const scaleSource = wells.flat();
+    const rawMin = Math.min.apply(null, scaleSource), rawMax = Math.max.apply(null, scaleSource);
+    // Shift so the minimum lands on 1 whenever any well is non-positive, because
+    // log10 is undefined there. This plate needs it: 22 wells at or below 0.
+    const shift = rawMin > 0 ? 0 : 1 - rawMin;
+    const lo = Math.log10(rawMin + shift), hi = Math.log10(rawMax + shift);
+
+    const reads = Array.from({ length: READ_COUNT }, (_, i) => {
+      const isDone = i < done;
+      const cls = 'rpt-read ' + (isDone ? 'is-done' : 'is-pending') + (i === sel && isDone ? ' is-active' : '');
+      return {
+        label: 'Read ' + i,
+        cls,
+        note: isDone ? '' : 'This read has not run yet. Scheduled reads are informational only.',
+        onSelect: () => { if (isDone) this.setState({ selectedRead: i }); },
+      };
+    });
+
+    return {
+      note: this.state.note, noteX: this.state.noteX + 'px', noteY: this.state.noteY + 'px',
+      showNote: this.showNote, moveNote: this.moveNote, hideNote: this.hideNote,
+      fileName: this.state.fileName || '',
+      isEndpoint: !tc,
+      isTimeCourse: tc,
+      protoIntegration: '1 sec',
+      protoInterval: '5 min',
+      protoCount: String(READ_COUNT - 1),
+      protoT0: 'Time point 0 included',
+      reads,
+      guideText: tc
+        ? (done < READ_COUNT
+            ? 'Results, time course, still running. Completed reads are selectable; scheduled ones are not.'
+            : 'Results, time course. Pick a read on the left; Read 0 is the measured plate and later reads drift from it.')
+        : 'Results, endpoint. A real BacTiter-Glo plate, including its negative wells.',
+      ghostBtn: 'background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);'
+              + 'border-radius:var(--pn-border-radius-md);padding:12px 20px;cursor:pointer;'
+              + 'font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);'
+              + 'display:inline-flex;align-items:center;',
+      colHeaders: Array.from({ length: 12 }, (_, i) => ({ label: String(i + 1).padStart(2, '0') })),
+      plateRows: wells.map((cells, r) => ({
+        label: ROW_LABELS[r],
+        wells: cells.map((v, c) => ({
+          title: ROW_LABELS[r] + (c + 1) + ': ' + v.toLocaleString('en-US') + ' RLU',
+          display: String(v),
+          style: 'display:flex;align-items:center;justify-content:center;padding:18px 4px;'
+               + 'border:1px solid var(--pn-color-border-subtle);border-radius:var(--pn-border-radius-sm);'
+               + 'font:400 var(--pn-font-size-base)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:default;'
+               + 'background:' + this._ramp((Math.log10(v + shift) - lo) / (hi - lo)) + ';',
+        })),
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

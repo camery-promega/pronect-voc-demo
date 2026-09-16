@@ -1,0 +1,381 @@
+/* Generated from Figma Variables. First mode = :root default.
+   FLOAT tokens are unitless — multiply by 1px in calc() where a length is needed. */
+
+:root {
+  --1: 8; /* @kind other */
+  --action-active: rgba(0,0,0,0.56); /* @kind color */
+  --action-disabled: rgba(0,0,0,0.38); /* @kind color */
+  --action-disabledbackground: rgba(0,0,0,0.12); /* @kind color */
+  --action-hover: rgba(0,0,0,0.04); /* @kind color */
+  --background-default: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-0: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-10: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-11: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-12: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-13: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-14: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-15: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-16: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-17: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-18: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-19: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-1: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-20: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-21: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-22: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-23: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-24: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-2: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-3: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-4: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-5: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-6: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-7: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-8: rgb(255,255,255); /* @kind color */
+  --background-paper-elevation-9: rgb(255,255,255); /* @kind color */
+  --base-stroke: rgba(255,255,255,0.12); /* @kind color */
+  --base-surface-1: rgb(31,32,32); /* @kind color */
+  --base-surface-2: rgb(60,60,60); /* @kind color */
+  --bg-color-background-b2-3: rgb(247,247,247); /* @kind color */
+  --bg-color-background-b2-5: rgba(0,0,0,0.05); /* @kind color */
+  --bg-color-background-w: rgb(255,255,255); /* @kind color */
+  --bluegrey-200: rgb(176,190,197); /* @kind color */
+  --bluegrey-400: rgb(120,144,156); /* @kind color */
+  --bluegrey-500: rgb(96,125,139); /* @kind color */
+  --bluegrey-700: rgb(69,90,100); /* @kind color */
+  --borderradius: 4; /* @kind radius */
+  --button-color-border-border-01: rgba(70,70,70,0.3); /* @kind color */
+  --button-color-border-border-02: rgb(70,70,70); /* @kind color */
+  --buttons-general-btn-clicked: rgba(255,255,255,0.25); /* @kind color */
+  --buttons-general-btn-hover: rgba(255,255,255,0.15); /* @kind color */
+  --common-white-states-focusvisible: rgba(255,255,255,0.3); /* @kind color */
+  --common-white-states-main: rgb(255,255,255); /* @kind color */
+  --components-backdrop-fill: rgba(0,0,0,0.5); /* @kind color */
+  --components-icons-enabled: rgb(51,51,51); /* @kind color */
+  --divider: rgba(0,0,0,0.12); /* @kind color */
+  --elevation-outlined: rgb(224,224,224); /* @kind color */
+  --error-contrasttext: rgb(255,255,255); /* @kind color */
+  --error-dark: var(--red-800); /* @kind color */
+  --error-main: var(--red-700); /* @kind color */
+  --error-states-focusvisible: rgba(211,47,47,0.3); /* @kind color */
+  --error-states-hover: rgba(211,47,47,0.04); /* @kind color */
+  --error-states-outlinedborder: rgba(211,47,47,0.5); /* @kind color */
+  --font-family-roboto: "Roboto";
+  --font-size-b2-r: 16;
+  --font-size-b3-b: 14;
+  --font-size-b4-r: 14;
+  --font-size-b6-r: 13;
+  --font-size-b8-r: 12;
+  --font-size-h4-r: 36;
+  --font-size-h5-b: 26;
+  --font-size-h6-r: 26;
+  --font-size-h7-b: 20;
+  --font-size-h8-r: 20;
+
+  --fontfamily: "Roboto"; /* @kind font */
+  --fontsize-0-75rem-12px: 12; /* @kind font */
+  --fontsize-0-8125rem-13px: 13; /* @kind font */
+  --fontsize-0-875rem-14px: 14; /* @kind font */
+  --fontsize-0-9375rem-15px: 15; /* @kind font */
+  --fontsize-1-25rem-20px: 20; /* @kind font */
+  --fontsize-1-5rem-24px: 24; /* @kind font */
+  --fontsize-1rem-16px: 16; /* @kind font */
+  --fontsize-2-125rem-34px: 34; /* @kind font */
+  --fontsize-3-75rem-60px: 60; /* @kind font */
+  --fontsize-3rem-48px: 48; /* @kind font */
+  --fontsize-6rem-96px: 96; /* @kind font */
+  --fontweightlight: 300; /* @kind font */
+  --fontweightmedium: 500; /* @kind font */
+  --fontweightregular-2: 400; /* @kind font */
+  --fontweightregular: 400; /* @kind font */
+  --green-400: rgb(102,187,106); /* @kind color */
+  --green-700: rgb(56,142,60); /* @kind color */
+  --green-800: rgb(46,125,50); /* @kind color */
+  --green-900: rgb(27,94,32); /* @kind color */
+  --grey-100: rgb(245,245,245); /* @kind color */
+  --grey-300: rgb(224,224,224); /* @kind color */
+  --icon-color-dark-gray: rgb(70,70,70); /* @kind color */
+  --icon-color-disabled: rgba(0,0,0,0.15); /* @kind color */
+  --icons-general-icon-default: rgba(255,255,255,0.7); /* @kind color */
+  --icons-general-icon-disabled: rgba(255,255,255,0.3); /* @kind color */
+  --indigo-200: rgb(159,168,218); /* @kind color */
+  --indigo-400: rgb(92,107,192); /* @kind color */
+  --indigo-500: rgb(63,81,181); /* @kind color */
+  --indigo-700: rgb(48,63,159); /* @kind color */
+  --info-contrasttext: rgb(255,255,255); /* @kind color */
+  --info-dark: var(--lightblue-900); /* @kind color */
+  --info-main: var(--lightblue-700); /* @kind color */
+  --info-states-hover: rgba(2,136,209,0.04); /* @kind color */
+  --info-states-outlinedborder: rgba(2,136,209,0.5); /* @kind color */
+  --labels-vibrant-controls-tertiary: rgb(217,217,217); /* @kind color */
+  --lg: 1200; /* @kind spacing */
+  --lightblue-400: rgb(41,182,246); /* @kind color */
+  --lightblue-700: rgb(2,136,209); /* @kind color */
+  --lightblue-900: rgb(1,87,155); /* @kind color */
+  --md: 900; /* @kind spacing */
+  --orange-400: rgb(255,167,38); /* @kind color */
+  --orange-700: rgb(245,124,0); /* @kind color */
+  --orange-800: rgb(239,108,0); /* @kind color */
+  --orange-900: rgb(230,81,0); /* @kind color */
+  --primary-contrasttext: rgb(255,255,255); /* @kind color */
+  --primary-dark: var(--indigo-700); /* @kind color */
+  --primary-main: var(--indigo-500); /* @kind color */
+  --primary-states-focusvisible: rgba(63,81,181,0.3); /* @kind color */
+  --primary-states-hover: rgba(63,81,181,0.04); /* @kind color */
+  --primary-states-outlinedborder: rgba(63,81,181,0.5); /* @kind color */
+  --pronect-branding-color-clear-skies-pronect: rgb(33,192,223); /* @kind color */
+  --pronect-branding-color-prairie-swale-pronect: rgb(93,205,133); /* @kind color */
+  --pronect-branding-color-promega-sol-pronect: rgb(253,184,19); /* @kind color */
+  --pronect-branding-color-spirit-purple-pronect: rgb(215,87,163); /* @kind color */
+  --pronect-branding-color-still-water-pronect: rgb(95,158,226); /* @kind color */
+  --pronect-branding-color-terra-cotta-pronect: rgb(233,141,55); /* @kind color */
+  --red-500: rgb(244,67,54); /* @kind color */
+  --red-700: rgb(211,47,47); /* @kind color */
+  --red-800: rgb(198,40,40); /* @kind color */
+  --round-corner-round-corner-2-deprecated: 2;
+  --search-bar-favorite-btn-hover: rgba(255,255,255,0.15); /* @kind color */
+  --search-bar-favorite-icon-active: rgb(101,157,246); /* @kind color */
+  --search-bar-searchbar-surface: rgb(31,32,32); /* @kind color */
+  --search-bar-text-searchbar: rgba(255,255,255,0.9); /* @kind color */
+  --secondary-contrasttext: rgb(255,255,255); /* @kind color */
+  --secondary-dark: var(--bluegrey-700); /* @kind color */
+  --secondary-main: var(--bluegrey-500); /* @kind color */
+  --secondary-states-focusvisible: rgba(96,125,139,0.3); /* @kind color */
+  --secondary-states-hover: rgba(96,125,139,0.04); /* @kind color */
+  --secondary-states-outlinedborder: rgba(96,125,139,0.5); /* @kind color */
+  --sm: 600; /* @kind spacing */
+  --sol-400: rgb(253,205,48); /* @kind color */
+  --sol-600: rgb(253,183,19); /* @kind color */
+  --sol-800: rgb(253,147,12); /* @kind color */
+  --sol-contrasttext: rgb(0,0,0); /* @kind color */
+  --sol-dark: var(--sol-800); /* @kind color */
+  --sol-light: var(--sol-400); /* @kind color */
+  --sol-main: var(--sol-600); /* @kind color */
+  --sol-states-focusvisible: rgba(253,184,19,0.3); /* @kind color */
+  --sol-states-hover: rgba(253,184,19,0.04); /* @kind color */
+  --sol-states-outlinedborder: rgba(253,184,19,0.5); /* @kind color */
+  --standard-100: rgb(125,162,169); /* @kind color */
+  --standard-20: rgba(125,162,169,0.2); /* @kind color */
+  --standard-text: rgb(56,81,87); /* @kind color */
+
+  --status-color-general-status-hover: rgba(0,0,0,0.05); /* @kind color */
+  --success-contrasttext: rgb(255,255,255); /* @kind color */
+  --success-dark: var(--green-900); /* @kind color */
+  --success-main: var(--green-800); /* @kind color */
+  --success-states-focusvisible: rgba(46,125,50,0.3); /* @kind color */
+  --success-states-hover: rgba(46,125,50,0.04); /* @kind color */
+  --success-states-outlinedborder: rgba(46,125,50,0.5); /* @kind color */
+  --tabs-close-btn-clicked: rgba(255,255,255,0.28); /* @kind color */
+  --tabs-close-btn-hover: rgba(255,255,255,0.16); /* @kind color */
+  --tabs-tab-hover: rgb(0,74,120); /* @kind color */
+  --tbd-primary-button-hover: rgb(41,41,41); /* @kind color */
+  --tbd-primary-button: rgb(70,70,70); /* @kind color */
+  --text-color-disabled-2: rgba(0,0,0,0.2); /* @kind color */
+  --text-color-disabled: rgb(110,110,110); /* @kind color */
+  --text-color-plate-map-color-01: rgb(59,110,169); /* @kind color */
+  --text-color-plate-map-color-02: rgb(27,150,176); /* @kind color */
+  --text-color-plate-map-color-03: rgb(88,153,112); /* @kind color */
+  --text-color-plate-map-color-04: rgb(215,87,163); /* @kind color */
+  --text-color-primary-black-01: rgb(37,37,37); /* @kind color */
+  --text-color-secondary-black-01: rgba(37,37,37,0.7); /* @kind color */
+  --text-general-text-standard: rgba(255,255,255,0.7); /* @kind color */
+  --text-primary: rgba(0,0,0,0.87); /* @kind color */
+  --text-states-focusvisible: rgba(0,0,0,0.3); /* @kind color */
+  --tile-border-color-border-5: rgba(0,0,0,0.05); /* @kind color */
+  --warning-contrasttext: rgb(255,255,255); /* @kind color */
+  --warning-dark: var(--orange-900); /* @kind color */
+  --warning-main: var(--orange-800); /* @kind color */
+  --warning-states-focusvisible: rgba(239,108,0,0.3); /* @kind color */
+  --warning-states-hover: rgba(239,108,0,0.04); /* @kind color */
+  --warning-states-outlinedborder: rgba(239,108,0,0.5); /* @kind color */
+  --xl: 1536; /* @kind spacing */
+  --xs: 444; /* @kind spacing */
+}
+
+:root[data-theme="dark"], .dark {
+  --action-active: rgba(255,255,255,0.56); /* @kind color */
+  --action-disabled: rgba(255,255,255,0.38); /* @kind color */
+  --action-disabledbackground: rgba(255,255,255,0.12); /* @kind color */
+  --action-hover: rgba(255,255,255,0.08); /* @kind color */
+  --background-default: rgb(18,18,18); /* @kind color */
+  --background-paper-elevation-0: rgb(18,18,18); /* @kind color */
+  --background-paper-elevation-10: rgb(49,49,49); /* @kind color */
+  --background-paper-elevation-11: rgb(49,49,49); /* @kind color */
+  --background-paper-elevation-12: rgb(51,51,51); /* @kind color */
+  --background-paper-elevation-13: rgb(51,51,51); /* @kind color */
+  --background-paper-elevation-14: rgb(51,51,51); /* @kind color */
+  --background-paper-elevation-15: rgb(51,51,51); /* @kind color */
+  --background-paper-elevation-16: rgb(54,54,54); /* @kind color */
+  --background-paper-elevation-17: rgb(54,54,54); /* @kind color */
+  --background-paper-elevation-18: rgb(54,54,54); /* @kind color */
+  --background-paper-elevation-19: rgb(54,54,54); /* @kind color */
+  --background-paper-elevation-1: rgb(30,30,30); /* @kind color */
+  --background-paper-elevation-20: rgb(56,56,56); /* @kind color */
+  --background-paper-elevation-21: rgb(56,56,56); /* @kind color */
+  --background-paper-elevation-22: rgb(56,56,56); /* @kind color */
+  --background-paper-elevation-23: rgb(56,56,56); /* @kind color */
+  --background-paper-elevation-24: rgb(56,56,56); /* @kind color */
+  --background-paper-elevation-2: rgb(35,35,35); /* @kind color */
+  --background-paper-elevation-3: rgb(37,37,37); /* @kind color */
+  --background-paper-elevation-4: rgb(39,39,39); /* @kind color */
+  --background-paper-elevation-5: rgb(42,42,42); /* @kind color */
+  --background-paper-elevation-6: rgb(44,44,44); /* @kind color */
+  --background-paper-elevation-7: rgb(44,44,44); /* @kind color */
+  --background-paper-elevation-8: rgb(46,46,46); /* @kind color */
+  --background-paper-elevation-9: rgb(46,46,46); /* @kind color */
+  --bg-color-background-b2-3: rgb(44,44,44); /* @kind color */
+  --bg-color-background-b2-5: rgba(255,255,255,0.05); /* @kind color */
+  --bg-color-background-w: rgb(56,56,56); /* @kind color */
+  --button-color-border-border-01: rgba(255,255,255,0.05); /* @kind color */
+  --button-color-border-border-02: rgba(255,255,255,0.3); /* @kind color */
+  --common-white-states-focusvisible: rgba(255,255,255,0.3); /* @kind color */
+  --common-white-states-main: rgb(255,255,255); /* @kind color */
+  --components-backdrop-fill: rgba(0,0,0,0.5); /* @kind color */
+  --components-icons-enabled: rgb(255,255,255); /* @kind color */
+  --divider: rgba(255,255,255,0.12); /* @kind color */
+  --elevation-outlined: var(--divider); /* @kind color */
+  --error-contrasttext: rgb(255,255,255); /* @kind color */
+  --error-dark: var(--red-700); /* @kind color */
+  --error-main: var(--red-500); /* @kind color */
+  --error-states-focusvisible: rgba(244,67,54,0.3); /* @kind color */
+  --error-states-hover: rgba(244,67,54,0.08); /* @kind color */
+  --error-states-outlinedborder: rgba(244,67,54,0.5); /* @kind color */
+  --icon-color-dark-gray: rgb(215,215,215); /* @kind color */
+  --icon-color-disabled: rgba(255,255,255,0.2); /* @kind color */
+  --info-contrasttext: rgba(0,0,0,0.87); /* @kind color */
+  --info-dark: var(--lightblue-700); /* @kind color */
+  --info-main: var(--lightblue-400); /* @kind color */
+  --info-states-hover: rgba(41,182,246,0.08); /* @kind color */
+  --info-states-outlinedborder: rgba(41,182,246,0.5); /* @kind color */
+  --labels-vibrant-controls-tertiary: rgb(38,38,38); /* @kind color */
+  --labels-vibrant-controls-tertiary: rgb(38,38,38); /* @kind color */
+  --primary-contrasttext: rgba(0,0,0,0.87); /* @kind color */
+  --primary-dark: var(--indigo-400); /* @kind color */
+  --primary-main: var(--indigo-200); /* @kind color */
+  --primary-states-focusvisible: rgba(159,168,218,0.3); /* @kind color */
+  --primary-states-hover: rgba(159,168,218,0.08); /* @kind color */
+  --primary-states-outlinedborder: rgba(159,168,218,0.5); /* @kind color */
+  --pronect-branding-color-clear-skies-pronect: rgb(33,192,223); /* @kind color */
+  --pronect-branding-color-prairie-swale-pronect: rgb(93,205,133); /* @kind color */
+  --pronect-branding-color-promega-sol-pronect: rgb(253,184,19); /* @kind color */
+  --pronect-branding-color-spirit-purple-pronect: rgb(215,87,163); /* @kind color */
+  --pronect-branding-color-still-water-pronect: rgb(95,158,226); /* @kind color */
+  --pronect-branding-color-terra-cotta-pronect: rgb(233,141,55); /* @kind color */
+  --round-corner-round-corner-2-deprecated: 2;
+  --secondary-contrasttext: rgba(0,0,0,0.87); /* @kind color */
+  --secondary-dark: var(--bluegrey-400); /* @kind color */
+  --secondary-main: var(--bluegrey-200); /* @kind color */
+  --secondary-states-focusvisible: rgba(96,125,139,0.3); /* @kind color */
+  --secondary-states-hover: rgba(96,125,139,0.08); /* @kind color */
+  --secondary-states-outlinedborder: rgba(96,125,139,0.5); /* @kind color */
+  --sol-contrasttext: rgb(255,0,195); /* @kind color */
+  --sol-dark: rgb(255,0,195); /* @kind color */
+  --sol-light: rgb(255,0,195); /* @kind color */
+  --sol-main: rgb(255,0,195); /* @kind color */
+  --sol-states-focusvisible: rgba(255,0,195,0.3); /* @kind color */
+  --sol-states-hover: rgba(255,0,195,0.08); /* @kind color */
+  --sol-states-outlinedborder: rgba(255,0,195,0.5); /* @kind color */
+  --status-color-general-status-hover: rgba(255,255,255,0.05); /* @kind color */
+  --success-contrasttext: rgba(0,0,0,0.87); /* @kind color */
+  --success-dark: var(--green-700); /* @kind color */
+  --success-main: var(--green-400); /* @kind color */
+  --success-states-focusvisible: rgba(102,187,106,0.3); /* @kind color */
+  --success-states-hover: rgba(102,187,106,0.08); /* @kind color */
+  --success-states-outlinedborder: rgba(102,187,106,0.5); /* @kind color */
+  --tbd-primary-button-hover: rgb(41,41,41); /* @kind color */
+  --tbd-primary-button: rgb(70,70,70); /* @kind color */
+  --text-color-disabled-2: rgba(255,255,255,0.2); /* @kind color */
+  --text-color-disabled: rgba(255,255,255,0.2); /* @kind color */
+  --text-color-plate-map-color-01: rgb(134,186,247); /* @kind color */
+  --text-color-plate-map-color-02: rgb(110,213,235); /* @kind color */
+  --text-color-plate-map-color-03: rgb(136,241,174); /* @kind color */
+  --text-color-plate-map-color-04: rgb(244,127,197); /* @kind color */
+  --text-color-primary-black-01: rgba(255,255,255,0.8); /* @kind color */
+  --text-color-secondary-black-01: rgba(255,255,255,0.5); /* @kind color */
+  --text-primary: rgb(255,255,255); /* @kind color */
+  --text-states-focusvisible: rgba(255,255,255,0.3); /* @kind color */
+  --tile-border-color-border-5: rgba(255,255,255,0.05); /* @kind color */
+  --warning-contrasttext: rgba(0,0,0,0.87); /* @kind color */
+  --warning-dark: var(--orange-700); /* @kind color */
+  --warning-main: var(--orange-400); /* @kind color */
+  --warning-states-focusvisible: rgba(255,167,38,0.3); /* @kind color */
+  --warning-states-hover: rgba(255,167,38,0.08); /* @kind color */
+  --warning-states-outlinedborder: rgba(255,167,38,0.5); /* @kind color */
+}
+
+:root[data-mode="3840"] {
+  --bg-color-background-b2-3: rgb(44,44,44); /* @kind color */
+  --bg-color-background-b2-5: rgba(255,255,255,0.05); /* @kind color */
+  --bg-color-background-w: rgb(56,56,56); /* @kind color */
+  --button-color-border-border-01: rgba(255,255,255,0.05); /* @kind color */
+  --button-color-border-border-02: rgba(255,255,255,0.3); /* @kind color */
+  --font-family-roboto: "Roboto";
+  --font-size-b2-r: 40;
+  --font-size-b3-b: 32;
+  --font-size-b4-r: 32;
+  --font-size-b6-r: 28;
+  --font-size-b8-r: 24;
+  --font-size-h4-r: 80;
+  --font-size-h5-b: 64;
+  --font-size-h6-r: 64;
+  --font-size-h7-b: 48;
+  --font-size-h8-r: 48;
+
+  --icon-color-dark-gray: rgb(215,215,215); /* @kind color */
+  --icon-color-disabled: rgba(255,255,255,0.2); /* @kind color */
+  --pronect-branding-color-clear-skies-pronect: rgb(33,192,223); /* @kind color */
+  --pronect-branding-color-prairie-swale-pronect: rgb(93,205,133); /* @kind color */
+  --pronect-branding-color-promega-sol-pronect: rgb(253,184,19); /* @kind color */
+  --pronect-branding-color-spirit-purple-pronect: rgb(215,87,163); /* @kind color */
+  --pronect-branding-color-still-water-pronect: rgb(95,158,226); /* @kind color */
+  --pronect-branding-color-terra-cotta-pronect: rgb(233,141,55); /* @kind color */
+  --round-corner-round-corner-2-deprecated: 2;
+  --status-color-general-status-hover: rgba(255,255,255,0.05); /* @kind color */
+  --text-color-disabled-2: rgba(255,255,255,0.2); /* @kind color */
+  --text-color-disabled: rgba(255,255,255,0.2); /* @kind color */
+  --text-color-plate-map-color-01: rgb(134,186,247); /* @kind color */
+  --text-color-plate-map-color-02: rgb(110,213,235); /* @kind color */
+  --text-color-plate-map-color-03: rgb(136,241,174); /* @kind color */
+  --text-color-plate-map-color-04: rgb(244,127,197); /* @kind color */
+  --text-color-primary-black-01: rgba(255,255,255,0.8); /* @kind color */
+  --text-color-secondary-black-01: rgba(255,255,255,0.5); /* @kind color */
+  --tile-border-color-border-5: rgba(255,255,255,0.05); /* @kind color */
+}
+
+:root[data-mode="1920"] {
+  --font-family-roboto: "Roboto";
+  --font-size-b2-r: 20;
+  --font-size-b3-b: 16;
+  --font-size-b4-r: 16;
+  --font-size-b6-r: 14;
+  --font-size-b8-r: 12;
+  --font-size-h4-r: 40;
+  --font-size-h5-b: 32;
+  --font-size-h6-r: 32;
+  --font-size-h7-b: 24;
+  --font-size-h8-r: 24;
+
+}
+
+:root[data-theme="light"], .light {
+  --base-stroke: rgba(0,0,0,0.12); /* @kind color */
+  --base-surface-1: rgb(214,227,251); /* @kind color */
+  --base-surface-2: rgb(255,255,255); /* @kind color */
+  --buttons-general-btn-clicked: rgba(0,0,0,0.12); /* @kind color */
+  --buttons-general-btn-hover: rgba(0,0,0,0.05); /* @kind color */
+  --icons-general-icon-default: rgb(61,64,67); /* @kind color */
+  --icons-general-icon-disabled: rgba(61,64,67,0.5); /* @kind color */
+  --labels-vibrant-controls-tertiary: rgb(217,217,217); /* @kind color */
+  --search-bar-favorite-btn-hover: rgba(0,0,0,0.05); /* @kind color */
+  --search-bar-favorite-icon-active: rgb(49,102,203); /* @kind color */
+  --search-bar-searchbar-surface: rgb(237,239,246); /* @kind color */
+  --search-bar-text-searchbar: rgb(31,31,31); /* @kind color */
+  --tabs-close-btn-clicked: rgba(0,0,0,0.24); /* @kind color */
+  --tabs-close-btn-hover: rgba(0,0,0,0.12); /* @kind color */
+  --tabs-tab-hover: rgb(174,198,246); /* @kind color */
+  --text-general-text-standard: rgb(61,64,67); /* @kind color */
+}
+
+:root[data-mode="wireframe"] {
+
+}

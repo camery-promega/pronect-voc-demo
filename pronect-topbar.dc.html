@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <script src="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/_ds_bundle.js"></script>
+</helmet>
+    <header style="width:100%;box-sizing:border-box;background:var(--pn-color-surface-default);box-shadow:inset 0 -1px 0 rgba(0,0,0,.05);display:flex;align-items:center;justify-content:flex-end;gap:clamp(16px,1.5vw,32px);padding:12px clamp(16px,2vw,48px);flex:none;">
+      <button data-note="This signs you out of ProNect." onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}" style="display:flex;align-items:center;gap:6px;font:400 var(--pn-font-size-sm)/1 var(--font-sans);color:var(--pn-color-text-primary);cursor:not-allowed;background:none;border:0;padding:0;">
+        <span>Promega Scientist</span>
+        <svg viewBox="0 0 24 24" fill="var(--pn-color-text-primary)" width="16" height="16"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+      </button>
+      <span style="width:1px;height:19px;background:var(--pn-color-neutral-200);"></span>
+      <a href="https://www.promega.com" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:8px;font:400 var(--pn-font-size-sm)/1 var(--font-sans);color:var(--pn-color-text-primary);text-decoration:none;cursor:pointer;">
+        <span>Support</span>
+        <img src="assets/icon-support.svg" alt="" style="width:24px;height:24px;">
+      </a>
+    </header>
+    <sc-if value="{{ note }}">
+      <div style="position:fixed;left:{{ noteX }};top:{{ noteY }};background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 var(--pn-font-size-xs)/1.3 var(--font-sans);padding:8px 12px;border-radius:8px;pointer-events:none;z-index:2000;box-shadow:var(--pn-shadow-xs);max-width:220px;">{{ note }}</div>
+    </sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1200, &quot;height&quot;: 64}
+}">
+class Component extends DCLogic {
+  state = { note: null, noteX: 0, noteY: 0 };
+
+  showNote = (e) => {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    this.setState({ note, noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  moveNote = (e) => {
+    if (!this.state.note) return;
+    this.setState({ noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  hideNote = () => this.setState({ note: null });
+
+  renderVals() {
+    return {
+      note: this.state.note, noteX: this.state.noteX + 'px', noteY: this.state.noteY + 'px',
+      showNote: this.showNote, moveNote: this.moveNote, hideNote: this.hideNote,
+    };
+  }
+
+  // Reports this page's real height to a Foleon Embed Source element hosting the
+  // demo, so its "Dynamic height" iframe setting can size to content instead of a
+  // fixed number - see Foleon's own script at
+  // https://www.foleon.com/knowledge/all-about-the-embed-element. Every page here
+  // is a full navigation (not an SPA), and this component is the shared chrome on
+  // all of them but index.dc.html, so this one observer covers every page that
+  // imports it. document.documentElement (not a specific content div) because
+  // nothing in this codebase clamps html/body to a fixed height, so the document
+  // grows with real content, including height added by a dc-import'd modal.
+  componentDidMount() {
+    let lastHeight = 0;
+    this._reportHeight = () => {
+      const h = document.documentElement.scrollHeight;
+      if (h === lastHeight) return;
+      lastHeight = h;
+      window.parent.postMessage(
+        JSON.stringify({ src: location.toString(), context: 'iframe.resize', height: h }),
+        '*'
+      );
+    };
+    this._resizeObserver = new ResizeObserver(this._reportHeight);
+    this._resizeObserver.observe(document.documentElement);
+  }
+  componentWillUnmount() {
+    if (this._resizeObserver) this._resizeObserver.disconnect();
+  }
+}
+</script>
+</body>
+</html>

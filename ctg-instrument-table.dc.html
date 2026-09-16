@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+  <link rel="stylesheet" href="pronect-demo.css">
+  <script src="ctg-demo-data.js"></script>
+  <style>body{margin:0;background:transparent}</style>
+</helmet>
+
+<!-- The instrument picker table, shared by every screen that picks a reader.
+     ==========================================================================
+     Two screens list the four MyGlos: the Read Plate modal on ctg-app-home and
+     the Select Instrument modal, ctg-select-instrument. They had the same table
+     twice, and the copies had already drifted:
+
+       name weight          500 on the app home, 400 in Select Instrument
+       integration input     76px wide vs 120px, 14px type vs 15px, 4px radius
+                             vs --pn-border-radius-md
+       disabled colours      text-muted / surface-page vs
+                             text-disabled / surface-sunken
+       radio dot             10px vs 11px
+
+     So the same table rendered differently depending on which workflow you
+     came through, which is exactly what the working note predicted would
+     happen and had already happened by the time anyone looked.
+
+     WHICH RENDERING WON, and why it is not simply the newer one. Measured
+     against 091_select-instrument.png: the product's integration input is
+     narrow, about 64px in a 1200px modal, and the instrument name reads
+     medium rather than regular. That is the app home's 76px and 500, not
+     Select Instrument's 120px and 400, even though Select Instrument was
+     extracted later. The disabled colours go the other way and take Select
+     Instrument's --pn-color-text-disabled and --pn-color-surface-sunken,
+     because those are the semantically correct tokens for a disabled input and
+     the two render near-identically. overflow-wrap:anywhere is kept so a long
+     reader name cannot push the columns out.
+
+     WHY THIS IS A TABLE AND NOT THE WHOLE MODAL. The working note framed the
+     choice as binary: leave it duplicated, or make one component that is the
+     entire Read Plate modal, tabs and plate map list included. There is a third
+     option it missed. The blocker was only ever that ctg-select-instrument owns
+     a whole modal card, so it cannot sit under a tab strip its parent draws. A
+     component that is just the table owns no card and needs no slots, so both
+     modals can place it wherever they like inside their own chrome.
+
+     CONTROLLED, because dc-import cannot pass a callback down. The parent owns
+     selectedId and passes it in; a click here announces ctg:instrument-pick on
+     the document and the parent decides what to do with it. Integration time
+     stays internal: it is cosmetic in this demo and nothing else reads it. -->
+<div style="display:flex;flex-direction:column;min-height:0;height:100%;font-family:var(--pn-font-family-sans);">
+
+  <!-- Radio leads (checkbox -> pin -> name is the convention elsewhere; here it's
+       radio -> name since there's no pin), per Cate's ask that the selection
+       control sit to the left of the instrument name. -->
+  <div style="display:grid;grid-template-columns:60px 1fr 220px 260px;gap:16px;align-items:center;padding:0 0 12px;border-bottom:1px solid var(--pn-color-border-subtle);flex:none;">
+    <span></span>
+    <span style="display:flex;align-items:center;gap:6px;font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Name<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></span>
+    <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Integration Time (sec)</span>
+    <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Status</span>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:auto;">
+    <sc-for list="{{ instruments }}" as="inst" hint-placeholder-count="4">
+      <div style="display:grid;grid-template-columns:60px 1fr 220px 260px;gap:16px;align-items:center;padding:16px 0;border-bottom:1px solid var(--pn-color-border-subtle);">
+        <button onClick="{{ inst.onSelect }}" data-note="{{ inst.note }}"
+                onMouseEnter="{{ showNote }}" onMouseMove="{{ moveNote }}" onMouseLeave="{{ hideNote }}"
+                style="{{ inst.radioStyle }}"><span style="{{ inst.radioDotStyle }}"></span></button>
+        <span style="{{ inst.nameStyle }}">{{ inst.name }}</span>
+        <input type="number" min="0.1" max="30" step="0.1" value="{{ inst.integration }}"
+               disabled="{{ inst.disabled }}" onChange="{{ inst.onIntegrationChange }}"
+               style="{{ inst.inputStyle }}">
+        <!-- Same 4px bar / default-text-color label as the dashboard's Instruments
+             tile, per Cate's ask that every instrument-selection list match it. -->
+        <span style="display:flex;flex-direction:column;gap:6px;">
+          <span style="height:4px;border-radius:2px;background:{{ inst.color }};"></span>
+          <span style="font:400 var(--pn-font-size-xs)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">{{ inst.statusLabel }}</span>
+        </span>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<sc-if value="{{ note }}">
+  <div style="position:fixed;left:{{ noteX }};top:{{ noteY }};background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 12px/1.3 var(--pn-font-family-sans);padding:6px 10px;border-radius:6px;pointer-events:none;z-index:2400;box-shadow:var(--pn-shadow-xs);max-width:220px;">{{ note }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1100, &quot;height&quot;: 420},
+  &quot;selectedId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;&quot;, &quot;section&quot;: &quot;State&quot;, &quot;tsType&quot;: &quot;string&quot; }
+}">
+// Read lazily, never as a top-level const: dc-runtime evaluates an imported
+// component's logic class before its own helmet scripts have loaded, and a
+// top-level read throws, fails the whole eval, and silently degrades to
+// props-only rendering. Same note as ctg-open-plate-map.
+const getInstruments = () => (window.CTG && window.CTG.INSTRUMENTS) || [];
+
+// Same shape as the dashboard's Instruments tile: "Reading - Xd Yh left".
+// The dashboard's own countdown never actually ticks (its interval is never
+// started), so this is a fixed value, not a live timer - matching what's
+// actually on screen there today, not a countdown this demo doesn't run.
+const READING_TOTAL_SEC = 2 * 86400 + 15 * 3600;
+const _fmtRemaining = (sec) => `${Math.floor(sec / 86400)}d ${Math.floor((sec % 86400) / 3600)}h`;
+
+class Component extends DCLogic {
+  state = { note: null, noteX: 0, noteY: 0, integration: {} };
+
+  showNote = (e) => {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    this.setState({ note, noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  moveNote = (e) => {
+    if (!this.state.note) return;
+    this.setState({ noteX: e.clientX + 14, noteY: e.clientY + 18 });
+  };
+  hideNote = () => this.setState({ note: null });
+
+  // Only ">30" is a real error (red border, disabled Next) - matches prod,
+  // per Cate's follow-up. Under-0.1 and extra-decimal values are silently
+  // clamped before they ever reach state (see _clamp), so by the time a value
+  // gets here it's already in range and at most one decimal place.
+  _isValid(v) {
+    if (v === '' || v == null) return false;
+    const n = Number(v);
+    return isFinite(n) && n <= 30;
+  }
+
+  // Rounds to one decimal and floors at 0.1. Values over 30 pass through
+  // unchanged - that's the one case that should read as an error, not get
+  // quietly fixed.
+  _clamp(v) {
+    const n = Number(v);
+    if (!isFinite(n) || n > 30) return v;
+    const rounded = Math.round(Math.max(n, 0.1) * 10) / 10;
+    return String(rounded);
+  }
+
+  // dc-import can't pass a callback down, so the parent (whichever modal is
+  // hosting this table) learns about validity the same way it learns about a
+  // pick: a document-level event. Only the SELECTED instrument's value can
+  // block Next; the others just show their own red border.
+  _announceValidity(idOverride) {
+    const selectedId = idOverride !== undefined ? idOverride : this.props.selectedId;
+    const val = this.state.integration[selectedId];
+    const current = val === undefined ? 1 : val;
+    const invalid = !!selectedId && !this._isValid(current);
+    document.dispatchEvent(new CustomEvent('ctg:integration-validity', { detail: { invalid } }));
+  }
+
+  renderVals() {
+    const selectedId = this.props.selectedId || null;
+
+    const instruments = getInstruments().map(i => {
+      const isSel = selectedId === i.id;
+      const integration = this.state.integration[i.id];
+      const curVal = integration === undefined ? 1 : integration;
+      const invalid = i.selectable && !this._isValid(curVal);
+      return {
+        name: i.name,
+        statusLabel: i.status === 'reading' ? `${i.statusLabel} - ${_fmtRemaining(READING_TOTAL_SEC)} left` : i.statusLabel,
+        color: i.color,
+        // Defaults to 1 rather than being seeded into state, so a parent does
+        // not have to know the instrument ids to initialise it.
+        integration: curVal,
+        disabled: !i.selectable,
+        // Empty for every selectable instrument in the data, so this is the
+        // same behaviour the two copies had by two different routes.
+        note: i.note,
+        nameStyle: 'font:500 15px/1.3 var(--pn-font-family-sans);overflow-wrap:anywhere;color:'
+          + (i.selectable ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-muted)') + ';',
+        inputStyle: 'width:76px;padding:8px 10px;box-sizing:border-box;'
+          + 'border-radius:var(--pn-border-radius-md);'
+          + 'font:400 14px/1 var(--pn-font-family-sans);'
+          + 'border:1px solid ' + (invalid ? 'var(--pn-color-status-error-border)' : 'var(--pn-color-border-default)') + ';'
+          + (i.selectable
+              ? 'background:var(--pn-color-surface-default);color:var(--pn-color-text-primary);'
+              : 'background:var(--pn-color-surface-sunken);color:var(--pn-color-text-disabled);cursor:not-allowed;'),
+        radioStyle: 'width:22px;height:22px;border-radius:50%;padding:0;display:flex;align-items:center;'
+          + 'justify-content:center;background:var(--pn-color-surface-default);'
+          + 'border:2px solid ' + (isSel ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-default)') + ';'
+          + 'cursor:' + (i.selectable ? 'pointer' : 'not-allowed') + ';'
+          + (i.selectable ? '' : 'opacity:.5;'),
+        radioDotStyle: 'width:10px;height:10px;border-radius:50%;background:'
+          + (isSel ? 'var(--pn-color-sol-500)' : 'transparent') + ';display:block;',
+        onSelect: () => {
+          if (!i.selectable) return;
+          document.dispatchEvent(new CustomEvent('ctg:instrument-pick', { detail: { id: i.id } }));
+          this._announceValidity(i.id);
+        },
+        onIntegrationChange: (e) => {
+          const v = this._clamp(e.target.value);
+          this.setState(st => ({ integration: Object.assign({}, st.integration, { [i.id]: v }) }),
+            () => this._announceValidity());
+        },
+      };
+    });
+
+    return {
+      instruments,
+      note: this.state.note,
+      noteX: this.state.noteX + 'px',
+      noteY: this.state.noteY + 'px',
+      showNote: this.showNote, moveNote: this.moveNote, hideNote: this.hideNote,
+    };
+  }
+}
+</script>
+</body>
+</html>

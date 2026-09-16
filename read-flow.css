@@ -1,0 +1,123 @@
+/* ==================================================================
+   Read flow: Ready to Read, and Read in Progress
+   ------------------------------------------------------------------
+   Shared by ctg-read-in-progress and rpt-read-in-progress. Built from
+   117 and 118 (Ready to Read) and 119 and 120 (Reading).
+
+   WHY THESE ARE TWO PAGES AND NOT ONE SHARED COMPONENT. All four
+   screens share a frame: app identity header, then one white card with
+   a heading, the file name, and the MyGlo artwork centred in it. Only
+   the body below the artwork differs, and dc-import has no slots, so a
+   shared component would have to own the whole card and could not let
+   each app fill that part. Each app therefore owns its page, and the
+   frame is shared here instead, as CSS.
+
+   The two apps diverge in ways that are real rather than cosmetic:
+   CellTiter-Glo shows no controls at all while reading, where the Read
+   Plate Tool shows an estimated read time, a note that the read
+   continues if you navigate away, and Cancel Read / View Results.
+   ================================================================== */
+
+.read-page { min-height: 100vh; display: flex; flex-direction: column; }
+.read-body {
+  flex: 1; min-height: 0;
+  padding: clamp(16px, 2vw, 28px) clamp(16px, 2.4vw, 32px);
+  display: flex; flex-direction: column;
+  background: var(--pn-color-surface-page);
+}
+
+/* App identity, on the page above the card. Matches the plate map
+   editor's header so the two screens read as the same app. */
+.read-header { display: flex; align-items: center; gap: var(--pn-spacing-12); flex: none; }
+.read-header__icon { width: 44px; height: 44px; display: block; flex-shrink: 0; }
+.read-header__name {
+  font-size: var(--pn-font-size-md);
+  font-weight: var(--pn-font-weight-semibold);
+  color: var(--pn-color-text-primary);
+  line-height: var(--pn-font-line-height-tight);
+}
+.read-header__file {
+  font-size: var(--pn-font-size-sm);
+  color: var(--pn-color-text-muted);
+  line-height: var(--pn-font-line-height-tight);
+  margin-top: var(--pn-spacing-4);
+}
+
+.read-card {
+  flex: 1; min-height: 0;
+  margin-top: var(--pn-spacing-12);
+  background: var(--pn-color-surface-default);
+  border-radius: var(--pn-border-radius-lg);
+  padding: clamp(20px, 2vw, 40px);
+  display: flex; flex-direction: column; align-items: center;
+  gap: var(--pn-spacing-16);
+  overflow: auto;
+}
+
+/* The heading samples as #333333 on screen, which is not on the token
+   scale. Using text-primary keeps it consistent with every other
+   heading in this demo; the difference is not visible side by side. */
+.read-heading {
+  margin: 0;
+  font-size: clamp(20px, 1.6vw, 26px);
+  font-weight: var(--pn-font-weight-semibold);
+  line-height: var(--pn-font-line-height-tight);
+  color: var(--pn-color-text-primary);
+  text-align: center;
+}
+.read-filename {
+  font-size: clamp(15px, 1.2vw, 20px);
+  font-weight: var(--pn-font-weight-regular);
+  line-height: var(--pn-font-line-height-normal);
+  color: var(--pn-color-text-muted);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* The artwork carries the whole middle of the screen, so it gets the
+   spare vertical space rather than a fixed height. */
+.read-art {
+  flex: 1; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%;
+  padding: var(--pn-spacing-8) 0;
+}
+.read-art img { max-width: min(420px, 60%); max-height: 100%; height: auto; display: block; object-fit: contain; }
+
+.read-foot { flex: none; display: flex; flex-direction: column; align-items: center; gap: var(--pn-spacing-12); }
+.read-meta { text-align: center; }
+.read-meta__time {
+  font-size: var(--pn-font-size-sm);
+  font-weight: var(--pn-font-weight-semibold);
+  color: var(--pn-color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.read-meta__note {
+  font-size: var(--pn-font-size-sm);
+  line-height: var(--pn-font-line-height-snug);
+  color: var(--pn-color-text-primary);
+  margin-top: var(--pn-spacing-2);
+}
+
+.read-actions { display: flex; gap: var(--pn-spacing-16); }
+/* Same pair the plate map editor uses: a white outline to step back, and
+   sol-500 to go on. */
+.read-btn {
+  border-radius: var(--pn-border-radius-md);
+  padding: 12px 40px;
+  font-size: var(--pn-font-size-sm);
+  font-weight: var(--pn-font-weight-regular);
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.read-btn--ghost   { background: var(--pn-color-surface-default);
+                     border: var(--pn-border-width-1) solid var(--pn-color-border-default);
+                     color: var(--pn-color-text-primary); }
+.read-btn--ghost:hover { background: var(--pn-color-surface-hover); }
+.read-btn--primary { background: var(--pn-color-sol-500);
+                     border: var(--pn-border-width-1) solid var(--pn-color-sol-500);
+                     color: var(--pn-color-text-primary); }
+.read-btn--primary:hover { background: var(--pn-color-sol-600); border-color: var(--pn-color-sol-600); }

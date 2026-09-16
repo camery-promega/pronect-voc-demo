@@ -1,0 +1,509 @@
+@import './components/fig-tokens.css';
+@import './components/fig-assets.css';
+@import './components/screens/ctg-standard-curve/fig-assets.css';
+@import './components/screens/bactiter-glo/fig-assets.css';
+@import './components/screens/error-messages/fig-assets.css';
+@import './components/screens/ch-updates/fig-assets.css';
+@import './components/screens/results-download/fig-assets.css';
+@import './components/screens/misc/fig-assets.css';
+/* ──────────────────────────────────────────────────────────────────
+   ProNect Data Platform — Design Tokens
+   Brand: ProNect by Promega
+
+   NAMING CONVENTION: every token is --pn-{category}-{...}.
+   The `pn` namespace exists for four reasons:
+     1. Collision safety. The production app loads MUI, Kendo and
+        DevExtreme, all of which ship their own custom properties. A
+        bare --radius-md or --text-sm is exactly the name a vendor
+        library also defines, and the last one to load wins silently.
+     2. Reviewability. var(--pn-color-text-primary) is self-evidently
+        ours; var(--text-primary) could be local, inherited or vendor.
+        It also gives two clean greps: bare hex finds hardcoded
+        violations, non---pn- vars find rogue local tokens.
+     3. It matches what ships. @pronect/design-system is configured
+        with Style Dictionary prefix 'pn', so the published library
+        already emits these names and its components consume them.
+        Prototype CSS can then move to production unchanged.
+     4. The category segment disambiguates. --pn-font-size-sm and
+        --pn-color-text-primary cannot be confused; the bare forms
+        --text-sm (a size) and --text-primary (a colour) already did.
+
+   The token blocks below mirror src/tokens/*.json 1:1 and match what
+   Style Dictionary generates. Do not hand-edit values here; edit the
+   JSON and regenerate. Bare legacy names are kept at the bottom as
+   deprecated pass-throughs only.
+   ────────────────────────────────────────────────────────────────── */
+
+:root {
+
+  /* Color: sol scale — brand only, never interactive state */
+  --pn-color-sol-50:                           #FFF7E8;
+  --pn-color-sol-100:                          #FFF1D9;
+  --pn-color-sol-200:                          #FFE8C0;
+  --pn-color-sol-300:                          #FFDC9F;
+  --pn-color-sol-400:                          #FFCC71;
+  --pn-color-sol-500:                          #FDB813;
+  --pn-color-sol-600:                          #CD940D;
+  --pn-color-sol-700:                          #9A6F07;
+  --pn-color-sol-800:                          #654703;
+  --pn-color-sol-900:                          #372501;
+
+  /* Color: primary scale — buttons, links, CTAs */
+  --pn-color-primary-50:                       #E3EDEC;
+  --pn-color-primary-100:                      #D0E1DF;
+  --pn-color-primary-200:                      #B3CFCC;
+  --pn-color-primary-300:                      #8CB7B3;
+  --pn-color-primary-400:                      #5B9994;
+  --pn-color-primary-500:                      #007671;
+  --pn-color-primary-600:                      #005E5A;
+  --pn-color-primary-700:                      #004542;
+  --pn-color-primary-800:                      #002B29;
+  --pn-color-primary-900:                      #001413;
+
+  /* Color: active scale — selected / current state */
+  --pn-color-active-50:                        #E2EDFB;
+  --pn-color-active-100:                       #CFE1F8;
+  --pn-color-active-200:                       #B1CEF3;
+  --pn-color-active-300:                       #8AB4EB;
+  --pn-color-active-400:                       #5894E0;
+  --pn-color-active-500:                       #006CD1;
+  --pn-color-active-600:                       #0056A9;
+  --pn-color-active-700:                       #003F7E;
+  --pn-color-active-800:                       #002652;
+  --pn-color-active-900:                       #00122C;
+
+  /* Color: warning scale — caution */
+  --pn-color-warning-50:                       #FDEFE5;
+  --pn-color-warning-100:                      #FCE4D3;
+  --pn-color-warning-200:                      #F9D2B7;
+  --pn-color-warning-300:                      #F4BB92;
+  --pn-color-warning-400:                      #ED9E62;
+  --pn-color-warning-500:                      #E27900;
+  --pn-color-warning-600:                      #B76100;
+  --pn-color-warning-700:                      #894700;
+  --pn-color-warning-800:                      #592C00;
+  --pn-color-warning-900:                      #301500;
+
+  /* Color: error scale — error */
+  --pn-color-error-50:                         #FFE7E4;
+  --pn-color-error-100:                        #FFD7D1;
+  --pn-color-error-200:                        #FCBEB5;
+  --pn-color-error-300:                        #F79B90;
+  --pn-color-error-400:                        #ED6E63;
+  --pn-color-error-500:                        #DC2626;
+  --pn-color-error-600:                        #B21D1D;
+  --pn-color-error-700:                        #851313;
+  --pn-color-error-800:                        #570808;
+  --pn-color-error-900:                        #2F0202;
+
+  /* Color: success scale — success */
+  --pn-color-success-50:                       #E6F4E8;
+  --pn-color-success-100:                      #D5ECD8;
+  --pn-color-success-200:                      #BBE0C0;
+  --pn-color-success-300:                      #98D0A1;
+  --pn-color-success-400:                      #69BC7A;
+  --pn-color-success-500:                      #16A34A;
+  --pn-color-success-600:                      #10833A;
+  --pn-color-success-700:                      #096129;
+  --pn-color-success-800:                      #033E18;
+  --pn-color-success-900:                      #012009;
+
+  /* Color: neutral scale — true gray, chroma 0, no pure black */
+  --pn-color-neutral-0:                        #FFFFFF;
+  --pn-color-neutral-50:                       #EDEDED;
+  --pn-color-neutral-100:                      #E1E1E1;
+  --pn-color-neutral-200:                      #CECECE;
+  --pn-color-neutral-300:                      #B6B6B6;
+  --pn-color-neutral-400:                      #999999;
+  --pn-color-neutral-500:                      #777777;
+  --pn-color-neutral-600:                      #5F5F5F;
+  --pn-color-neutral-700:                      #464646;
+  --pn-color-neutral-800:                      #2B2B2B;
+  --pn-color-neutral-900:                      #141414;
+
+  /* Color: plate map domain colours — NOT recipe-generated; tokenizes what the
+     Luciferase Assays prototype ships today. Carries known WCAG debt, see color.json. */
+  --pn-color-plate-sample-indicator:           #5F9EE2;   /* dot / legend swatch */
+  --pn-color-plate-sample-surface:             #E2ECF8;   /* well cell fill */
+  --pn-color-plate-sample-text:                #3B6EA9;   /* well cell text */
+  --pn-color-plate-control-indicator:          #21C0DF;   /* dot / legend swatch */
+  --pn-color-plate-control-surface:            #DAF1F8;   /* well cell fill */
+  --pn-color-plate-control-text:               #1B96B0;   /* well cell text */
+  --pn-color-plate-background-indicator:       #5DCD85;   /* dot / legend swatch */
+  --pn-color-plate-background-surface:         #E4F4E8;   /* well cell fill */
+  --pn-color-plate-background-text:            #589970;   /* well cell text */
+  /* group swatches: 'original' palette, currently shipping. 9 of 12 fail white text at 4.5:1. */
+  --pn-color-plate-group-1:                    #E68B50;   /* white text 2.57:1 FAILS AA */
+  --pn-color-plate-group-2:                    #619CD1;   /* white text 2.92:1 FAILS AA */
+  --pn-color-plate-group-3:                    #E8C50E;   /* white text 1.69:1 FAILS AA */
+  --pn-color-plate-group-4:                    #7E5BA0;   /* white text 5.4:1 */
+  --pn-color-plate-group-5:                    #DD5880;   /* white text 3.63:1 FAILS AA */
+  --pn-color-plate-group-6:                    #7AC2BA;   /* white text 2.05:1 FAILS AA */
+  --pn-color-plate-group-7:                    #5C61A5;   /* white text 5.66:1 */
+  --pn-color-plate-group-8:                    #83C076;   /* white text 2.15:1 FAILS AA */
+  --pn-color-plate-group-9:                    #70C6E1;   /* white text 1.93:1 FAILS AA */
+  --pn-color-plate-group-10:                   #DE5D56;   /* white text 3.62:1 FAILS AA */
+  --pn-color-plate-group-11:                   #4468C3;   /* white text 5.23:1 */
+  --pn-color-plate-group-12:                   #B36EA9;   /* white text 3.67:1 FAILS AA */
+
+  /* ─── Semantic aliases — THE COMPONENT-FACING API ───────────────
+     Components reference these, never a raw scale step above.
+     Dark mode = re-point these, not the components. */
+
+  /* alias: text */
+  --pn-color-text-primary:                     #141414;   /* color.neutral.900 */
+  --pn-color-text-secondary:                   #464646;   /* color.neutral.700 */
+  --pn-color-text-muted:                       #5F5F5F;   /* color.neutral.600 */
+  --pn-color-text-disabled:                    #999999;   /* color.neutral.400 */
+  --pn-color-text-inverse:                     #FFFFFF;   /* color.neutral.0 */
+  --pn-color-text-link:                        #007671;   /* color.primary.500 */
+  --pn-color-text-link-hover:                  #005E5A;   /* color.primary.600 */
+  --pn-color-text-error:                       #B21D1D;   /* color.error.600 */
+  --pn-color-text-warning:                     #B76100;   /* color.warning.600 */
+  --pn-color-text-success:                     #10833A;   /* color.success.600 */
+  --pn-color-text-on-accent:                   #FFFFFF;   /* color.neutral.0 */
+  --pn-color-text-on-warning:                  #141414;   /* color.neutral.900 */
+
+  /* alias: surface */
+  --pn-color-surface-page:                     #EDEDED;   /* color.neutral.50 */
+  --pn-color-surface-default:                  #FFFFFF;   /* color.neutral.0 */
+  --pn-color-surface-raised:                   #FFFFFF;   /* color.neutral.0 */
+  --pn-color-surface-sunken:                   #E1E1E1;   /* color.neutral.100 */
+  --pn-color-surface-hover:                    rgba(20, 20, 20, 0.05);   /* color.neutral.900 @ 5% */
+  --pn-color-surface-selected:                 #E2EDFB;   /* color.active.50 */
+  --pn-color-surface-disabled:                 rgba(20, 20, 20, 0.15);   /* color.neutral.900 @ 15% */
+  --pn-color-surface-scrim:                    rgba(20, 20, 20, 0.5);   /* color.neutral.900 @ 50% */
+  --pn-color-surface-inverse:                  #2B2B2B;   /* color.neutral.800 */
+  --pn-color-surface-frame:                    #464646;   /* color.neutral.700 */
+  /* --pn-color-surface-accent-subtle: reserved, no value yet (pending) */
+
+  /* alias: border */
+  --pn-color-border-subtle:                    #E1E1E1;   /* color.neutral.100 */
+  --pn-color-border-default:                   #CECECE;   /* color.neutral.200 */
+  --pn-color-border-strong:                    #B6B6B6;   /* color.neutral.300 */
+  --pn-color-border-inverse:                   rgba(255, 255, 255, 0.10);   /* color.neutral.0 @ 10% */
+  /* --pn-color-border-focus: reserved, no value yet (item 4 (focus ring / outline)) */
+  --pn-color-border-selected:                  #006CD1;   /* color.active.500 */
+  --pn-color-border-error:                     #DC2626;   /* color.error.500 */
+  --pn-color-border-warning:                   #E27900;   /* color.warning.500 */
+  --pn-color-border-success:                   #10833A;   /* color.success.600 */
+
+  /* alias: action */
+  --pn-color-action-primary-default:           #007671;   /* color.primary.500 */
+  --pn-color-action-primary-hover:             #005E5A;   /* color.primary.600 */
+  --pn-color-action-primary-pressed:           #004542;   /* color.primary.700 */
+  --pn-color-action-primary-text:              #FFFFFF;   /* color.neutral.0 */
+  --pn-color-action-secondary-default:         transparent;
+  --pn-color-action-secondary-hover:           #E1E1E1;   /* color.neutral.100 */
+  --pn-color-action-secondary-text:            #141414;   /* aliases.text.text-primary */
+  --pn-color-action-danger-default:            #DC2626;   /* color.error.500 */
+  --pn-color-action-danger-hover:              #B21D1D;   /* color.error.600 */
+  --pn-color-action-danger-pressed:            #851313;   /* color.error.700 */
+  --pn-color-action-disabled-bg:               rgba(20, 20, 20, 0.15);   /* aliases.surface.surface-disabled */
+  --pn-color-action-disabled-text:             #999999;   /* aliases.text.text-disabled */
+
+  /* alias: state */
+  --pn-color-state-selected-bg:                #E2EDFB;   /* color.active.50 */
+  --pn-color-state-selected-border:            #006CD1;   /* color.active.500 */
+  --pn-color-state-selected-text:              #003F7E;   /* color.active.700 */
+
+  /* alias: status */
+  --pn-color-status-error-surface:             #FFE7E4;   /* color.error.50 */
+  --pn-color-status-error-border:              #DC2626;   /* color.error.500 */
+  --pn-color-status-error-text:                #851313;   /* color.error.700 */
+  --pn-color-status-warning-surface:           #FDEFE5;   /* color.warning.50 */
+  --pn-color-status-warning-border:            #E27900;   /* color.warning.500 */
+  --pn-color-status-warning-text:              #894700;   /* color.warning.700 */
+  --pn-color-status-success-surface:           #E6F4E8;   /* color.success.50 */
+  --pn-color-status-success-border:            #10833A;   /* color.success.600 */
+  --pn-color-status-success-text:              #096129;   /* color.success.700 */
+  --pn-color-status-info-surface:              #E2EDFB;   /* color.active.50 */
+  --pn-color-status-info-border:               #006CD1;   /* color.active.500 */
+  --pn-color-status-info-text:                 #003F7E;   /* color.active.700 */
+
+  /* alias: icon */
+  --pn-color-icon-default:                     #141414;   /* aliases.text.text-primary */
+  --pn-color-icon-muted:                       #5F5F5F;   /* aliases.text.text-muted */
+  --pn-color-icon-accent:                      #007671;   /* color.primary.500 */
+  --pn-color-icon-inverse:                     #FFFFFF;   /* color.neutral.0 */
+
+  /* alias: brand */
+  --pn-color-brand-sol:                        #FDB813;   /* color.sol.500 */
+
+  /* alias: chart */
+  /* --pn-color-chart-categorical-1: reserved, no value yet (item 9 (data visualization palette)) */
+  /* --pn-color-chart-sequential-min: reserved, no value yet (item 9 (data visualization palette)) */
+  /* --pn-color-chart-sequential-max: reserved, no value yet (item 9 (data visualization palette)) */
+  /* --pn-color-chart-axis: reserved, no value yet (item 9 (data visualization palette)) */
+  /* --pn-color-chart-grid: reserved, no value yet (item 9 (data visualization palette)) */
+  /* --pn-color-chart-label: reserved, no value yet (item 9 (data visualization palette)) */
+
+  /* ─── Typography — mirrors src/tokens/typography.json ───────── */
+  --pn-font-family-sans:                       "Roboto", "Helvetica Neue", Arial, sans-serif;   /* Production stack, matches the shipping app. TODO(cate): review and mod */
+  --pn-font-family-mono:                       'JetBrains Mono', 'Fira Code', monospace;   /* Monospace stack for code snippets, data tables, IDs, and technical val */
+  --pn-font-size-xs:                           0.6944rem;
+  --pn-font-size-sm:                           0.8333rem;
+  --pn-font-size-base:                         1rem;
+  --pn-font-size-reading:                      1.125rem;
+  --pn-font-size-md:                           1.2rem;
+  --pn-font-size-lg:                           1.44rem;
+  --pn-font-size-xl:                           1.728rem;
+  --pn-font-size-2xl:                          2.0736rem;
+  --pn-font-size-3xl:                          2.4883rem;
+  --pn-font-weight-regular:                    400;
+  --pn-font-weight-medium:                     500;
+  --pn-font-weight-semibold:                   600;
+  --pn-font-weight-bold:                       700;
+  --pn-font-line-height-tight:                 1.2;
+  --pn-font-line-height-snug:                  1.35;
+  --pn-font-line-height-normal:                1.5;
+  --pn-font-line-height-relaxed:               1.65;
+  --pn-font-letter-spacing-tight:              -0.02em;
+  --pn-font-letter-spacing-normal:             0em;
+  --pn-font-letter-spacing-wide:               0.04em;
+  --pn-font-letter-spacing-wider:              0.05em;
+
+  /* ─── Spacing — mirrors src/tokens/spacing.json ──────────────
+     Base unit 4px. Steps 6 and 10 were removed 2026-08-31: inherited
+     rather than chosen, and neither did anything 8 or 12 could not.
+     Steps 1 and 2 are the ONLY permitted sub-grid exceptions, for
+     hairline rules and tight grid gutters, never component spacing. */
+  --pn-spacing-0:                              0px;
+  --pn-spacing-1:                              1px;   /* sub-grid exception: hairlines / gutters only */
+  --pn-spacing-2:                              2px;   /* sub-grid exception: hairlines / gutters only */
+  --pn-spacing-4:                              4px;
+  --pn-spacing-8:                              8px;
+  --pn-spacing-12:                             12px;
+  --pn-spacing-16:                             16px;
+  --pn-spacing-20:                             20px;
+  --pn-spacing-24:                             24px;
+  --pn-spacing-32:                             32px;
+  --pn-spacing-40:                             40px;
+  --pn-spacing-48:                             48px;
+  --pn-spacing-56:                             56px;
+  --pn-spacing-64:                             64px;
+  --pn-spacing-80:                             80px;
+  --pn-spacing-96:                             96px;
+  --pn-spacing-128:                            128px;
+
+  /* ─── Border — mirrors src/tokens/border.json ──────────────── */
+  --pn-border-radius-none:                     0px;
+  --pn-border-radius-sm:                       4px;
+  --pn-border-radius-md:                       8px;
+  --pn-border-radius-lg:                       12px;
+  --pn-border-radius-xl:                       16px;
+  --pn-border-radius-2xl:                      24px;
+  --pn-border-radius-full:                     9999px;
+  --pn-border-width-0:                         0px;
+  --pn-border-width-1:                         1px;
+  --pn-border-width-2:                         2px;
+  --pn-border-width-4:                         4px;
+
+  /* ─── Elevation (Material-derived; not yet in a token JSON) ──── */
+  --pn-shadow-1: 0 1px 3px 0 rgba(0,0,0,0.20), 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12);
+  --pn-shadow-2: 0 1px 5px 0 rgba(0,0,0,0.20), 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+  --pn-shadow-3: 0 1px 8px 0 rgba(0,0,0,0.20), 0 3px 4px 0 rgba(0,0,0,0.14), 0 3px 3px -2px rgba(0,0,0,0.12);
+  --pn-shadow-card-soft: 0 4px 24px rgba(20,30,55,0.08);
+  --pn-shadow-xs: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.10);
+
+  /* ─── Claude-Design-only values, not yet promoted to a token JSON ───
+     No counterpart in src/tokens/*.json, so they keep bare names
+     deliberately: a --pn- name would imply the published library ships
+     them, and it does not. Promote or retire each one. */
+  --font-script:       "Comic Neue", "Comic Sans MS", cursive;   /* whiteboard sketches only, never production */
+  --promega-sol-alt:   #FDB913;   /* DEPRECATED. The production typo, not a brand value. sol-500 is #FDB813. Do not use. */
+
+  /* Legacy functional colours — superseded by the --pn-color-* aliases above. */
+  --primary-blue:      #3B6EA9;   /* LEGACY: use --pn-color-action-primary-default */
+  --primary-stroke:    #3B82F6;   /* LEGACY: use --pn-color-state-selected-border */
+  --info-light:        #93C5FD;
+  --info-icon:         #03A9F4;
+  --info-bg:           #E1F5FE;   /* LEGACY: use --pn-color-status-info-surface */
+  --info-bg-cool:      #B3E5FC;
+  --teal-200:          #99F6E4;
+  --teal-400:          #2DD4BF;
+  --teal-600:          #0FA888;   /* Read Plate gradient top */
+  --teal-800:          #0D6670;   /* Read Plate gradient bottom */
+  --indigo-300:        #C7D2FE;
+  --indigo-400:        #818CF8;
+  --app-orange:        #EB5B26;   /* app-category card: CTG family */
+  --app-purple-1:      #7F1BAD;
+  --app-purple-2:      #C800FF;
+  --app-purple-old:    #8048B8;
+  --tint-warm:         #FEFCF4;
+  --tint-cool:         #E1F5FE;
+  --tint-mauve:        #FFFFFF;
+
+  /* ─── DEPRECATED bare names ─────────────────────────────────────
+     Pass-throughs so unmigrated files keep rendering. Do not use. */
+
+  --promega-sol: var(--pn-color-sol-500);
+  --sol-50:  var(--pn-color-sol-50);   --sol-100: var(--pn-color-sol-100);
+  --sol-200: var(--pn-color-sol-200);  --sol-300: var(--pn-color-sol-300);
+  --sol-400: var(--pn-color-sol-400);  --sol-500: var(--pn-color-sol-500);
+  --sol-600: var(--pn-color-sol-600);  --sol-700: var(--pn-color-sol-700);
+  --sol-800: var(--pn-color-sol-800);  --sol-900: var(--pn-color-sol-900);
+
+  --neutral-0:   var(--pn-color-neutral-0);    --neutral-50:  var(--pn-color-neutral-50);
+  --neutral-100: var(--pn-color-neutral-100);  --neutral-200: var(--pn-color-neutral-200);
+  --neutral-300: var(--pn-color-neutral-300);  --neutral-400: var(--pn-color-neutral-400);
+  --neutral-500: var(--pn-color-neutral-500);  --neutral-600: var(--pn-color-neutral-600);
+  --neutral-700: var(--pn-color-neutral-700);  --neutral-800: var(--pn-color-neutral-800);
+  --neutral-900: var(--pn-color-neutral-900);
+  --neutral-000: var(--pn-color-neutral-0);    /* was #FFFFFF */
+  --neutral-050: var(--pn-color-neutral-0);    /* was #F8FAFC */
+  --neutral-750: var(--pn-color-neutral-500);  /* was #717171 */
+  --neutral-850: var(--pn-color-neutral-700);  /* was #505050 */
+  --neutral-950: var(--pn-color-neutral-800);  /* was #333333 */
+  --gray-100:    var(--pn-color-neutral-50);   /* was #F2F2F2 */
+  --gray-200:    var(--pn-color-neutral-100);  /* was #E5E7EB */
+  --gray-325:    var(--pn-color-neutral-200);  /* was #C8C8C8 */
+  --gray-400:    var(--pn-color-neutral-400);  /* was #9CA3AF */
+
+  --text-primary:   var(--pn-color-text-primary);
+  --text-secondary: var(--pn-color-text-secondary);
+  --text-muted:     var(--pn-color-text-muted);
+  --text-inverse:   var(--pn-color-text-inverse);
+  --surface-inverse:        var(--pn-color-surface-inverse);
+  --surface-inverse-raised: var(--pn-color-surface-frame);   /* renamed to surface-frame */
+  --border-inverse:         var(--pn-color-border-inverse);
+
+  --ink-headline: var(--pn-color-text-primary);
+  --ink-body:     var(--pn-color-text-primary);
+  --ink-muted:    var(--pn-color-text-muted);
+  --ink-on-dark:  var(--pn-color-text-inverse);
+  --shell-dark:   var(--pn-color-surface-inverse);
+  --shell-frame:  var(--pn-color-surface-frame);
+  --shell-divider: var(--pn-color-border-inverse);
+
+  --ui-primary: var(--pn-color-primary-500);  --ui-active:  var(--pn-color-active-500);
+  --ui-warning: var(--pn-color-warning-500);  --ui-error:   var(--pn-color-error-500);
+  --ui-success: var(--pn-color-success-500);
+  --ui-primary-50: var(--pn-color-primary-50);   --ui-primary-100: var(--pn-color-primary-100);
+  --ui-primary-300: var(--pn-color-primary-300); --ui-primary-500: var(--pn-color-primary-500);
+  --ui-primary-600: var(--pn-color-primary-600); --ui-primary-700: var(--pn-color-primary-700);
+  --ui-active-50: var(--pn-color-active-50);     --ui-active-100: var(--pn-color-active-100);
+  --ui-active-300: var(--pn-color-active-300);   --ui-active-500: var(--pn-color-active-500);
+  --ui-active-600: var(--pn-color-active-600);   --ui-active-700: var(--pn-color-active-700);
+  --ui-warning-50: var(--pn-color-warning-50);   --ui-warning-100: var(--pn-color-warning-100);
+  --ui-warning-300: var(--pn-color-warning-300); --ui-warning-500: var(--pn-color-warning-500);
+  --ui-warning-600: var(--pn-color-warning-600); --ui-warning-700: var(--pn-color-warning-700);
+  --ui-error-50: var(--pn-color-error-50);       --ui-error-100: var(--pn-color-error-100);
+  --ui-error-300: var(--pn-color-error-300);     --ui-error-500: var(--pn-color-error-500);
+  --ui-error-600: var(--pn-color-error-600);     --ui-error-700: var(--pn-color-error-700);
+  --ui-success-50: var(--pn-color-success-50);   --ui-success-100: var(--pn-color-success-100);
+  --ui-success-300: var(--pn-color-success-300); --ui-success-500: var(--pn-color-success-500);
+  --ui-success-600: var(--pn-color-success-600); --ui-success-700: var(--pn-color-success-700);
+  --ui-primary-bg: var(--pn-color-primary-100);    --ui-primary-border: var(--pn-color-primary-300);
+  --ui-primary-hover: var(--pn-color-primary-600); --ui-primary-text: var(--pn-color-primary-600);
+  --ui-active-bg: var(--pn-color-active-100);      --ui-active-border: var(--pn-color-active-300);
+  --ui-active-hover: var(--pn-color-active-600);   --ui-active-text: var(--pn-color-active-600);
+  --ui-warning-bg: var(--pn-color-warning-100);    --ui-warning-border: var(--pn-color-warning-300);
+  --ui-warning-hover: var(--pn-color-warning-600); --ui-warning-text: var(--pn-color-warning-700);
+  --ui-error-bg: var(--pn-color-error-100);        --ui-error-border: var(--pn-color-error-300);
+  --ui-error-hover: var(--pn-color-error-600);     --ui-error-text: var(--pn-color-error-500);
+  --ui-success-bg: var(--pn-color-success-100);    --ui-success-border: var(--pn-color-success-300);
+  --ui-success-hover: var(--pn-color-success-700); --ui-success-text: var(--pn-color-success-600);
+
+  --status-available: var(--pn-color-success-500);
+  --status-attention: var(--pn-color-warning-500);   /* was Sol; Sol read as caution, the bug being fixed */
+  --status-offline:   var(--pn-color-text-muted);
+  --status-error:     var(--pn-color-error-500);
+  --status-success:   var(--pn-color-success-500);
+
+  --font-sans: var(--pn-font-family-sans);
+  --tracking-tight:  var(--pn-font-letter-spacing-tight);   /* was referenced by .ds-h1 but never defined */
+  --tracking-normal: var(--pn-font-letter-spacing-normal);
+  --tracking-wide:   var(--pn-font-letter-spacing-wide);
+  --tracking-caps:   var(--pn-font-letter-spacing-wider);
+  --lh-tight: var(--pn-font-line-height-tight);
+  --lh-snug:  var(--pn-font-line-height-snug);
+  --lh-body:  var(--pn-font-line-height-normal);
+  --fs-10: var(--pn-font-size-xs);   --fs-12: var(--pn-font-size-xs);
+  --fs-14: var(--pn-font-size-sm);   --fs-15: var(--pn-font-size-base);
+  --fs-16: var(--pn-font-size-base); --fs-18: var(--pn-font-size-reading);
+  --fs-20: var(--pn-font-size-md);   --fs-22: var(--pn-font-size-lg);
+  --fs-24: var(--pn-font-size-lg);   --fs-28: var(--pn-font-size-xl);
+  --fs-32: var(--pn-font-size-2xl);  --fs-48: var(--pn-font-size-3xl);
+  --fs-72: var(--pn-font-size-3xl);
+
+  --space-1: var(--pn-spacing-4);   --space-2: var(--pn-spacing-8);
+  --space-3: var(--pn-spacing-12);  --space-4: var(--pn-spacing-16);
+  --space-5: var(--pn-spacing-20);  --space-6: var(--pn-spacing-24);
+  --space-7: var(--pn-spacing-32);  --space-8: var(--pn-spacing-32);
+  --space-9: var(--pn-spacing-48);  --space-10: var(--pn-spacing-64);
+  --radius-xs:   var(--pn-border-radius-none);   /* was 2px, off the radius scale */
+  --radius-sm:   var(--pn-border-radius-sm);
+  --radius-md:   var(--pn-border-radius-md);
+  --radius-lg:   var(--pn-border-radius-lg);     /* was 10px, scale says 12px */
+  --radius-xl:   var(--pn-border-radius-xl);
+  --radius-pill: var(--pn-border-radius-full);
+}
+
+/* ─── Semantic role styles (apply by class) ────────────────────────
+   All nine resolve entirely through --pn-* tokens. Sizes moved off the
+   px --fs-* block onto the rem scale, so some shift slightly; deltas
+   are listed in the decisions doc. */
+.ds-h1 {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-regular);
+  font-size: var(--pn-font-size-2xl);
+  letter-spacing: var(--pn-font-letter-spacing-tight);
+  color: var(--pn-color-text-inverse);
+  line-height: var(--pn-font-line-height-snug);
+}
+.ds-tile-title {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-regular);
+  font-size: var(--pn-font-size-md);
+  color: var(--pn-color-text-primary);
+  line-height: var(--pn-font-line-height-relaxed);
+}
+.ds-app-title {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-bold);
+  font-size: var(--pn-font-size-lg);
+  color: var(--pn-color-text-inverse);
+  line-height: var(--pn-font-line-height-tight);
+}
+.ds-section-cap {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-bold);
+  font-size: var(--pn-font-size-sm);
+  letter-spacing: var(--pn-font-letter-spacing-wider);
+  color: var(--pn-color-text-secondary);
+  text-transform: none;
+}
+.ds-body {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-regular);
+  font-size: var(--pn-font-size-sm);
+  color: var(--pn-color-text-primary);
+  line-height: var(--pn-font-line-height-normal);
+}
+.ds-body-md {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-medium);
+  font-size: var(--pn-font-size-base);
+  color: var(--pn-color-text-primary);
+  line-height: var(--pn-font-line-height-relaxed);
+}
+.ds-meta {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-regular);
+  font-size: var(--pn-font-size-xs);
+  color: var(--pn-color-text-muted);
+}
+.ds-micro-caps {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-bold);
+  font-size: var(--pn-font-size-xs);
+  color: var(--pn-color-text-inverse);
+  line-height: var(--pn-font-line-height-tight);
+}
+.ds-button {
+  font-family: var(--pn-font-family-sans);
+  font-weight: var(--pn-font-weight-medium);
+  font-size: var(--pn-font-size-sm);
+  letter-spacing: var(--pn-font-letter-spacing-wide);
+}
