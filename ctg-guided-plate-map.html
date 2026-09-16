@@ -398,6 +398,7 @@
     },
   });
   document.getElementById('gpm-next-btn').addEventListener('click', () => {
+    document.getElementById('gpm-next-btn').classList.remove('demo-cue');
     selectInstrumentHost.style.display = 'block';
     selectInstrumentApi.show();
   });

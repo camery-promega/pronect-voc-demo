@@ -70,18 +70,18 @@
 
           <div id="crip-idle-foot" class="read-foot">
             <div class="read-actions">
-              <!-- Cancel used to link to ctg-app-home.dc.html, also cut. Sends
-                   back to the dashboard instead - no CTG app home left to
-                   return to. -->
-              <a class="read-btn read-btn--ghost" href="user-dashboard.html">Cancel</a>
-              <button class="read-btn read-btn--primary" id="crip-start-btn">Start</button>
+              <!-- Cancel doesn't navigate - a tooltip explains what it would
+                   do instead, per Cate's ask, 2026-09-16. -->
+              <button type="button" class="read-btn read-btn--ghost crip-hover" data-note="Cancel returns you to the previous screen.">Cancel</button>
+              <button class="read-btn read-btn--primary demo-cue" id="crip-start-btn">Start</button>
             </div>
           </div>
 
           <!-- Reading: an estimated-time countdown (real, same mechanism as
                the Read Plate Tool version), with a tooltip on the time itself
-               explaining it's simulated. Next only appears once the countdown
-               reaches zero, and nothing navigates until it's clicked. -->
+               explaining it's simulated. View Results is available as soon as
+               reading starts, per Cate's ask, 2026-09-16 - not gated behind
+               the countdown reaching zero. -->
           <div id="crip-reading-foot" class="read-foot" style="display:none;">
             <div class="read-meta">
               <div class="read-meta__time crip-hover" data-note="This is a simulated read. A real MyGlo read takes as long as the plate and assay require." style="cursor:help;">
@@ -89,7 +89,7 @@
               </div>
             </div>
             <div id="crip-next-foot" class="read-actions" style="display:none;">
-              <button class="read-btn read-btn--primary demo-cue" id="crip-next-btn">Next</button>
+              <button class="read-btn read-btn--primary demo-cue" id="crip-next-btn">View Results</button>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@
     document.getElementById('crip-reading-foot').style.display = reading ? 'flex' : 'none';
     if (reading) {
       document.getElementById('crip-remaining').textContent = `${remainingSec} sec`;
-      document.getElementById('crip-next-foot').style.display = remainingSec <= 0 ? 'flex' : 'none';
+      document.getElementById('crip-next-foot').style.display = 'flex';
     }
   }
 

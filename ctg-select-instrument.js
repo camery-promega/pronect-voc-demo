@@ -43,14 +43,20 @@ function mountCtgSelectInstrument(container, opts) {
     const canNext = !!selectedId && !integrationInvalid;
     const nextStyle = `border:1px solid ${canNext ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-subtle)'};background:${canNext ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-sunken)'};color:${canNext ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};border-radius:var(--pn-border-radius-md);padding:8px 12px;font:400 15px/1 var(--pn-font-family-sans);cursor:${canNext ? 'pointer' : 'default'};`;
 
+    // Validation note is hidden per Cate's ask, 2026-09-16 - might come back
+    // later, so this is a flag, not a deletion.
+    const SHOW_VALIDATION_NOTE = false;
+
     container.innerHTML = `
       <div style="position:fixed;inset:0;background:rgba(20,20,20,.5);z-index:2100;display:flex;align-items:center;justify-content:center;padding:24px;">
         <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-lg);width:1200px;max-width:100%;height:760px;max-height:100%;box-shadow:var(--pn-shadow-3);display:flex;flex-direction:column;padding:32px 40px;font-family:var(--pn-font-family-sans);">
           <h2 style="margin:0 0 16px;font:600 24px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Select Instrument</h2>
+          ${SHOW_VALIDATION_NOTE ? `
           <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--pn-border-radius-md);background:var(--pn-color-status-success-surface);border:1px solid var(--pn-color-status-success-border);flex:none;margin-bottom:8px;">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--pn-color-status-success-border)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>
             <span style="font:400 14px/1.45 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">ProNect checks the plate map before a read starts, so an issue surfaces here rather than after the data is collected. This plate map has no errors to show.</span>
           </div>
+          ` : ''}
           <div style="display:flex;align-items:center;gap:24px;padding:20px 0;flex:none;">
             <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);flex:none;">Analysis Results Name</span>
             <span style="flex:1;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);overflow-wrap:anywhere;">${analysisName}</span>
@@ -60,7 +66,7 @@ function mountCtgSelectInstrument(container, opts) {
           <div class="csi-table-host" style="width:100%;flex:1;min-height:0;"></div>
           <div style="display:flex;justify-content:center;gap:16px;padding-top:24px;flex:none;">
             <button class="csi-cancel-btn" style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:8px 12px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Cancel</button>
-            <button class="csi-next-btn" ${canNext ? '' : 'disabled'} style="${nextStyle}">Next</button>
+            <button class="csi-next-btn${canNext ? ' demo-cue' : ''}" ${canNext ? '' : 'disabled'} style="${nextStyle}">Next</button>
           </div>
         </div>
       </div>
@@ -78,6 +84,7 @@ function mountCtgSelectInstrument(container, opts) {
         if (nextBtn) {
           const stillCanNext = !!selectedId && !integrationInvalid;
           nextBtn.disabled = !stillCanNext;
+          nextBtn.classList.toggle('demo-cue', stillCanNext);
           nextBtn.style.cssText = `border:1px solid ${stillCanNext ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-subtle)'};background:${stillCanNext ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-sunken)'};color:${stillCanNext ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};border-radius:var(--pn-border-radius-md);padding:8px 12px;font:400 15px/1 var(--pn-font-family-sans);cursor:${stillCanNext ? 'pointer' : 'default'};`;
         }
       },
