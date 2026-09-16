@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/ui_kits/pronect/styles.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+<link rel="stylesheet" href="pronect-demo.css">
+<script src="ctg-demo-data.js"></script>
+<style>
+  body{margin:0;background:var(--pn-color-surface-page);font-family:var(--pn-font-family-sans)}
+  .id-tab{background:none;border:0;border-bottom:3px solid transparent;padding:16px;cursor:pointer;
+          font:400 var(--pn-font-size-base)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);white-space:nowrap;}
+  .id-tab.is-on{font-weight:var(--pn-font-weight-semibold);border-bottom-color:var(--pn-color-sol-500);background:var(--pn-color-sol-50);}
+  .id-card{background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-xl);
+           box-shadow:var(--pn-shadow-card-soft);padding:20px 24px;display:flex;flex-direction:column;min-height:0;}
+  .id-meta{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px 16px;align-items:center;}
+  .id-meta__k{font:400 var(--pn-font-size-sm)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);}
+  .id-meta__v{font:400 var(--pn-font-size-sm)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-muted);}
+  .id-row{display:grid;align-items:center;gap:16px;padding:12px 6px;border-bottom:1px solid var(--pn-color-border-subtle);}
+  .id-head{font:500 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);}
+  .id-cell{font:400 var(--pn-font-size-sm)/1.35 var(--pn-font-family-sans);color:var(--pn-color-text-primary);overflow-wrap:anywhere;}
+  .id-cell--muted{color:var(--pn-color-text-muted);}
+  .id-icon{width:24px;height:24px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:not-allowed;}
+  /* 17px sits exactly between --pn-font-size-base (16px) and --pn-font-size-reading (18px);
+     left as raw px pending Cate's pick, see the checklist. */
+  .id-about__h{font:600 17px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);margin:24px 0 4px;}
+  .id-about__row{display:flex;justify-content:space-between;gap:24px;padding:12px 0;border-bottom:1px solid var(--pn-color-border-subtle);}
+  .legend-btn{display:flex;align-items:center;gap:8px;background:none;border:0;padding:4px 0;cursor:pointer;
+              font:400 var(--pn-font-size-sm)/1.2 var(--pn-font-family-sans);text-align:left;}
+</style>
+</head>
+<body>
+
+<!-- Instrument details.
+     ==================================================================
+     Built from 134 to 145. One page, five tabs, for the Reading
+     instrument only: the dashboard links just that one, and the other
+     three explain themselves there instead.
+
+     DATA OPTIONS TAB CUT per Cate: it was a holdover from an earlier
+     instrument concept, not something this MyGlo actually exposes.
+
+     THE CALENDAR IS DELIBERATELY ABSENT. 134 onward show a week
+     scheduler under the instrument info. Cate cut it: MyGlo is marketed
+     as a personal device, so booking time on it does not scan. It is
+     left over from exploring a shared-resource instrument. The left
+     column is shorter as a result, which is on the to-do list.
+
+     THE TELEMETRY CHART IS NOT A COPY OF 137. Cate's brief was an
+     idealised version rather than a reproduction, because the real one
+     crams two Y axes into one plot area, rotates its date labels to
+     near-vertical, floats three event series in an unlabelled band and
+     gives each series its own tooltip. This builds the same six series
+     as STACKED PANELS ON ONE SHARED X AXIS, so a temperature spike and
+     an incident line up by eye, with one crosshair, one tooltip
+     reporting everything at that moment, and a legend that toggles
+     series. Those are the conventions the dose response chart already
+     uses, so the two charts read as one product. -->
+<div data-screen-label="Instrument Details" style="min-height:100vh;display:flex;flex-direction:column;">
+
+  <div style="flex:1;display:flex;min-height:0;">
+    <div id="idt-sidebar" style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></div>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+      <div id="idt-topbar" style="display:block;width:100%;flex:none;"></div>
+
+      <div style="flex:1;min-height:0;padding:clamp(16px,2vw,28px) clamp(16px,2.4vw,32px);display:grid;
+                  grid-template-columns:minmax(300px,0.62fr) minmax(0,1.55fr);gap:16px;background:var(--pn-color-surface-page);">
+
+        <!-- ---------- left: the instrument ---------- -->
+        <section class="id-card" style="align-self:start;padding:var(--pn-spacing-24);">
+          <h1 id="idt-inst-name" style="margin:0 0 18px;font:400 var(--pn-font-size-md)/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);"></h1>
+          <div style="display:flex;gap:20px;align-items:flex-start;">
+            <img src="assets/reading-myglo.gif" alt="" style="width:92px;height:60px;object-fit:contain;flex:none;">
+            <div class="id-meta" style="flex:1;min-width:0;">
+              <span class="id-meta__k">Status</span>
+              <!-- The whole status row is the link to the read in progress, per Cate. -->
+              <a id="idt-status-link" href="#" style="display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0;">
+                <span id="idt-status-bar" style="width:64px;height:4px;border-radius:2px;flex:none;"></span>
+                <span id="idt-status-label" style="font:400 var(--pn-font-size-sm)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);white-space:nowrap;"></span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-primary)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+              </a>
+              <span class="id-meta__k">Model</span><span class="id-meta__v">MyGlo Reagent Reader</span>
+            </div>
+          </div>
+          <button class="idt-hover" data-note="The operating manual opens as a PDF."
+                  style="align-self:flex-start;margin-top:20px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-sm);padding:8px 12px;cursor:not-allowed;font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Operating Manual</button>
+          <!-- The scheduling calendar sat here. See the note at the top. -->
+        </section>
+
+        <!-- ---------- right: the tabs ---------- -->
+        <section class="id-card" style="padding-top:12px;">
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;flex:none;">
+            <div id="idt-tabs" style="display:flex;gap:2px;border-bottom:1px solid var(--pn-color-border-subtle);overflow-x:auto;"></div>
+            <div style="flex:1;"></div>
+            <label class="idt-hover" data-note="The date range narrows every tab on this page to a window."
+                   style="display:flex;align-items:center;gap:8px;border:1px solid var(--pn-color-border-default);border-radius:8px;padding:8px 12px;cursor:not-allowed;">
+              <span id="idt-range-label" style="font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-secondary);white-space:nowrap;"></span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4" stroke-linecap="round"></path></svg>
+            </label>
+          </div>
+
+          <div id="idt-list-chrome" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0 6px;flex:none;">
+            <label class="idt-hover" data-note="Search filters this tab by name."
+                   style="display:flex;align-items:center;gap:8px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:6px;padding:6px 10px;width:200px;cursor:not-allowed;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="16" y1="16" x2="21" y2="21" stroke-linecap="round"></line></svg>
+              <input placeholder="Search" disabled readonly tabindex="-1" style="border:0;outline:none;flex:1;min-width:0;font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);background:transparent;pointer-events:none;cursor:not-allowed;user-select:none;">
+            </label>
+            <button id="idt-download-btn" class="idt-hover"></button>
+          </div>
+
+          <div style="flex:1;min-height:0;overflow:auto;">
+            <div id="idt-list-panel"></div>
+            <div id="idt-telemetry-panel" style="display:none;gap:20px;padding-top:16px;align-items:stretch;min-height:100%;">
+              <div id="idt-legend" style="width:172px;flex:none;display:flex;flex-direction:column;gap:2px;"></div>
+              <div style="flex:1;min-width:0;position:relative;display:flex;min-height:360px;">
+                <div id="idt-chart" style="width:100%;height:100%;"></div>
+                <div id="idt-tooltip" style="display:none;position:absolute;transform:translate(-50%,0);pointer-events:none;z-index:5;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);box-shadow:var(--pn-shadow-2);padding:12px;min-width:190px;"></div>
+              </div>
+            </div>
+            <div id="idt-about-panel" style="display:none;padding-top:4px;"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="pronect-sidebar.js"></script>
+<script src="pronect-topbar.js"></script>
+<script>
+  mountPronectSidebar(document.getElementById('idt-sidebar'), { dashboardHref: 'user-dashboard.html' });
+  mountPronectTopbar(document.getElementById('idt-topbar'));
+
+  const CTG = () => window.CTG || {};
+  const DAYS = 30;
+
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const fmtRangeDate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const RANGE_END = new Date();
+  const RANGE_START = new Date(RANGE_END);
+  RANGE_START.setFullYear(RANGE_START.getFullYear() - 1);
+  const DATE_RANGE_LABEL = `${fmtRangeDate(RANGE_START)} – ${fmtRangeDate(RANGE_END)}`;
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // ---- state ----
+  let tab = 'Files';
+  let checked = {};
+  let page = 1;
+  let hidden = {};
+  let hoverIdx = null;
+  let telemetryCache = null;
+
+  function telemetry() {
+    if (telemetryCache) return telemetryCache;
+    const rnd = mulberry32(4242);
+    const day0 = new Date(); day0.setHours(12, 0, 0, 0);
+    day0.setDate(day0.getDate() - (DAYS - 1));
+    const points = [];
+    for (let i = 0; i < DAYS; i++) {
+      const d = new Date(day0); d.setDate(d.getDate() + i);
+      const stepped = i >= 9;
+      points.push({
+        date: d,
+        temp: +((stepped ? 25.8 : 21.4) + (rnd() - 0.5) * 1.1).toFixed(1),
+        hum: +((stepped ? 42.5 : 53.0) + (rnd() - 0.5) * 3.0).toFixed(1),
+      });
+    }
+    const results = [10, 11, 12, 13, 15, 17, 24, 28].map((i) => ({ i, label: 'Result captured' }));
+    const actions = [3, 8, 10, 11, 12, 14, 17, 24, 28].map((i) => ({ i, label: 'Read job received' }));
+    const incidents = [11, 13].map((i) => ({ i, label: 'Capture aborted' }));
+    const states = [
+      { from: 0, to: 8, key: 'available' },
+      { from: 8, to: 9, key: 'offline' },
+      { from: 9, to: 18, key: 'reading' },
+      { from: 18, to: 27, key: 'available' },
+      { from: 27, to: DAYS - 1, key: 'reading' },
+    ];
+    telemetryCache = { points, results, actions, incidents, states };
+    return telemetryCache;
+  }
+
+  function fmtDay(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+  function countLabel(n, noun) {
+    return `${n} ${noun}${n === 1 ? '' : 's'}`;
+  }
+
+  // ---- shared hover-note tooltip ----
+  let noteEl = null;
+  function showNote(e) {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    if (!noteEl) {
+      noteEl = document.createElement('div');
+      noteEl.style.cssText = 'position:fixed;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 var(--pn-font-size-xs)/1.3 var(--pn-font-family-sans);padding:8px 10px;border-radius:8px;pointer-events:none;z-index:2200;box-shadow:var(--pn-shadow-xs);max-width:240px;';
+      document.body.appendChild(noteEl);
+    }
+    noteEl.textContent = note;
+    noteEl.style.left = (e.clientX + 14) + 'px';
+    noteEl.style.top = (e.clientY + 18) + 'px';
+  }
+  function moveNote(e) {
+    if (!noteEl) return;
+    noteEl.style.left = (e.clientX + 14) + 'px';
+    noteEl.style.top = (e.clientY + 18) + 'px';
+  }
+  function hideNote() {
+    if (noteEl) { noteEl.remove(); noteEl = null; }
+  }
+  function wireHover(el) {
+    if (el.dataset.wired) return;
+    el.dataset.wired = '1';
+    el.addEventListener('mouseenter', showNote);
+    el.addEventListener('mousemove', moveNote);
+    el.addEventListener('mouseleave', hideNote);
+  }
+  function wireAllHovers(root) {
+    (root || document).querySelectorAll('.idt-hover').forEach(wireHover);
+  }
+
+  // ---- chart (built as an SVG string, not React.createElement) ----
+  function buildChart() {
+    const t = telemetry();
+    const W = 1000, L = 52, R = 16;
+    const TEMP = { y: 8, h: 118 };
+    const HUM = { y: 156, h: 118 };
+    const EV = { y: 300, h: 54 };
+    const ST = { y: 368, h: 22 };
+    const H = 430;
+    const x = (i) => L + (W - L - R) * (i / (DAYS - 1));
+
+    const band = (vals, panel, pad) => {
+      const lo = Math.min.apply(null, vals) - pad, hi = Math.max.apply(null, vals) + pad;
+      return { lo, hi, y: (v) => panel.y + panel.h - ((v - lo) / (hi - lo)) * panel.h };
+    };
+    const tb = band(t.points.map((p) => p.temp), TEMP, 1.2);
+    const hb = band(t.points.map((p) => p.hum), HUM, 4);
+
+    const parts = [];
+    const axisStyle = "font-size:var(--pn-font-size-xs);fill:var(--pn-color-text-muted);font-family:var(--pn-font-family-sans);";
+
+    [[TEMP, tb, '°C', 1], [HUM, hb, '%', 0]].forEach(([panel, b, unit, dp]) => {
+      for (let k = 0; k <= 3; k++) {
+        const v = b.lo + (b.hi - b.lo) * (k / 3), yy = b.y(v);
+        parts.push(`<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="var(--pn-color-border-subtle)" stroke-width="1"/>`);
+        parts.push(`<text x="${L - 8}" y="${yy + 4}" text-anchor="end" style="${axisStyle}">${v.toFixed(dp)}${unit}</text>`);
+      }
+    });
+
+    const series = [
+      { key: 'temp', color: 'var(--pn-color-teal-500, #17A2A2)', get: (p) => p.temp, b: tb },
+      { key: 'hum', color: '#7C5CD6', get: (p) => p.hum, b: hb },
+    ];
+    series.forEach((s) => {
+      if (hidden[s.key]) return;
+      const d = t.points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${s.b.y(s.get(p)).toFixed(1)}`).join(' ');
+      parts.push(`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`);
+    });
+
+    const lanes = [
+      { key: 'results', rowY: EV.y + 10, color: '#2E8FE0', shape: 'diamond' },
+      { key: 'actions', rowY: EV.y + 30, color: '#7A2FA8', shape: 'circle' },
+      { key: 'incidents', rowY: EV.y + 48, color: '#D93A2B', shape: 'square' },
+    ];
+    lanes.forEach((lane) => {
+      if (hidden[lane.key]) return;
+      t[lane.key].forEach((e) => {
+        const cx = x(e.i), cy = lane.rowY;
+        if (lane.shape === 'diamond') {
+          parts.push(`<rect x="${cx - 4.5}" y="${cy - 4.5}" width="9" height="9" fill="${lane.color}" transform="rotate(45 ${cx} ${cy})"/>`);
+        } else if (lane.shape === 'circle') {
+          parts.push(`<circle cx="${cx}" cy="${cy}" r="4.5" fill="${lane.color}"/>`);
+        } else {
+          parts.push(`<rect x="${cx - 4.5}" y="${cy - 4.5}" width="9" height="9" fill="${lane.color}" rx="1.5"/>`);
+        }
+      });
+    });
+
+    {
+      const S = CTG().STATUS || {};
+      const colorFor = { available: (S.available || {}).color, reading: (S.reading || {}).color, offline: (S.offline || {}).color };
+      t.states.forEach((seg) => {
+        const x0 = x(seg.from), x1 = x(seg.to);
+        parts.push(`<rect x="${x0}" y="${ST.y}" width="${Math.max(2, x1 - x0)}" height="${ST.h}" fill="${colorFor[seg.key] || 'var(--pn-color-border-default)'}"/>`);
+      });
+    }
+
+    for (let i = 0; i < DAYS; i += 5) {
+      parts.push(`<text x="${x(i)}" y="${ST.y + ST.h + 18}" text-anchor="middle" style="${axisStyle}">${fmtDay(t.points[i].date)}</text>`);
+    }
+
+    if (hoverIdx != null) {
+      const hi2 = hoverIdx;
+      parts.push(`<line x1="${x(hi2)}" x2="${x(hi2)}" y1="${TEMP.y}" y2="${ST.y + ST.h}" stroke="var(--pn-color-text-primary)" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>`);
+      series.forEach((s) => {
+        if (hidden[s.key]) return;
+        parts.push(`<circle cx="${x(hi2)}" cy="${s.b.y(s.get(t.points[hi2]))}" r="4" fill="var(--pn-color-surface-default)" stroke="${s.color}" stroke-width="2"/>`);
+      });
+    }
+
+    const w = (W - L - R) / (DAYS - 1);
+    t.points.forEach((p, i) => {
+      parts.push(`<rect class="idt-hit" data-i="${i}" x="${x(i) - w / 2}" y="${TEMP.y}" width="${w}" height="${ST.y + ST.h - TEMP.y}" fill="transparent"/>`);
+    });
+
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMin meet" style="display:block;width:100%;height:100%;overflow:visible;">${parts.join('')}</svg>`;
+  }
+
+  function renderChart() {
+    const chartEl = document.getElementById('idt-chart');
+    chartEl.innerHTML = buildChart();
+    chartEl.querySelectorAll('.idt-hit').forEach((hit) => {
+      const i = Number(hit.dataset.i);
+      hit.addEventListener('mouseenter', () => { hoverIdx = i; renderChart(); renderTooltip(); });
+      hit.addEventListener('mouseleave', () => { if (hoverIdx === i) { hoverIdx = null; renderChart(); renderTooltip(); } });
+    });
+  }
+
+  const LEGEND = [
+    { key: 'temp', label: 'Temperature (°C)', color: 'var(--pn-color-teal-500, #17A2A2)', kind: 'line' },
+    { key: 'hum', label: 'Humidity (%)', color: '#7C5CD6', kind: 'line' },
+    { key: 'results', label: 'Results', color: '#2E8FE0', kind: 'diamond' },
+    { key: 'actions', label: 'Actions', color: '#7A2FA8', kind: 'circle' },
+    { key: 'incidents', label: 'Incidents', color: '#D93A2B', kind: 'square' },
+    { key: 'state', label: 'State', color: 'var(--pn-color-border-strong)', kind: 'bar' },
+  ];
+
+  function renderTooltip() {
+    const t = telemetry();
+    const tipEl = document.getElementById('idt-tooltip');
+    const hi = hoverIdx;
+    if (hi == null) { tipEl.style.display = 'none'; return; }
+    const p = t.points[hi];
+    const rows = [];
+    if (!hidden.temp) rows.push({ color: 'var(--pn-color-teal-500, #17A2A2)', label: 'Temperature', value: p.temp.toFixed(1) + '°C' });
+    if (!hidden.hum) rows.push({ color: '#7C5CD6', label: 'Humidity', value: p.hum.toFixed(1) + '%' });
+    ['results', 'actions', 'incidents'].forEach((k) => {
+      if (hidden[k]) return;
+      const hits = t[k].filter((e) => e.i === hi);
+      if (hits.length) rows.push({ color: LEGEND.find((l) => l.key === k).color, label: hits[0].label, value: hits.length > 1 ? `x${hits.length}` : '' });
+    });
+    {
+      const seg = t.states.find((sg) => hi >= sg.from && hi <= sg.to) || t.states[t.states.length - 1];
+      const S = (CTG().STATUS || {})[seg.key] || {};
+      rows.push({ color: S.color || 'var(--pn-color-border-strong)', label: 'State', value: S.label || seg.key });
+    }
+    if (!rows.length) { tipEl.style.display = 'none'; return; }
+    tipEl.style.display = 'block';
+    tipEl.style.left = `${((hi / (DAYS - 1)) * 0.93 + 0.05) * 100}%`;
+    tipEl.style.top = '8px';
+    tipEl.innerHTML = `
+      <div style="font:600 var(--pn-font-size-xs)/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-primary);margin-bottom:6px;">${fmtDay(p.date)}, 2026</div>
+      ${rows.map((r) => `
+        <div style="display:flex;align-items:center;gap:8px;padding:2px 0;font:400 var(--pn-font-size-xs)/1.4 var(--pn-font-family-sans);color:var(--pn-color-text-secondary);">
+          <span style="width:9px;height:9px;border-radius:2px;flex:none;background:${r.color};"></span>
+          <span style="flex:1;">${r.label}</span>
+          <span style="color:var(--pn-color-text-primary);">${r.value}</span>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function renderLegend() {
+    const legendEl = document.getElementById('idt-legend');
+    const itemsHtml = LEGEND.map((l) => {
+      const interactive = l.key !== 'state';
+      const off = interactive && !!hidden[l.key];
+      const sw = l.kind === 'line'
+        ? `width:12px;height:3px;border-radius:2px;flex:none;background:${l.color};`
+        : l.kind === 'bar'
+        ? `width:12px;height:10px;border-radius:2px;flex:none;background:${l.color};`
+        : l.kind === 'circle'
+        ? `width:12px;height:12px;border-radius:50%;flex:none;background:${l.color};`
+        : l.kind === 'diamond'
+        ? `width:12px;height:12px;flex:none;background:${l.color};transform:rotate(45deg);`
+        : `width:12px;height:12px;border-radius:2px;flex:none;background:${l.color};`;
+      const style = `color:${off ? 'var(--pn-color-text-disabled)' : 'var(--pn-color-text-primary)'};`
+        + (off ? 'text-decoration:line-through;' : '')
+        + (interactive ? '' : 'cursor:default;');
+      const tag = interactive ? 'button' : 'div';
+      return `<${tag} class="legend-btn ${interactive ? 'idt-legend-toggle' : ''}" data-key="${l.key}" style="${style}"><span style="${sw}${off ? 'opacity:.25;' : ''}"></span><span>${l.label}</span></${tag}>`;
+    }).join('');
+    const stateKeyHtml = ['available', 'reading', 'offline'].map((k) => {
+      const S = (CTG().STATUS || {})[k] || {};
+      return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font:400 var(--pn-font-size-xs)/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-secondary);">
+        <span style="width:12px;height:12px;border-radius:3px;flex:none;background:${S.color || 'var(--pn-color-border-default)'};"></span>${S.label || k}
+      </div>`;
+    }).join('');
+    legendEl.innerHTML = itemsHtml + `
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--pn-color-border-subtle);">
+        <div style="font:700 var(--pn-font-size-xs)/1 var(--pn-font-family-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--pn-color-text-muted);margin-bottom:8px;">State</div>
+        ${stateKeyHtml}
+      </div>
+    `;
+    legendEl.querySelectorAll('.idt-legend-toggle').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        hidden[btn.dataset.key] = !hidden[btn.dataset.key];
+        renderLegend();
+        renderChart();
+        renderTooltip();
+      });
+    });
+  }
+
+  // ---- pin svg glyphs (design-system, inlined for currentColor) ----
+  const PIN_ACTIVE_SVG = '<svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-brand-sol);" role="img" aria-label="Pinned"><path d="M7.56663 2.9452C7.82034 2.26215 8.69593 2.07106 9.21116 2.58629L14.2776 7.65273C14.7928 8.16796 14.6017 9.04356 13.9187 9.29726L13.4221 9.48169L10.0666 12.8372C10.0666 12.8372 10.0666 14.6656 9.31213 16.059C9.04914 16.5446 8.40783 16.5473 8.01731 16.1567L0.707154 8.84659C0.31663 8.45606 0.319266 7.81475 0.804919 7.55177C2.19826 6.79727 4.02668 6.79727 4.02668 6.79727L7.3822 3.44174L7.56663 2.9452Z" fill="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>';
+  const PIN_DEFAULT_SVG = '<svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-neutral-700);" role="img" aria-label="Not pinned"><path d="M13.2481 9.01298L13.1458 9.05097L13.0686 9.12814L9.71307 12.4837L9.56662 12.6301L9.56662 12.8367L9.56662 12.8369L9.56662 12.8369V12.837V12.8372L9.56661 12.8392L9.56648 12.8514C9.56633 12.8628 9.56601 12.8807 9.56534 12.9045C9.56401 12.9522 9.56129 13.0236 9.55576 13.1142C9.54468 13.2958 9.52241 13.5531 9.4778 13.8517C9.38748 14.4562 9.21031 15.197 8.87245 15.8209C8.83076 15.8979 8.76944 15.9328 8.68665 15.9371C8.59292 15.942 8.47096 15.9033 8.37086 15.8032L1.06071 8.49303C0.960611 8.39294 0.921938 8.27098 0.926799 8.17724C0.931092 8.09445 0.966015 8.03313 1.043 7.99144C1.66694 7.65358 2.40767 7.47641 3.01218 7.38609C3.31077 7.34148 3.56809 7.31921 3.74967 7.30813C3.84031 7.3026 3.91166 7.29988 3.95936 7.29855C3.9832 7.29788 4.0011 7.29756 4.01251 7.29741L4.02468 7.29728L4.02668 7.29727H4.02686L4.02697 7.29727L4.027 7.29727L4.02715 7.29727L4.23378 7.29727L4.38023 7.15082L7.73576 3.7953L7.81292 3.71813L7.85091 3.61584L8.03534 3.1193C8.1622 2.77777 8.59999 2.68222 8.85761 2.93984L13.9241 8.00628C14.1817 8.2639 14.0861 8.7017 13.7446 8.82855L13.2481 9.01298Z" stroke="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>';
+
+  const checkStyle = (on) => `width:20px;height:20px;border-radius:4px;padding:0;flex:none;cursor:pointer;`
+    + `display:flex;align-items:center;justify-content:center;`
+    + `border:2px solid ${on ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-default)'};`
+    + `background:${on ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-default)'};`;
+  const navStyle = (on) => `border:1px solid var(--pn-color-border-default);background:var(--pn-color-surface-default);border-radius:4px;`
+    + `width:24px;height:24px;display:flex;align-items:center;justify-content:center;`
+    + `font:400 var(--pn-font-size-xs)/1 var(--pn-font-family-sans);color:${on ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};`
+    + `cursor:${on ? 'pointer' : 'not-allowed'};`;
+  const CHECK_SVG = '<svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="var(--pn-color-text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+
+  function renderList() {
+    const s = { checked, page };
+    const C = CTG();
+    const t = telemetry();
+    const A = C.PLATE_MAP_ROW_ACTIONS || [];
+    const act = (key) => A.find((a) => a.key === key) || {};
+    const icon = (key, note) => ({ note: note || act(key).note, path: act(key).path, fill: 'none', stroke: 'var(--pn-color-text-muted)' });
+
+    const byPinnedThenDateDesc = (a, b) => {
+      if (!a.pinned !== !b.pinned) return a.pinned ? -1 : 1;
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+    };
+    const mine = (C.INSTRUMENT_DATA || []).concat(C.OTHER_INSTRUMENT_DATA || [])
+      .filter((f) => f.instrument === 'MyGlo - Analytical Lab')
+      .sort(byPinnedThenDateDesc);
+
+    let headers = [], listRows = [], gridCols = '1fr', count = '', total = 1, pageNum = 1, showPager = false;
+
+    const timeRnd = mulberry32(777);
+    const withTime = (d) => {
+      const hh = Math.floor(timeRnd() * 24), mm = Math.floor(timeRnd() * 60), ss = Math.floor(timeRnd() * 60);
+      const dt = new Date(d); dt.setHours(hh, mm, ss, 0);
+      return dt;
+    };
+    const fmtFull = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} `
+      + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+
+    if (tab === 'Files') {
+      gridCols = '32px 32px 1fr 110px 190px 110px';
+      const allChecked = mine.length > 0 && mine.every((_, i) => !!checked['f' + i]);
+      const someChecked = mine.some((_, i) => !!checked['f' + i]);
+      headers = [{ headCheck: true, checked: allChecked, indeterminate: someChecked && !allChecked, style: checkStyle(allChecked || someChecked), key: '__all_f' }]
+        .concat(['', 'Name', 'Type', 'Date', ''].map((l) => ({ label: l })));
+      listRows = mine.map((f, i) => ({
+        cells: [{ text: f.name, cls: 'id-cell' }, { text: 'Result', cls: 'id-cell id-cell--muted' }, { text: f.date, cls: 'id-cell id-cell--muted' }],
+        actions: [icon('rename')], hasCheck: true, checkKey: 'f' + i, checked: !!checked['f' + i], hasPin: true, pinned: !!f.pinned,
+      }));
+      count = countLabel(mine.length, 'File');
+    } else if (tab === 'Actions') {
+      gridCols = '1fr 220px 60px';
+      headers = ['Action', 'Date', ''].map((l) => ({ label: l }));
+      const all = [];
+      t.actions.slice().reverse().forEach((a, n) => {
+        const d = t.points[a.i].date;
+        all.push({ label: n % 2 ? 'Read job complete' : 'Read job received', date: withTime(d) });
+        all.push({ label: 'Plate detected', date: withTime(d) });
+      });
+      const per = 10;
+      total = Math.max(1, Math.ceil(all.length / per));
+      pageNum = Math.min(Math.max(1, s.page), total);
+      listRows = all.slice((pageNum - 1) * per, pageNum * per).map((r) => ({
+        cells: [{ text: r.label, cls: 'id-cell' }, { text: fmtFull(r.date), cls: 'id-cell id-cell--muted' }],
+        actions: [], hasCheck: false,
+      }));
+      count = countLabel(all.length, 'Action');
+      showPager = total > 1;
+    } else if (tab === 'Incidents') {
+      gridCols = '32px 1fr 330px 190px 70px';
+      const allIncChecked = t.incidents.length > 0 && t.incidents.every((_, i) => !!checked['i' + i]);
+      const someIncChecked = t.incidents.some((_, i) => !!checked['i' + i]);
+      headers = [{ headCheck: true, checked: allIncChecked, indeterminate: someIncChecked && !allIncChecked, style: checkStyle(allIncChecked || someIncChecked), key: '__all_i' }]
+        .concat(['Name', 'Context', 'Date', ''].map((l) => ({ label: l })));
+      listRows = t.incidents.map((inc, i) => ({
+        cells: [
+          { text: inc.label + '.', cls: 'id-cell' },
+          { text: (mine[i] || mine[0] || {}).name || '', cls: 'id-cell id-cell--muted' },
+          { text: fmtFull(withTime(t.points[inc.i].date)), cls: 'id-cell id-cell--muted' },
+        ],
+        actions: [{ note: 'Sends this incident log directly to Promega Technical Services & Support.', path: 'M22 2L11 13M22 2L15 22L11 13L2 9Z', fill: 'none', stroke: 'var(--pn-color-text-muted)' }],
+        hasCheck: true, checkKey: 'i' + i, checked: !!checked['i' + i],
+      }));
+      count = countLabel(t.incidents.length, 'Incident');
+    }
+
+    const panel = document.getElementById('idt-list-panel');
+    const headerHtml = `<div class="id-row" style="grid-template-columns:${gridCols};border-bottom-color:var(--pn-color-border-default);">${headers.map((h) => {
+      if (h.headCheck) {
+        return `<button class="idt-head-check" data-key="${h.key}" style="${h.style}">${h.indeterminate ? '<span style="display:block;width:9px;height:2px;background:var(--pn-color-text-primary);"></span>' : (h.checked ? CHECK_SVG : '')}</button>`;
+      }
+      return `<span class="id-head">${h.label}</span>`;
+    }).join('')}</div>`;
+
+    const rowsHtml = listRows.map((r, ri) => `
+      <div class="id-row" style="grid-template-columns:${gridCols};">
+        ${r.hasCheck ? `<button class="idt-row-check" data-key="${r.checkKey}" style="${checkStyle(r.checked)}">${r.checked ? CHECK_SVG : ''}</button>` : ''}
+        ${r.hasPin ? (r.pinned ? PIN_ACTIVE_SVG : PIN_DEFAULT_SVG) : ''}
+        ${r.cells.map((c) => `<span class="${c.cls}">${c.text}</span>`).join('')}
+        <span style="display:flex;align-items:center;justify-content:flex-end;gap:16px;">
+          ${r.actions.map((a) => `<button class="id-icon idt-hover" data-note="${a.note}"><svg viewBox="0 0 24 24" width="18" height="18" fill="${a.fill}" stroke="${a.stroke}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${a.path}"/></svg></button>`).join('')}
+        </span>
+      </div>
+    `).join('');
+
+    const pagerHtml = showPager ? `
+      <span style="display:flex;gap:4px;align-items:center;">
+        <button class="idt-prev-page" ${pageNum === 1 ? 'disabled' : ''} style="${navStyle(pageNum !== 1)}">&lsaquo;</button>
+        ${Array.from({ length: total }, (_, i) => i + 1).map((n) => `<button class="idt-page-num" data-n="${n}" style="border:1px solid ${n === pageNum ? 'var(--pn-color-text-primary)' : 'var(--pn-color-border-default)'};background:var(--pn-color-surface-default);border-radius:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font:${n === pageNum ? '600' : '400'} var(--pn-font-size-xs)/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">${n}</button>`).join('')}
+        <button class="idt-next-page" ${pageNum === total ? 'disabled' : ''} style="${navStyle(pageNum !== total)}">&rsaquo;</button>
+      </span>
+    ` : '';
+
+    panel.innerHTML = headerHtml + rowsHtml + `
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding-top:16px;">
+        <span style="font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);color:var(--pn-color-text-muted);">${count}</span>
+        ${pagerHtml}
+      </div>
+    `;
+
+    panel.querySelectorAll('.idt-head-check').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.key === '__all_f') {
+          const allChecked = mine.length > 0 && mine.every((_, i) => !!checked['f' + i]);
+          mine.forEach((_, i) => { checked['f' + i] = !allChecked; });
+        } else {
+          const allIncChecked = t.incidents.length > 0 && t.incidents.every((_, i) => !!checked['i' + i]);
+          t.incidents.forEach((_, i) => { checked['i' + i] = !allIncChecked; });
+        }
+        renderList();
+        renderDownload();
+      });
+    });
+    panel.querySelectorAll('.idt-row-check').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        checked[btn.dataset.key] = !checked[btn.dataset.key];
+        renderList();
+        renderDownload();
+      });
+    });
+    panel.querySelectorAll('.idt-prev-page').forEach((btn) => btn.addEventListener('click', () => { page = Math.max(1, pageNum - 1); renderList(); }));
+    panel.querySelectorAll('.idt-next-page').forEach((btn) => btn.addEventListener('click', () => { page = Math.min(total, pageNum + 1); renderList(); }));
+    panel.querySelectorAll('.idt-page-num').forEach((btn) => btn.addEventListener('click', () => { page = Number(btn.dataset.n); renderList(); }));
+    wireAllHovers(panel);
+  }
+
+  function renderDownload() {
+    const anyChecked = Object.values(checked).some(Boolean);
+    const dlOn = tab === 'Actions' || anyChecked;
+    const btn = document.getElementById('idt-download-btn');
+    btn.dataset.note = dlOn ? 'Download saves the selected rows to your computer.' : 'Select rows to download them.';
+    btn.textContent = tab === 'Actions' ? 'Download Actions' : 'Download';
+    btn.style.cssText = `border:1px solid ${dlOn ? 'var(--pn-color-sol-500)' : 'var(--pn-color-border-subtle)'};`
+      + `background:${dlOn ? 'var(--pn-color-sol-500)' : 'var(--pn-color-surface-sunken)'};`
+      + `color:${dlOn ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};`
+      + `border-radius:var(--pn-border-radius-sm);padding:8px 12px;cursor:not-allowed;`
+      + `font:400 var(--pn-font-size-sm)/1 var(--pn-font-family-sans);`;
+    wireHover(btn);
+  }
+
+  function renderAbout() {
+    const sections = [
+      { title: 'Application & Instrument', rows: [
+        { k: 'Serial Number', v: 'PROMML00070' },
+        { k: 'Part Number', v: 'DE MML 002' },
+        { k: 'Firmware Version', v: '57' },
+      ]},
+      { title: 'Custom Properties', rows: [
+        { k: 'C2P Version', v: '26.7.16.2' },
+        { k: 'ESP', v: '34' },
+        { k: 'STM', v: '37' },
+        { k: 'STM Bootloader Version', v: '5' },
+        { k: 'Transmission Mode', v: '2.4 GHz Wi-Fi - PromegaGuest' },
+        { k: 'Wi-Fi MAC', v: 'F4 12 FA CB 57 C4' },
+      ]},
+      { title: 'System Report', rows: [
+        { k: 'SSID', v: 'PromegaGuest' },
+        { k: 'Uptime Hours', v: '868.85' },
+        { k: 'Wi-Fi Modulation Type', v: 'HT20' },
+        { k: 'Wi-Fi Signal Strength', v: '-65 dBm' },
+      ]},
+    ];
+    document.getElementById('idt-about-panel').innerHTML = sections.map((sec) => `
+      <div class="id-about__h">${sec.title}</div>
+      ${sec.rows.map((r) => `
+        <div class="id-about__row">
+          <span class="id-cell">${r.k}</span>
+          <span class="id-cell id-cell--muted" style="text-align:right;">${r.v}</span>
+        </div>
+      `).join('')}
+    `).join('');
+  }
+
+  function renderTabs() {
+    const TABS = ['Files', 'Actions', 'Incidents', 'Telemetry', 'About'];
+    const tabsEl = document.getElementById('idt-tabs');
+    tabsEl.innerHTML = TABS.map((l) =>
+      `<button class="id-tab ${l === tab ? 'is-on' : ''} ${l === 'Telemetry' && tab !== 'Telemetry' ? 'demo-cue' : ''}" data-tab="${l}">${l}</button>`
+    ).join('');
+    tabsEl.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => { tab = btn.dataset.tab; page = 1; renderAll(); });
+    });
+  }
+
+  function renderAll() {
+    renderTabs();
+    const isList = tab === 'Files' || tab === 'Actions' || tab === 'Incidents';
+    const isTelemetry = tab === 'Telemetry';
+    const isAbout = tab === 'About';
+
+    document.getElementById('idt-list-chrome').style.display = isList ? 'flex' : 'none';
+    document.getElementById('idt-list-panel').style.display = isList ? 'block' : 'none';
+    document.getElementById('idt-telemetry-panel').style.display = isTelemetry ? 'flex' : 'none';
+    document.getElementById('idt-about-panel').style.display = isAbout ? 'block' : 'none';
+
+    if (isList) { renderList(); renderDownload(); }
+    if (isTelemetry) { renderLegend(); renderChart(); renderTooltip(); }
+    if (isAbout) renderAbout();
+  }
+
+  // ---- static header bits ----
+  const inst = (CTG().INSTRUMENTS || []).find((i) => i.id === 'screening') || {};
+  document.getElementById('idt-inst-name').textContent = inst.name || 'MyGlo - Analytical Lab';
+  document.getElementById('idt-status-label').textContent = 'Reading - 2d 15h';
+  document.getElementById('idt-status-bar').style.background = (((CTG().STATUS || {}).reading) || {}).color || 'var(--pn-color-sol-500)';
+  // Enters the read screen already running, rather than at Ready to Read: this
+  // instrument is mid-read, so asking the user to press Start would be asking
+  // them to start something that is already going.
+  document.getElementById('idt-status-link').href = 'rpt-read-in-progress.html?mode=timecourse&running=1';
+  document.getElementById('idt-range-label').textContent = DATE_RANGE_LABEL;
+
+  wireAllHovers(document);
+  renderAll();
+</script>
+</body>
+</html>
