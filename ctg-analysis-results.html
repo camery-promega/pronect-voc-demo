@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+<link rel="stylesheet" href="pronect-demo.css">
+<script src="ctg-demo-data.js"></script>
+<script src="ctg-detailed-data.js"></script>
+<style>
+  body{margin:0;font-family:var(--pn-font-family-sans);}
+  .ar-pt{cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div data-screen-label="CTG Analysis Results" style="min-height:100vh;display:flex;flex-direction:column;">
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <div id="ar-sidebar" style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></div>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+
+      <div id="ar-topbar" style="display:block;width:100%;flex:none;"></div>
+
+      <div style="flex:1;min-height:0;padding:clamp(16px,2vw,28px) clamp(16px,2.4vw,32px);box-sizing:border-box;display:flex;flex-direction:column;gap:18px;background:var(--pn-color-surface-page);overflow:auto;">
+
+        <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;flex:none;">
+          <!-- No app-icon link: it used to point at ctg-app-home.dc.html, cut
+               from this conversion. Just the icon now, not clickable. -->
+          <img src="assets/app-icon_ctg.svg" alt="" style="width:56px;height:56px;display:block;flex:none;">
+          <div style="min-width:0;">
+            <h1 style="margin:0;font:600 26px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">CellTiter-Glo</h1>
+            <p style="margin:4px 0 0;display:flex;align-items:center;gap:8px;font:400 15px/1.3 var(--pn-font-family-sans);color:var(--pn-color-text-muted);" id="ar-analysis-name">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 11h7M4 16h7M14 19l5-5 2 2-5 5h-2z"/></svg>
+            </p>
+          </div>
+          <span style="flex:1;min-width:16px;"></span>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="ar-hover" data-note="This opens a read-only copy of the plate map used in this analysis, with an option to save an editable copy."
+                    style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:12px 20px;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:not-allowed;">View Plate Map</button>
+            <button id="ar-open-detailed" style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:12px 20px;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:pointer;">Detailed Data</button>
+            <button class="ar-hover" data-note="Download saves this analysis and its source data as a zip file."
+                    style="background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:var(--pn-border-radius-md);padding:12px 20px;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:not-allowed;">Download</button>
+          </div>
+        </div>
+
+        <div style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-xl);padding:clamp(16px,1.6vw,26px);box-sizing:border-box;flex:none;">
+
+          <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--pn-color-border-subtle);">
+            <div style="display:flex;gap:4px;">
+              <button class="ar-tab-btn" data-tab="control" style="padding:14px 18px;">Cell Viability (% of Control)</button>
+              <button class="ar-tab-btn" data-tab="inhibition" style="padding:14px 18px;">Cell Viability (% Inhibition)</button>
+              <button class="ar-tab-btn" data-tab="quantified" style="padding:14px 18px;">Quantified Results</button>
+            </div>
+            <span style="flex:1;min-width:16px;"></span>
+            <div id="ar-chart-controls" style="display:flex;align-items:center;gap:12px;padding-bottom:10px;"></div>
+          </div>
+
+          <div id="ar-chart-tab"></div>
+          <div id="ar-placeholder-tab" style="display:none;"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Data modal host. -->
+<div id="ar-detailed-data" style="position:fixed;inset:0;width:100%;height:100%;z-index:2100;display:none;"></div>
+
+<script src="pronect-sidebar.js"></script>
+<script src="pronect-topbar.js"></script>
+<script src="ctg-detailed-data-modal.js"></script>
+<script>
+  mountPronectSidebar(document.getElementById('ar-sidebar'), { dashboardHref: 'user-dashboard.html' });
+  mountPronectTopbar(document.getElementById('ar-topbar'));
+
+  // ---- shared hover-note tooltip (dark, pre-line variant used on this page) ----
+  let noteEl = null;
+  function showNoteAt(text, x, y) {
+    if (!text) return;
+    if (!noteEl) {
+      noteEl = document.createElement('div');
+      noteEl.style.cssText = 'position:fixed;background:rgba(42,46,56,.9);color:var(--pn-color-text-inverse);font:400 var(--pn-font-size-xs)/1.4 var(--pn-font-family-sans);padding:10px 14px;border-radius:var(--pn-border-radius-sm);pointer-events:none;z-index:2000;box-shadow:0 4px 8px rgba(0,0,0,.4);max-width:320px;white-space:pre-line;';
+      document.body.appendChild(noteEl);
+    }
+    noteEl.textContent = text;
+    noteEl.style.left = (x + 16) + 'px';
+    noteEl.style.top = (y + 18) + 'px';
+  }
+  function showNote(e) { showNoteAt(e.currentTarget.dataset.note, e.clientX, e.clientY); }
+  function moveNote(e) { if (noteEl) { noteEl.style.left = (e.clientX + 16) + 'px'; noteEl.style.top = (e.clientY + 18) + 'px'; } }
+  function hideNote() { if (noteEl) { noteEl.remove(); noteEl = null; } }
+  function wireHover(el) {
+    el.addEventListener('mouseenter', showNote);
+    el.addEventListener('mousemove', moveNote);
+    el.addEventListener('mouseleave', hideNote);
+  }
+  document.querySelectorAll('.ar-hover').forEach(wireHover);
+
+  // ---- Detailed Data modal ----
+  const detailedHost = document.getElementById('ar-detailed-data');
+  const analysisName = (window.CTG && window.CTG.ANALYSES && window.CTG.ANALYSES[0].name) || '';
+  document.getElementById('ar-analysis-name').prepend(document.createTextNode(analysisName));
+  const detailedApi = mountCtgDetailedDataModal(detailedHost, {
+    open: false,
+    analysisName,
+    onClose() { detailedHost.style.display = 'none'; detailedApi.hide(); },
+  });
+  document.getElementById('ar-open-detailed').addEventListener('click', () => {
+    detailedHost.style.display = 'block';
+    detailedApi.show(analysisName);
+  });
+
+  // Real analysis: CTG-DR-wStd-demo.zip, the same plate whose raw RLUs drive the
+  // (now-cut) ctg-read-results screen. That is the name of Cate's export and
+  // stays here as provenance; the name shown on screen is CTG.ANALYSES[0].name
+  // from ctg-demo-data.js. points[compound] = per concentration: x in uM,
+  // v/i = mean, vsd/isd = SD, vr/ir = replicates. fits[model][modality][compound]
+  // = the fitted coefficients as exported.
+  const D = {"points":{"Bortezomib":[{"x":1.409e-07,"v":100.118,"vsd":3.4477,"vr":[103.57,96.674],"i":-0.118,"isd":3.4477,"ir":[-3.57,3.326]},{"x":4.23e-07,"v":101.69,"vsd":0.9148,"vr":[100.779,102.609],"i":-1.69,"isd":0.9148,"ir":[-0.779,-2.609]},{"x":1.269e-06,"v":96.28,"vsd":3.0116,"vr":[99.296,93.273],"i":3.72,"isd":3.0116,"ir":[0.704,6.727]},{"x":3.809e-06,"v":80.326,"vsd":0.0047,"vr":[80.325,80.335],"i":19.674,"isd":0.0047,"ir":[19.675,19.665]},{"x":1.143e-05,"v":35.136,"vsd":0.9298,"vr":[34.211,36.07],"i":64.864,"isd":0.9298,"ir":[65.789,63.93]},{"x":3.43e-05,"v":15.774,"vsd":2.0507,"vr":[13.728,17.829],"i":84.226,"isd":2.0507,"ir":[86.272,82.171]},{"x":0.0001029,"v":2.436,"vsd":0.0284,"vr":[2.469,2.412],"i":97.564,"isd":0.0284,"ir":[97.531,97.588]},{"x":0.0003087,"v":0.899,"vsd":0.0289,"vr":[0.932,0.874],"i":99.101,"isd":0.0289,"ir":[99.068,99.126]},{"x":0.000926,"v":0.459,"vsd":0.0041,"vr":[0.459,0.467],"i":99.541,"isd":0.0041,"ir":[99.541,99.533]},{"x":0.002778,"v":0.461,"vsd":0.0027,"vr":[0.467,0.462],"i":99.539,"isd":0.0027,"ir":[99.533,99.538]},{"x":0.008333,"v":0.451,"vsd":0.0016,"vr":[0.454,0.456],"i":99.549,"isd":0.0016,"ir":[99.546,99.544]},{"x":0.025,"v":0.473,"vsd":0.0063,"vr":[0.471,0.483],"i":99.527,"isd":0.0063,"ir":[99.529,99.517]}],"Panobinostat":[{"x":2.823e-07,"v":103.499,"vsd":3.0666,"vr":[106.57,100.437],"i":-3.499,"isd":3.0666,"ir":[-6.57,-0.437]},{"x":8.47e-07,"v":100.942,"vsd":0.8463,"vr":[100.1,101.792],"i":-0.942,"isd":0.8463,"ir":[-0.1,-1.792]},{"x":2.541e-06,"v":98.609,"vsd":0.0124,"vr":[98.625,98.601],"i":1.391,"isd":0.0124,"ir":[1.375,1.399]},{"x":7.623e-06,"v":82.178,"vsd":0.4198,"vr":[82.602,81.762],"i":17.822,"isd":0.4198,"ir":[17.398,18.238]},{"x":2.287e-05,"v":35.833,"vsd":0.8299,"vr":[36.667,35.007],"i":64.167,"isd":0.8299,"ir":[63.333,64.993]},{"x":6.86e-05,"v":18.003,"vsd":0.5286,"vr":[18.535,17.478],"i":81.997,"isd":0.5286,"ir":[81.465,82.522]},{"x":0.0002058,"v":2.296,"vsd":0.0029,"vr":[2.297,2.303],"i":97.704,"isd":0.0029,"ir":[97.703,97.697]},{"x":0.0006173,"v":0.947,"vsd":0.0289,"vr":[0.923,0.98],"i":99.053,"isd":0.0289,"ir":[99.077,99.02]},{"x":0.001852,"v":0.465,"vsd":0.0019,"vr":[0.467,0.47],"i":99.535,"isd":0.0019,"ir":[99.533,99.53]},{"x":0.005557,"v":0.449,"vsd":0.0058,"vr":[0.448,0.459],"i":99.551,"isd":0.0058,"ir":[99.552,99.541]},{"x":0.01667,"v":0.457,"vsd":0.0113,"vr":[0.472,0.45],"i":99.543,"isd":0.0113,"ir":[99.528,99.55]},{"x":0.05,"v":0.451,"vsd":0.0053,"vr":[0.46,0.45],"i":99.549,"isd":0.0053,"ir":[99.54,99.55]}]},"fits":{"4PL":{"% of Control":{"Bortezomib":{"ec50":8.17784402787085e-06,"r2":0.997913487693112,"top":101.891621383749,"bottom":0.896233189820487,"hill":-1.53698070818896},"Panobinostat":{"ec50":1.66654314088634e-05,"r2":0.996895160249568,"top":103.774751264542,"bottom":0.896483788191659,"hill":-1.4927275669961}},"% Inhibition":{"Bortezomib":{"ec50":8.17784426738998e-06,"r2":0.997913487693146,"top":99.1037677348286,"bottom":-1.89162078897537,"hill":1.53698071800931},"Panobinostat":{"ec50":1.66654319282364e-05,"r2":0.996895160249589,"top":99.1035169595828,"bottom":-3.77475150398955,"hill":1.49272748264549}}},"5PL":{"% of Control":{"Bortezomib":{"ec50":8.17784402787085e-06,"r2":0.997913487693112,"top":101.891621383749,"bottom":0.896233189820487,"hill":-1.53698070818896,"asym":1.0},"Panobinostat":{"ec50":1.66654314088634e-05,"r2":0.996895160249568,"top":103.774751264542,"bottom":0.896483788191659,"hill":-1.4927275669961,"asym":1.0}},"% Inhibition":{"Bortezomib":{"ec50":8.17784426738998e-06,"r2":0.997913487693146,"top":99.1037677348286,"bottom":-1.89162078897537,"hill":1.53698071800931,"asym":1.0},"Panobinostat":{"ec50":1.66654319282364e-05,"r2":0.996895160249589,"top":99.1035169595828,"bottom":-3.77475150398955,"hill":1.49272748264549,"asym":1.0}}}}};
+
+  // Standard curve and quantification, from the Standard Curve Analysis and Sample
+  // Quantification sheets of the same export. a and b convert a viability percentage
+  // into quantified ATP: a = control net RLU / (100 x slope), b = -intercept / slope,
+  // which is just the standard curve inverted.
+  const Q = {"std":[{"atp":0.0003053,"mean":143.2,"sd":58.3,"reps":[83.2,129.2,238.2,122.2]},{"atp":0.001221,"mean":352.8,"sd":24.4,"reps":[331.2,375.2,329.2,375.2]},{"atp":0.004883,"mean":1405.2,"sd":199.8,"reps":[1064.2,1564.2,1521.2,1471.2]},{"atp":0.01953,"mean":4984.2,"sd":189.5,"reps":[4747.2,4868.2,5236.2,5085.2]},{"atp":0.07813,"mean":19651.0,"sd":1105.3,"reps":[18201.2,19302.2,21273.2,19827.2]},{"atp":0.3125,"mean":79428.5,"sd":12014.8,"reps":[75085.2,71331.2,100064.2,71233.2]},{"atp":1.25,"mean":287318.2,"sd":8988.0,"reps":[272041.2,289590.2,293707.2,293934.2]},{"atp":5.0,"mean":1024888.8,"sd":70633.4,"reps":[932207.2,1046511.2,1125126.2,995710.2]}],"eq":{"text":"y = 205021.2705x + 6422.9366","slope":205021.270459323,"r2":0.99900497914404},"quant":{"Bortezomib":[{"x":1.409e-07,"q":3.74416182143741,"qsd":0.183866627727855,"qr":[3.87433002271824,3.6143033441177]},{"x":4.23e-07,"q":3.80344347534957,"qsd":0.0487853060195926,"qr":[3.76910191662141,3.83809475803884]},{"x":1.269e-06,"q":3.59943781336974,"qsd":0.160610401606249,"qr":[3.71316137945517,3.48602397124542]},{"x":3.809e-06,"q":2.99779048319931,"qsd":0.000244874989564734,"qr":[2.99777219241421,2.99811849794554]},{"x":1.143e-05,"q":1.29367705527419,"qsd":0.0495889098585862,"qr":[1.25876726282209,1.3288965716874]},{"x":3.43e-05,"q":0.563525985267526,"qsd":0.10936254991695,"qr":[0.486349846593956,0.641011847902212]},{"x":0.0001029,"q":0.0605489050408188,"qsd":0.00151408620308244,"qr":[0.0617743876428781,0.059633146399877]},{"x":0.0003087,"q":0.00257687134220726,"qsd":0.0015382288076874,"qr":[0.00381942534369826,0.00164404130183374]},{"x":0.000926,"q":-0.0140214064480729,"qsd":0.000206936610899651,"qr":[-0.0140128707483571,-0.0137202181866713]},{"x":0.002778,"q":-0.0139604371643884,"qsd":0.000127610910054785,"qr":[-0.0137153406439765,-0.0138958097236828]},{"x":0.008333,"q":-0.0143140590097587,"qsd":5.51830962399075e-05,"qr":[-0.0141982173707581,-0.0141201766876419]},{"x":0.025,"q":-0.0135019481510806,"qsd":0.000327649633924447,"qr":[-0.0135787694485231,-0.0131154028925206]}],"Panobinostat":[{"x":2.823e-07,"q":3.87167542010662,"qsd":0.163545452537509,"qr":[3.98747438060867,3.75618618356568]},{"x":8.47e-07,"q":3.77522932963171,"qsd":0.0451328748372137,"qr":[3.74347042976043,3.80729795346411]},{"x":2.541e-06,"q":3.68725065327491,"qsd":0.000658748211363805,"qr":[3.68787132058282,3.68693970992812]},{"x":7.623e-06,"q":3.06762713950294,"qsd":0.0223870923558275,"qr":[3.08361206629935,3.05195193666764]},{"x":2.287e-05,"q":1.31994993899953,"qsd":0.0442602921279203,"qr":[1.35140155368104,1.28880804827914]},{"x":6.86e-05,"q":0.647561168355606,"qsd":0.0281882153480474,"qr":[0.667648108558316,0.627783952114014]},{"x":0.0002058,"q":0.0552518936743057,"qsd":0.00014140668411476,"qr":[0.0553067660296217,0.0555067452801071]},{"x":0.0006173,"q":0.00440107231004881,"qsd":0.0015382288076874,"qr":[0.00346824226967529,0.00564362631153981]},{"x":0.001852,"q":-0.0137994782554612,"qsd":7.93257008448655e-05,"qr":[-0.0137007080158922,-0.0135885245339127]},{"x":0.005557,"q":-0.0143823446074854,"qsd":0.000303507029319487,"qr":[-0.0144420945054963,-0.0140128707483571]},{"x":0.01667,"q":-0.0141018859025365,"qsd":0.000596667228093992,"qr":[-0.0135251164788807,-0.0143689313650748]},{"x":0.05,"q":-0.0143213753238009,"qsd":0.00027246653768454,"qr":[-0.013973850406799,-0.0143591762796853]}]},"a":0.037710404304288736,"b":-0.03132814749225903};
+
+  // Colours are the design system's plate group tokens, not hand-picked hexes.
+  const TOK = (n, fallback) => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+    return v || fallback;
+  };
+  const SERIES = [
+    { name: 'Bortezomib', color: TOK('--pn-color-plate-group-1', '#E68B50'), rows: ['G', 'H'] },
+    { name: 'Panobinostat', color: TOK('--pn-color-plate-group-2', '#619CD1'), rows: ['E', 'F'] },
+  ];
+
+  const UNITS = [
+    { label: 'M', shift: -6 },
+    { label: 'mM', shift: -3 },
+    { label: 'µM', shift: 0 },
+    { label: 'nM', shift: 3 },
+  ];
+
+  const X0 = 74, X1 = 1174, Y0 = 14, Y1 = 450;
+  const YD_TAB = { control: [0, 110], inhibition: [-10, 110] };
+  const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+
+  // ---- state ----
+  let tab = 'control';
+  let model = '4PL';
+  let errorBars = true;
+  let hidden = {};
+  let unit = 'µM';
+  let unitMenuOpen = false;
+  let stdErrorBars = false;
+  let quantModel = '4PL';
+  let quantErrorBars = true;
+  let crossFor = null;
+
+  function sup(n) { return String(n).split('').map((c) => SUP[c] || c).join(''); }
+  function sci(v, sig) {
+    const exp = Math.floor(Math.log10(Math.abs(v)));
+    const man = (v / Math.pow(10, exp)).toFixed(sig - 1);
+    return man + ' × 10' + sup(exp);
+  }
+  function model_(f, conc) {
+    const a = f.asym === undefined ? 1 : f.asym;
+    return f.bottom + (f.top - f.bottom) / Math.pow(1 + Math.pow(conc / f.ec50, -f.hill), a);
+  }
+  function modality() { return tab === 'inhibition' ? '% Inhibition' : '% of Control'; }
+  function shift() { return (UNITS.find((u) => u.label === unit) || UNITS[2]).shift; }
+  function domain() {
+    let lo = Infinity, hi = -Infinity;
+    SERIES.forEach((s) => (D.points[s.name] || []).forEach((p) => {
+      const l = Math.log10(p.x);
+      if (l < lo) lo = l;
+      if (l > hi) hi = l;
+    }));
+    const sh = shift();
+    return [lo + sh - 0.12, hi + sh + 0.12];
+  }
+  function sx(logv, d) { return X0 + (logv - d[0]) / (d[1] - d[0]) * (X1 - X0); }
+  function ydOf() { return YD_TAB[tab] || YD_TAB.control; }
+  function sy(pct) { const d = ydOf(); return Y1 - (pct - d[0]) / (d[1] - d[0]) * (Y1 - Y0); }
+  function fmtRLU(v) {
+    if (v === 0) return '0';
+    return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : Math.round(v / 1000) + 'K';
+  }
+  function tabStyle(active) {
+    return 'background:' + (active ? 'var(--pn-color-sol-50)' : 'transparent') + ';border:0;padding:14px 18px;cursor:pointer;'
+      + 'font:400 17px/1 var(--pn-font-family-sans);'
+      + 'color:' + (active ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-muted)') + ';'
+      + 'border-bottom:4px solid ' + (active ? 'var(--pn-color-sol-500)' : 'transparent') + ';margin-bottom:-1px;';
+  }
+
+  // A hovered dot becomes an open ring, matching the app. Applied directly to
+  // the DOM element rather than driving a full re-render, since only one dot
+  // at a time is ever affected.
+  function wireDot(circle) {
+    circle.addEventListener('mouseenter', (e) => {
+      circle.setAttribute('r', 7);
+      circle.setAttribute('fill', 'var(--pn-color-surface-default)');
+      circle.setAttribute('stroke', circle.dataset.color);
+      circle.setAttribute('stroke-width', 2.4);
+      showNoteAt(circle.dataset.note, e.clientX, e.clientY);
+    });
+    circle.addEventListener('mousemove', moveNote);
+    circle.addEventListener('mouseleave', () => {
+      circle.setAttribute('r', 5);
+      circle.setAttribute('fill', circle.dataset.color);
+      circle.setAttribute('stroke', 'none');
+      circle.setAttribute('stroke-width', 0);
+      hideNote();
+    });
+  }
+
+  function dotSvg(id, cx, cy, color, note) {
+    return `<circle class="ar-pt" data-id="${id}" data-color="${color}" data-note="${note}" cx="${cx}" cy="${cy}" r="5" fill="${color}" stroke="none" stroke-width="0"></circle>`;
+  }
+
+  // ---- Standard curve ----
+  function stdChart() {
+    const XD = [0, 5.2], YDl = [0, 1.2e6];
+    const sxl = (v) => X0 + (v - XD[0]) / (XD[1] - XD[0]) * (X1 - X0);
+    const syl = (v) => Y1 - (v - YDl[0]) / (YDl[1] - YDl[0]) * (Y1 - Y0);
+    const yTicks = [], xTicks = [];
+    for (let v = 0; v <= YDl[1] + 1; v += 1e5) yTicks.push({ y: syl(v), ty: syl(v) + 7, label: fmtRLU(v) });
+    for (let v = 0; v <= 5.0001; v += 0.5) xTicks.push({ x: sxl(v), label: v === 0 ? '0' : v.toFixed(1) });
+
+    const slope = Q.eq.slope, inter = -Q.b * slope;
+    const dotsHtml = [], barsHtml = [];
+    Q.std.forEach((pt, i) => {
+      const cx = sxl(pt.atp);
+      if (stdErrorBars) {
+        const id = 'std:' + i;
+        const note = 'ATP: ' + pt.atp + ' µM\nAverage RLU: ' + Math.round(pt.mean).toLocaleString('en-US') + '\nStandard Deviation: ' + Number(pt.sd).toPrecision(4);
+        dotsHtml.push(dotSvg(id, cx, syl(pt.mean), '#7BA7AE', note));
+        const hiY = syl(Math.min(YDl[1], pt.mean + pt.sd)), loY = syl(Math.max(0, pt.mean - pt.sd));
+        barsHtml.push(`<path d="M${cx - 6} ${hiY}H${cx + 6}M${cx} ${hiY}V${loY}M${cx - 6} ${loY}H${cx + 6}" stroke="var(--pn-color-neutral-900)" stroke-width="1.4" fill="none"></path>`);
+      } else {
+        pt.reps.forEach((v, ri) => {
+          const id = 'std:' + i + ':' + ri;
+          const note = 'ATP: ' + pt.atp + ' µM\nRLU: ' + Math.round(v).toLocaleString('en-US');
+          dotsHtml.push(dotSvg(id, cx, syl(v), '#7BA7AE', note));
+        });
+      }
+    });
+    const yAt = (x) => Math.max(YDl[0], Math.min(YDl[1], slope * x + inter));
+
+    const svg = `<svg viewBox="0 0 1180 520" style="width:100%;height:auto;display:block;overflow:visible;">
+      ${yTicks.map((t) => `<line x1="66" x2="74" y1="${t.y}" y2="${t.y}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line><text x="58" y="${t.ty}" text-anchor="end" font-family="Roboto, sans-serif" font-size="19" fill="#141414">${t.label}</text>`).join('')}
+      ${xTicks.map((t) => `<line y1="446" y2="454" x1="${t.x}" x2="${t.x}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line><text y="478" x="${t.x}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="19" fill="#141414">${t.label}</text>`).join('')}
+      <line x1="74" y1="14" x2="74" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+      <line x1="74" y1="450" x2="1174" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+      <path d="M${sxl(XD[0])} ${syl(yAt(XD[0]))}L${sxl(5.0)} ${syl(yAt(5.0))}" fill="none" stroke="#7BA7AE" stroke-width="2"></path>
+      ${barsHtml.join('')}
+      ${dotsHtml.join('')}
+      <text x="24" y="232" text-anchor="middle" transform="rotate(-90 24 232)" font-family="Roboto, sans-serif" font-size="21" fill="#141414">Luminescence (RLU)</text>
+    </svg>`;
+
+    return { svg, equation: 'y=' + Math.trunc(slope) + 'x+' + Math.trunc(inter), r2: Q.eq.r2.toFixed(3), color: '#7BA7AE' };
+  }
+
+  // ---- Quantified values ----
+  function quantChart(d, sh, visible, focus) {
+    const YDl = [-0.5, 4.5];
+    const syl = (v) => Y1 - (v - YDl[0]) / (YDl[1] - YDl[0]) * (Y1 - Y0);
+    const yTicks = [];
+    for (let v = YDl[0]; v <= YDl[1] + 1e-9; v += 0.5) yTicks.push({ y: syl(v), ty: syl(v) + 7, label: v === 0 ? '0' : v.toFixed(1) });
+    const xTicks = [];
+    for (let v = Math.ceil(d[0] * 2) / 2; v <= d[1]; v += 0.5) xTicks.push({ x: sx(v, d), label: v.toFixed(1) });
+
+    const base = (D.fits[quantModel] || {})['% of Control'] || {};
+    const xf = (f) => ({ ec50: f.ec50, r2: f.r2, hill: f.hill, asym: f.asym, top: Q.a * f.top + Q.b, bottom: Q.a * f.bottom + Q.b });
+
+    const seriesHtml = [];
+    const ecMarkers = [];
+    visible.forEach((s) => {
+      const f = xf(base[s.name]);
+      const pts = Q.quant[s.name] || [];
+      let curve = '';
+      for (let i = 0; i <= 180; i++) {
+        const lg = d[0] + (d[1] - d[0]) * i / 180;
+        const y = Math.max(YDl[0], Math.min(YDl[1], model_(f, Math.pow(10, lg - sh))));
+        curve += (i ? 'L' : 'M') + sx(lg, d).toFixed(1) + ' ' + syl(y).toFixed(1);
+      }
+      const dotsHtml = [], barsHtml = [];
+      pts.forEach((p, ci) => {
+        const cx = sx(Math.log10(p.x) + sh, d);
+        if (focus) {
+          (p.qr || []).forEach((val, ri) => {
+            const id = 'q:' + s.name + ':' + ci + ':' + ri;
+            const note = 'X: ' + sci(p.x, 4) + ' µM\nY: ' + val.toFixed(3) + '\nWell: ' + s.rows[ri] + (ci + 1);
+            dotsHtml.push(dotSvg(id, cx, syl(val), s.color, note));
+          });
+        } else {
+          const id = 'q:' + s.name + ':' + ci;
+          const note = 'Average: ' + p.q.toFixed(3) + '\nStandard Deviation: ' + Number(p.qsd).toPrecision(4);
+          dotsHtml.push(dotSvg(id, cx, syl(p.q), s.color, note));
+          if (quantErrorBars) {
+            const hiY = syl(Math.min(YDl[1], p.q + p.qsd)), loY = syl(Math.max(YDl[0], p.q - p.qsd));
+            barsHtml.push(`<path d="M${cx - 6} ${hiY}H${cx + 6}M${cx} ${hiY}V${loY}M${cx - 6} ${loY}H${cx + 6}" stroke="var(--pn-color-neutral-900)" stroke-width="1.4" fill="none"></path>`);
+          }
+        }
+      });
+      const ecY = f.bottom + (f.top - f.bottom) / 2;
+      const ecx = sx(Math.log10(f.ec50) + sh, d), ecy = syl(ecY);
+      let ecNote = 'EC50 or IC50: ' + sci(f.ec50, 4) + ' µM\nTop: ' + Number(f.top).toPrecision(4) + '\nBottom: ' + Number(f.bottom).toPrecision(4) + '\nHill Slope: ' + f.hill.toFixed(3) + '\nR²: ' + f.r2.toFixed(4);
+      if (f.asym !== undefined) ecNote += '\nAsymmetry Factor: ' + f.asym;
+      ecMarkers.push({ cx: ecx, cy: ecy, color: s.color, note: ecNote });
+      seriesHtml.push(`<path d="${curve}" fill="none" stroke="${s.color}" stroke-width="2.4"></path>${barsHtml.join('')}${dotsHtml.join('')}`);
+    });
+
+    const head = ['Name', 'EC₅₀ or IC₅₀', 'R²', 'Top', 'Bottom', 'Hill Slope'];
+    if (quantModel === '5PL') head.push('Asymmetry Factor');
+    const rows = SERIES.map((s) => {
+      const f = xf(base[s.name]);
+      const cells = [
+        { text: sci(f.ec50, 4) + 'µM' },
+        { text: f.r2.toFixed(4) },
+        { text: Number(f.top).toPrecision(4) },
+        { text: Number(f.bottom).toPrecision(4) },
+        { text: f.hill.toFixed(3) },
+      ];
+      if (quantModel === '5PL') cells.push({ text: String(f.asym) });
+      return { name: s.name, color: s.color, cells };
+    });
+
+    const ecHtml = ecMarkers.map((e, i) => `<circle class="ar-pt ar-ec" data-i="${i}" cx="${e.cx}" cy="${e.cy}" r="11" fill="var(--pn-color-surface-default)" fill-opacity="0.01" stroke="${e.color}" stroke-width="2.6"></circle>`).join('');
+
+    const svg = `<svg viewBox="0 0 1180 520" style="width:100%;height:auto;display:block;overflow:visible;">
+      ${yTicks.map((t) => `<line x1="66" x2="74" y1="${t.y}" y2="${t.y}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line><text x="58" y="${t.ty}" text-anchor="end" font-family="Roboto, sans-serif" font-size="19" fill="#141414">${t.label}</text>`).join('')}
+      ${xTicks.map((t) => `<line y1="446" y2="454" x1="${t.x}" x2="${t.x}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line><text y="478" x="${t.x}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="19" fill="#141414">${t.label}</text>`).join('')}
+      <line x1="74" y1="14" x2="74" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+      <line x1="74" y1="${syl(0)}" x2="1174" y2="${syl(0)}" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+      ${seriesHtml.join('')}
+      ${ecHtml}
+      <text x="24" y="232" text-anchor="middle" transform="rotate(-90 24 232)" font-family="Roboto, sans-serif" font-size="21" fill="#141414">ATP (µM)</text>
+    </svg>`;
+
+    return { svg, head: head.map((h) => ({ label: h })), rows, ecMarkers };
+  }
+
+  // ---- render: Quantified Results tab (placeholder tab) ----
+  function renderPlaceholderTab() {
+    const std = stdChart();
+    const d = domain(), sh = shift();
+    const visible = SERIES.filter((s) => !hidden[s.name]);
+    const focus = visible.length === 1;
+    const quant = quantChart(d, sh, visible, focus);
+
+    const legendHtml = SERIES.map((s) => {
+      const on = !hidden[s.name];
+      const style = 'display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:var(--pn-border-radius-full);cursor:pointer;text-align:left;width:100%;'
+        + (on ? 'background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-subtle);box-shadow:0 1px 4px rgba(0,0,0,.12);' : 'background:transparent;border:1px solid transparent;');
+      return `<button class="ar-legend-btn" data-name="${s.name}" style="${style}"><span style="width:19px;height:19px;border-radius:50%;flex:none;background:${s.color};"></span><span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">${s.name}</span></button>`;
+    }).join('');
+
+    const rowsHtml = quant.rows.map((r) => `
+      <tr>
+        <td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;"><span style="display:inline-flex;align-items:center;gap:8px;"><span style="width:11px;height:11px;border-radius:50%;background:${r.color};"></span>${r.name}</span></td>
+        ${r.cells.map((c) => `<td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;text-align:center;color:#141414;">${c.text}</td>`).join('')}
+      </tr>
+    `).join('');
+
+    const el = document.getElementById('ar-placeholder-tab');
+    el.innerHTML = `
+      <div style="padding-top:18px;display:flex;flex-direction:column;gap:40px;">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+            <h2 style="margin:0;font:500 20px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Standard Curve</h2>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">
+              <input type="checkbox" id="ar-std-errorbars" ${stdErrorBars ? 'checked' : ''} style="width:17px;height:17px;accent-color:var(--pn-color-sol-500);cursor:pointer;">
+              Show Error Bars
+            </label>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:16px;padding-top:12px;">
+            <div style="flex:1;min-width:0;">
+              ${std.svg}
+              <div style="text-align:center;padding-top:6px;font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">ATP (µM)</div>
+            </div>
+            <div style="flex:none;width:236px;margin-top:14px;border:1px solid var(--pn-color-border-subtle);border-radius:10px;padding:16px 18px;">
+              <div style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">ATP</div>
+              <div style="display:flex;align-items:center;gap:10px;padding-top:8px;">
+                <span style="width:17px;height:17px;border-radius:50%;flex:none;background:${std.color};"></span>
+                <span style="font:400 17px/1.2 var(--pn-font-family-sans);color:#141414;">${std.equation}</span>
+              </div>
+              <div style="padding-top:6px;font:400 17px/1.2 var(--pn-font-family-sans);color:#141414;">R²: ${std.r2}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+            <h2 style="margin:0;font:500 20px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Quantified Values</h2>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Curve fit</span>
+              <select id="ar-quant-fit" style="padding:8px 12px;border:1px solid var(--pn-color-border-default);border-radius:4px;background:var(--pn-color-surface-default);font:400 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:pointer;">
+                <option value="4PL" ${quantModel === '4PL' ? 'selected' : ''}>4PL</option>
+                <option value="5PL" ${quantModel === '5PL' ? 'selected' : ''}>5PL</option>
+              </select>
+              <label style="display:flex;align-items:center;gap:8px;cursor:${focus ? 'not-allowed' : 'pointer'};font:400 15px/1 var(--pn-font-family-sans);color:${focus ? 'var(--pn-color-text-muted)' : 'var(--pn-color-text-primary)'};">
+                <input type="checkbox" id="ar-quant-errorbars" ${quantErrorBars && !focus ? 'checked' : ''} ${focus ? 'disabled' : ''} style="width:17px;height:17px;accent-color:var(--pn-color-sol-500);cursor:${focus ? 'not-allowed' : 'pointer'};">
+                Show Error Bars
+              </label>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:16px;padding-top:12px;">
+            <div style="flex:1;min-width:0;">
+              ${quant.svg}
+              <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-top:6px;">
+                <span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">Compound Concentration (log ${unit})</span>
+                <button id="ar-unit-toggle-2" style="background:none;border:0;padding:4px;cursor:pointer;display:flex;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--pn-color-neutral-900)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+              </div>
+              <div id="ar-unit-menu-2" style="display:${unitMenuOpen ? 'flex' : 'none'};justify-content:center;"></div>
+            </div>
+            <div style="flex:none;width:200px;display:flex;flex-direction:column;gap:14px;padding-top:24px;">${legendHtml}</div>
+          </div>
+          <div style="padding-top:22px;overflow-x:auto;">
+            <table style="border-collapse:collapse;width:100%;min-width:760px;font:400 15px/1.3 var(--pn-font-family-sans);">
+              <tr>${quant.head.map((h) => `<th style="border:1px solid var(--pn-color-border-default);padding:12px 10px;font-weight:700;color:#141414;">${h.label}</th>`).join('')}</tr>
+              ${rowsHtml}
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+
+    el.querySelectorAll('.ar-pt').forEach((c) => { if (!c.classList.contains('ar-ec')) wireDot(c); });
+    el.querySelectorAll('.ar-ec').forEach((circle) => {
+      const marker = quant.ecMarkers[Number(circle.dataset.i)];
+      circle.addEventListener('mouseenter', (e) => showNoteAt(marker.note, e.clientX, e.clientY));
+      circle.addEventListener('mousemove', moveNote);
+      circle.addEventListener('mouseleave', hideNote);
+    });
+    document.getElementById('ar-std-errorbars').addEventListener('change', (e) => { stdErrorBars = e.target.checked; renderPlaceholderTab(); });
+    document.getElementById('ar-quant-fit').addEventListener('change', (e) => { quantModel = e.target.value; renderPlaceholderTab(); });
+    const quantEbEl = document.getElementById('ar-quant-errorbars');
+    if (quantEbEl) quantEbEl.addEventListener('change', (e) => { quantErrorBars = e.target.checked; renderPlaceholderTab(); });
+    document.getElementById('ar-unit-toggle-2').addEventListener('click', () => { unitMenuOpen = !unitMenuOpen; renderAll(); });
+    renderUnitMenu(document.getElementById('ar-unit-menu-2'));
+    el.querySelectorAll('.ar-legend-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.name;
+        if (!hidden[name] && SERIES.filter((x) => !hidden[x.name]).length === 1) return;
+        hidden[name] = !hidden[name];
+        crossFor = null;
+        renderAll();
+      });
+    });
+  }
+
+  function renderUnitMenu(menuEl) {
+    if (!unitMenuOpen) { menuEl.innerHTML = ''; return; }
+    menuEl.innerHTML = `<div style="background:var(--pn-color-surface-default);border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:6px 0;min-width:96px;">
+      ${UNITS.map((u) => `<button class="ar-unit-opt" data-label="${u.label}" style="display:block;width:100%;text-align:left;padding:9px 20px;border:0;cursor:pointer;font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);background:${u.label === unit ? 'var(--pn-color-surface-page)' : 'none'};">${u.label}</button>`).join('')}
+    </div>`;
+    menuEl.querySelectorAll('.ar-unit-opt').forEach((btn) => {
+      btn.addEventListener('click', () => { unit = btn.dataset.label; unitMenuOpen = false; crossFor = null; renderAll(); });
+    });
+  }
+
+  // ---- render: chart tab (Cell Viability) ----
+  function renderChartTab() {
+    const d = domain(), sh = shift();
+    const mod = modality();
+    const fits = (D.fits[model] || {})[mod] || {};
+    const visible = SERIES.filter((s) => !hidden[s.name]);
+    const focus = visible.length === 1;
+    const meanKey = tab === 'inhibition' ? 'i' : 'v';
+    const sdKey = tab === 'inhibition' ? 'isd' : 'vsd';
+    const repKey = tab === 'inhibition' ? 'ir' : 'vr';
+
+    const yTicks = [];
+    const yd = ydOf();
+    for (let v = yd[0]; v <= yd[1]; v += 10) yTicks.push({ y: sy(v), ty: sy(v) + 7, label: String(v) });
+    const xTicks = [];
+    for (let v = Math.ceil(d[0] * 2) / 2; v <= d[1]; v += 0.5) xTicks.push({ x: sx(v, d), label: v.toFixed(1) });
+
+    const seriesHtml = [];
+    const ecMarkers = [];
+    visible.forEach((s) => {
+      const f = fits[s.name];
+      const pts = D.points[s.name] || [];
+      let curve = '';
+      for (let i = 0; i <= 180; i++) {
+        const lg = d[0] + (d[1] - d[0]) * i / 180;
+        const y = Math.max(yd[0], Math.min(yd[1], model_(f, Math.pow(10, lg - sh))));
+        curve += (i ? 'L' : 'M') + sx(lg, d).toFixed(1) + ' ' + sy(y).toFixed(1);
+      }
+      const dotsHtml = [], barsHtml = [];
+      pts.forEach((p, ci) => {
+        const cx = sx(Math.log10(p.x) + sh, d);
+        if (focus) {
+          (p[repKey] || []).forEach((val, ri) => {
+            const id = s.name + ':' + ci + ':' + ri;
+            const well = s.rows[ri] + (ci + 1);
+            const note = 'X: ' + sci(p.x, 4) + ' µM\nY: ' + val.toFixed(2) + '\nWell: ' + well;
+            dotsHtml.push(dotSvg(id, cx, sy(val), s.color, note));
+          });
+        } else {
+          const id = s.name + ':' + ci;
+          const note = 'Average: ' + p[meanKey].toFixed(2) + '\nStandard Deviation: ' + Number(p[sdKey]).toPrecision(4);
+          dotsHtml.push(dotSvg(id, cx, sy(p[meanKey]), s.color, note));
+          if (errorBars) {
+            const hiY = sy(Math.min(yd[1], p[meanKey] + p[sdKey]));
+            const loY = sy(Math.max(yd[0], p[meanKey] - p[sdKey]));
+            barsHtml.push(`<path d="M${cx - 6} ${hiY}H${cx + 6}M${cx} ${hiY}V${loY}M${cx - 6} ${loY}H${cx + 6}" stroke="var(--pn-color-neutral-900)" stroke-width="1.4" fill="none"></path>`);
+          }
+        }
+      });
+      const ecY = f.bottom + (f.top - f.bottom) / 2;
+      const ecx = sx(Math.log10(f.ec50) + sh, d), ecy = sy(ecY);
+      let ecNote = 'EC50 or IC50: ' + sci(f.ec50, 4) + ' µM\nTop: ' + f.top.toFixed(1) + '\nBottom: ' + f.bottom.toFixed(4) + '\nHill Slope: ' + f.hill.toFixed(3) + '\nR²: ' + f.r2.toFixed(4);
+      if (f.asym !== undefined) ecNote += '\nAsymmetry Factor: ' + f.asym;
+      ecMarkers.push({ name: s.name, cx: ecx, cy: ecy, color: s.color, note: ecNote });
+      seriesHtml.push(`<path d="${curve}" fill="none" stroke="${s.color}" stroke-width="2.4"></path>${barsHtml.join('')}${dotsHtml.join('')}`);
+    });
+
+    // crosshair follows the EC50 marker being hovered
+    const cs = SERIES.find((s) => s.name === crossFor);
+    const cf = cs && fits[cs.name];
+    let crossHtml = '';
+    if (cf) {
+      const cy = cf.bottom + (cf.top - cf.bottom) / 2;
+      const cxv = Math.log10(cf.ec50) + sh;
+      const crossX = sx(cxv, d), crossY = sy(cy);
+      const color = cs.color;
+      crossHtml = `
+        <line x1="74" x2="${crossX}" y1="${crossY}" y2="${crossY}" stroke="${color}" stroke-width="1.2" stroke-dasharray="5 4"></line>
+        <line x1="${crossX}" x2="${crossX}" y1="${crossY}" y2="450" stroke="${color}" stroke-width="1.2" stroke-dasharray="5 4"></line>
+        <rect x="14" y="${crossY - 12}" width="62" height="24" rx="3" fill="${color}"></rect>
+        <text x="45" y="${crossY + 5}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="15" fill="var(--pn-color-text-inverse)">${cy.toFixed(3)}</text>
+        <rect x="${crossX - 31}" y="454" width="62" height="24" rx="3" fill="${color}"></rect>
+        <text x="${crossX}" y="471" text-anchor="middle" font-family="Roboto, sans-serif" font-size="15" fill="var(--pn-color-text-inverse)">${cxv.toFixed(3)}</text>
+      `;
+    }
+
+    const legendHtml = SERIES.map((s) => {
+      const on = !hidden[s.name];
+      const style = 'display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:var(--pn-border-radius-full);cursor:pointer;text-align:left;width:100%;'
+        + (on ? 'background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-subtle);box-shadow:0 1px 4px rgba(0,0,0,.12);' : 'background:transparent;border:1px solid transparent;');
+      return `<button class="ar-legend-btn" data-name="${s.name}" style="${style}"><span style="width:19px;height:19px;border-radius:50%;flex:none;background:${s.color};"></span><span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">${s.name}</span></button>`;
+    }).join('');
+
+    const head = ['Name', 'EC₅₀ or IC₅₀', 'R²', 'Top', 'Bottom', 'Hill Slope'];
+    if (model === '5PL') head.push('Asymmetry Factor');
+    const tableRowsHtml = SERIES.map((s) => {
+      const f = fits[s.name];
+      const cells = [
+        { text: sci(f.ec50, 4) + 'µM' },
+        { text: f.r2.toFixed(4) },
+        { text: f.top.toFixed(1) },
+        { text: Number(f.bottom).toPrecision(4) },
+        { text: f.hill.toFixed(3) },
+      ];
+      if (model === '5PL') cells.push({ text: String(f.asym) });
+      return `<tr><td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;"><span style="display:inline-flex;align-items:center;gap:8px;"><span style="width:11px;height:11px;border-radius:50%;background:${s.color};"></span>${s.name}</span></td>${cells.map((c) => `<td style="border:1px solid var(--pn-color-border-default);padding:12px 10px;text-align:center;color:#141414;">${c.text}</td>`).join('')}</tr>`;
+    }).join('');
+
+    const yAxisLabel = tab === 'inhibition' ? '% Inhibition' : '% of Control';
+    const ecHtml = ecMarkers.map((e, i) => `<circle class="ar-pt ar-ec" data-i="${i}" cx="${e.cx}" cy="${e.cy}" r="11" fill="var(--pn-color-surface-default)" fill-opacity="0.01" stroke="${e.color}" stroke-width="2.6"></circle>`).join('');
+
+    const el = document.getElementById('ar-chart-tab');
+    el.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:16px;padding-top:16px;">
+        <div style="flex:1;min-width:0;">
+          <svg viewBox="0 0 1180 520" style="width:100%;height:auto;display:block;overflow:visible;">
+            ${yTicks.map((t) => `<line x1="66" x2="74" y1="${t.y}" y2="${t.y}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line><text x="58" y="${t.ty}" text-anchor="end" font-family="Roboto, sans-serif" font-size="19" fill="#141414">${t.label}</text>`).join('')}
+            ${xTicks.map((t) => `<line y1="446" y2="454" x1="${t.x}" x2="${t.x}" stroke="var(--pn-color-neutral-900)" stroke-width="1"></line><text y="478" x="${t.x}" text-anchor="middle" font-family="Roboto, sans-serif" font-size="19" fill="#141414">${t.label}</text>`).join('')}
+            <line x1="74" y1="14" x2="74" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+            <line x1="74" y1="450" x2="1174" y2="450" stroke="var(--pn-color-neutral-900)" stroke-width="1.5"></line>
+            ${crossHtml}
+            ${seriesHtml.join('')}
+            ${ecHtml}
+            <text x="24" y="232" text-anchor="middle" transform="rotate(-90 24 232)" font-family="Roboto, sans-serif" font-size="21" fill="#141414">${yAxisLabel}</text>
+          </svg>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-top:6px;">
+            <span style="font:400 21px/1.2 var(--pn-font-family-sans);color:#141414;">Compound Concentration (log ${unit})</span>
+            <button id="ar-unit-toggle-1" style="background:none;border:0;padding:4px;cursor:pointer;display:flex;">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--pn-color-neutral-900)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </div>
+          <div id="ar-unit-menu-1" style="display:${unitMenuOpen ? 'flex' : 'none'};justify-content:center;"></div>
+        </div>
+        <div style="flex:none;width:200px;display:flex;flex-direction:column;gap:14px;padding-top:24px;">${legendHtml}</div>
+      </div>
+      <div style="padding-top:22px;overflow-x:auto;">
+        <table style="border-collapse:collapse;width:100%;min-width:760px;font:400 15px/1.3 var(--pn-font-family-sans);">
+          <tr>${head.map((h) => `<th style="border:1px solid var(--pn-color-border-default);padding:12px 10px;font-weight:700;color:#141414;">${h}</th>`).join('')}</tr>
+          ${tableRowsHtml}
+        </table>
+      </div>
+    `;
+
+    el.querySelectorAll('.ar-pt').forEach((c) => { if (!c.classList.contains('ar-ec')) wireDot(c); });
+    el.querySelectorAll('.ar-ec').forEach((circle) => {
+      const marker = ecMarkers[Number(circle.dataset.i)];
+      circle.addEventListener('mouseenter', (e) => { crossFor = marker.name; renderChartTab(); showNoteAt(marker.note, e.clientX, e.clientY); });
+      circle.addEventListener('mousemove', moveNote);
+      circle.addEventListener('mouseleave', () => { crossFor = null; renderChartTab(); hideNote(); });
+    });
+    document.getElementById('ar-unit-toggle-1').addEventListener('click', () => { unitMenuOpen = !unitMenuOpen; renderAll(); });
+    renderUnitMenu(document.getElementById('ar-unit-menu-1'));
+    el.querySelectorAll('.ar-legend-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.name;
+        if (!hidden[name] && SERIES.filter((x) => !hidden[x.name]).length === 1) return;
+        hidden[name] = !hidden[name];
+        crossFor = null;
+        renderAll();
+      });
+    });
+  }
+
+  function renderChartControls() {
+    const visible = SERIES.filter((s) => !hidden[s.name]);
+    const focus = visible.length === 1;
+    const controlsEl = document.getElementById('ar-chart-controls');
+    if (tab === 'quantified') { controlsEl.innerHTML = ''; return; }
+    controlsEl.innerHTML = `
+      <span style="font:400 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Curve fit</span>
+      <select id="ar-curve-fit" style="padding:8px 12px;border:1px solid var(--pn-color-border-default);border-radius:4px;background:var(--pn-color-surface-default);font:400 14px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);cursor:pointer;">
+        <option value="4PL" ${model === '4PL' ? 'selected' : ''}>4PL</option>
+        <option value="5PL" ${model === '5PL' ? 'selected' : ''}>5PL</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:8px;cursor:${focus ? 'not-allowed' : 'pointer'};font:400 15px/1 var(--pn-font-family-sans);color:${focus ? 'var(--pn-color-text-muted)' : 'var(--pn-color-text-primary)'};">
+        <input type="checkbox" id="ar-error-bars" ${errorBars && !focus ? 'checked' : ''} ${focus ? 'disabled' : ''} style="width:17px;height:17px;accent-color:var(--pn-color-sol-500);cursor:${focus ? 'not-allowed' : 'pointer'};">
+        Show Error Bars
+      </label>
+    `;
+    document.getElementById('ar-curve-fit').addEventListener('change', (e) => { model = e.target.value; crossFor = null; renderAll(); });
+    const ebEl = document.getElementById('ar-error-bars');
+    if (ebEl) ebEl.addEventListener('change', (e) => { errorBars = e.target.checked; renderChartTab(); });
+  }
+
+  function renderTabs() {
+    document.querySelectorAll('.ar-tab-btn').forEach((btn) => {
+      btn.style.cssText = tabStyle(btn.dataset.tab === tab);
+      btn.onclick = () => { tab = btn.dataset.tab; hideNote(); renderAll(); };
+    });
+  }
+
+  function renderAll() {
+    renderTabs();
+    renderChartControls();
+    const isChartTab = tab !== 'quantified';
+    document.getElementById('ar-chart-tab').style.display = isChartTab ? 'block' : 'none';
+    document.getElementById('ar-placeholder-tab').style.display = isChartTab ? 'none' : 'block';
+    if (isChartTab) renderChartTab();
+    else renderPlaceholderTab();
+  }
+
+  renderAll();
+</script>
+</body>
+</html>
