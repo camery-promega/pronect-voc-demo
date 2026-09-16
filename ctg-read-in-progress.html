@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/ui_kits/pronect/styles.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/styles.css">
+<link rel="stylesheet" href="pronect-demo.css">
+<link rel="stylesheet" href="read-flow.css">
+<style>body{margin:0;background:var(--pn-color-surface-page);font-family:var(--pn-font-family-sans)}</style>
+</head>
+<body>
+
+<!-- CellTiter-Glo read flow: Ready to Read, then Reading.
+     ==================================================================
+     Two states of one screen, built from 117 and 120. The frame is
+     identical in both; only the heading and what sits under the artwork
+     change.
+
+     Revised 2026-09-16: this used to auto-navigate 2.5s after Start, with no
+     controls while reading at all (120 has none, and a CH app read is short
+     enough that the app can just move you on). Cate's call: an unannounced
+     page change reads badly if the viewer is mid-thought, so this now shows
+     an estimated-time countdown (same real ticking countdown as the Read
+     Plate Tool version, just much shorter) and a pulsing Next button once it
+     reaches zero, rather than leaving. Nothing moves you on automatically
+     anymore, on either app's version of this screen.
+
+     Static-microsite conversion (2026-09-16): always routes to
+     ctg-analysis-results.html now. The _fromPlateMap() branch that sometimes
+     routed to ctg-read-results.dc.html is gone along with that page - a
+     full-plate read (not from a saved plate map) has no results screen of
+     its own left to land on in this cut-down demo. -->
+
+<div data-screen-label="CTG Read" class="read-page">
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <div id="crip-sidebar" style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;display:block;"></div>
+
+    <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;">
+
+      <div id="crip-topbar" style="display:block;width:100%;flex:none;"></div>
+
+      <div class="read-body">
+
+        <div class="read-header">
+          <!-- No app-icon link: it used to point at ctg-app-home.dc.html, cut
+               from this conversion. Just the icon now, not clickable. -->
+          <img class="read-header__icon" src="assets/app-icon_ctg.svg" alt="" style="flex-shrink:0;">
+          <div style="min-width:0;">
+            <div class="read-header__name">CellTiter-Glo</div>
+            <div class="read-header__file" id="crip-filename-1"></div>
+          </div>
+        </div>
+
+        <div class="read-card">
+          <h1 class="read-heading" id="crip-heading"></h1>
+          <div class="read-filename" id="crip-filename-2"></div>
+
+          <div class="read-art"><img id="crip-art" src="" alt=""></div>
+
+          <div id="crip-idle-foot" class="read-foot">
+            <div class="read-actions">
+              <!-- Cancel used to link to ctg-app-home.dc.html, also cut. Sends
+                   back to the dashboard instead - no CTG app home left to
+                   return to. -->
+              <a class="read-btn read-btn--ghost" href="user-dashboard.html">Cancel</a>
+              <button class="read-btn read-btn--primary" id="crip-start-btn">Start</button>
+            </div>
+          </div>
+
+          <!-- Reading: an estimated-time countdown (real, same mechanism as
+               the Read Plate Tool version), with a tooltip on the time itself
+               explaining it's simulated. Next only appears once the countdown
+               reaches zero, and nothing navigates until it's clicked. -->
+          <div id="crip-reading-foot" class="read-foot" style="display:none;">
+            <div class="read-meta">
+              <div class="read-meta__time crip-hover" data-note="This is a simulated read. A real MyGlo read takes as long as the plate and assay require." style="cursor:help;">
+                Estimated Read Time: <span id="crip-remaining"></span>
+              </div>
+            </div>
+            <div id="crip-next-foot" class="read-actions" style="display:none;">
+              <button class="read-btn read-btn--primary demo-cue" id="crip-next-btn">Next</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="pronect-sidebar.js"></script>
+<script src="pronect-topbar.js"></script>
+<script>
+  mountPronectSidebar(document.getElementById('crip-sidebar'), { dashboardHref: 'user-dashboard.html' });
+  mountPronectTopbar(document.getElementById('crip-topbar'));
+
+  // ---- shared hover-note tooltip ----
+  let noteEl = null;
+  function showNote(e) {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    if (!noteEl) {
+      noteEl = document.createElement('div');
+      noteEl.style.cssText = 'position:fixed;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 var(--pn-font-size-xs)/1.3 var(--font-sans);padding:8px 12px;border-radius:8px;pointer-events:none;z-index:2000;box-shadow:var(--pn-shadow-xs);max-width:220px;';
+      document.body.appendChild(noteEl);
+    }
+    noteEl.textContent = note;
+    noteEl.style.left = (e.clientX + 14) + 'px';
+    noteEl.style.top = (e.clientY + 18) + 'px';
+  }
+  function moveNote(e) {
+    if (!noteEl) return;
+    noteEl.style.left = (e.clientX + 14) + 'px';
+    noteEl.style.top = (e.clientY + 18) + 'px';
+  }
+  function hideNote() { if (noteEl) { noteEl.remove(); noteEl = null; } }
+  document.querySelectorAll('.crip-hover').forEach((el) => {
+    el.addEventListener('mouseenter', showNote);
+    el.addEventListener('mousemove', moveNote);
+    el.addEventListener('mouseleave', hideNote);
+  });
+
+  // Stamped once on load, not on every tick - a name that ticks its own
+  // seconds while you watch reads as a bug. Always "- Analysis": the
+  // full-plate ("- Full Plate") branch went with ctg-read-results.dc.html.
+  function stampFileName() {
+    const d = new Date(), p = (n) => String(n).padStart(2, '0');
+    let h = d.getHours();
+    const ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return 'CellTiter-Glo ' + d.getFullYear() + ' ' + p(d.getMonth() + 1) + ' ' + p(d.getDate())
+      + ' ' + h + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' ' + ap + ' - Analysis';
+  }
+
+  const fileName = stampFileName();
+  document.getElementById('crip-filename-1').textContent = fileName;
+  document.getElementById('crip-filename-2').textContent = fileName;
+
+  let reading = false;
+  let remainingSec = null;
+  let tickTimer = null;
+
+  function render() {
+    document.getElementById('crip-heading').textContent = reading ? 'Reading…' : 'Insert plate to start reading.';
+    document.getElementById('crip-art').src = reading ? 'assets/reading-myglo.gif' : 'assets/ready-to-read-myglo.png';
+    document.getElementById('crip-idle-foot').style.display = reading ? 'none' : 'flex';
+    document.getElementById('crip-reading-foot').style.display = reading ? 'flex' : 'none';
+    if (reading) {
+      document.getElementById('crip-remaining').textContent = `${remainingSec} sec`;
+      document.getElementById('crip-next-foot').style.display = remainingSec <= 0 ? 'flex' : 'none';
+    }
+  }
+
+  // 30s stands in for the read - a real countdown, same mechanism as the Read
+  // Plate Tool version, just much shorter. Reaching zero reveals Next instead
+  // of navigating automatically.
+  document.getElementById('crip-start-btn').addEventListener('click', () => {
+    reading = true;
+    remainingSec = 30;
+    render();
+    tickTimer = setInterval(() => {
+      remainingSec = Math.max(0, remainingSec - 1);
+      if (remainingSec <= 0) clearInterval(tickTimer);
+      render();
+    }, 1000);
+  });
+
+  document.getElementById('crip-next-btn').addEventListener('click', () => {
+    window.location.href = 'ctg-analysis-results.html';
+  });
+
+  render();
+</script>
+</body>
+</html>
