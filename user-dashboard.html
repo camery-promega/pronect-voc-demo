@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The demo is hosted on a public URL because the survey audience cannot hold
+     GitHub accounts. noindex is what keeps it out of search results; see the
+     hosting note in cow3rk. Deliberately NOT paired with a robots.txt Disallow:
+     blocking the fetch means the crawler never reads this tag, and a URL found
+     elsewhere can still be listed. Let them fetch, and tell them not to index. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/fonts/fonts.css">
+<link rel="stylesheet" href="_ds/pronect-design-system-019e2872-abd6-7041-9e28-1108e10af511/colors_and_type.css">
+<link rel="stylesheet" href="pronect-demo.css">
+<script src="ctg-demo-data.js"></script>
+<style>
+  body{margin:0;font-family:var(--font-sans);}
+  a{color:var(--pn-color-text-link);}
+  a:hover{color:var(--pn-color-text-link-hover);}
+  .ad-icon{width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;cursor:not-allowed;}
+  .instrument-row:hover{background:var(--pn-color-neutral-50);}
+  @keyframes toast-in{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+</style>
+</head>
+<body>
+
+<div data-screen-label="Dashboard" style="min-height:100vh;display:flex;flex-direction:column;color:var(--pn-color-text-primary);">
+
+  <div style="flex:1;display:flex;min-height:0;background:linear-gradient(180deg,#F4F6F9 0%,#E8EAEE 100%);">
+
+    <!-- Shared platform sidebar. dashboardHref left unset: this IS the dashboard. -->
+    <div id="ud-sidebar" style="width:clamp(101px,7.5vw,284px);flex:none;align-self:stretch;position:sticky;top:0;display:block;"></div>
+
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+
+      <!-- Shared platform top bar. -->
+      <div id="ud-topbar" style="display:block;width:100%;flex:none;"></div>
+
+      <div style="padding:18px 32px 32px;display:flex;flex-direction:column;gap:16px;flex:1;min-height:0;">
+
+        <section style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-xl);box-shadow:var(--pn-shadow-card-soft);padding:20px 24px 24px;">
+          <h2 style="font:400 var(--pn-font-size-md)/32px var(--font-sans);color:var(--pn-color-text-primary);margin:0 0 8px;">Applications</h2>
+          <div id="ud-apps" style="display:flex;align-items:center;gap:12px;padding-top:4px;"></div>
+        </section>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1.65fr) minmax(360px,1fr);gap:16px;flex:1;min-height:0;">
+
+          <section style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-xl);box-shadow:var(--pn-shadow-card-soft);padding:20px 24px 24px;display:flex;flex-direction:column;min-height:0;">
+            <header style="display:flex;flex-direction:column;gap:12px;margin-bottom:8px;">
+              <h2 style="font:400 var(--pn-font-size-md)/32px var(--font-sans);color:var(--pn-color-text-primary);margin:0;">My Data</h2>
+              <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;">
+                <div id="ud-data-tabs" style="display:flex;gap:4px;border-bottom:1px solid var(--pn-color-border-subtle);"></div>
+                <div style="flex:1;"></div>
+                <label class="ud-hover" data-note="The date range narrows this list to files created in a window."
+                  style="display:flex;align-items:center;gap:8px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:8px;padding:8px 12px;cursor:not-allowed;">
+                  <span id="ud-range-label" style="font:400 var(--pn-font-size-sm)/1 var(--font-sans);color:var(--pn-color-text-secondary);white-space:nowrap;"></span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4" stroke-linecap="round"></path></svg>
+                </label>
+                <label class="ud-hover" data-note="Search filters this list by file name."
+                  style="display:flex;align-items:center;gap:8px;background:var(--pn-color-surface-default);border:1px solid var(--pn-color-border-default);border-radius:6px;padding:6px 10px;width:200px;cursor:not-allowed;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="16" y1="16" x2="21" y2="21" stroke-linecap="round"></line></svg>
+                  <input placeholder="Search" disabled readonly tabindex="-1" style="border:0;outline:none;flex:1;min-width:0;font:400 var(--pn-font-size-sm)/1 var(--font-sans);color:var(--pn-color-text-muted);background:transparent;pointer-events:none;cursor:not-allowed;user-select:none;">
+                </label>
+              </div>
+            </header>
+            <div style="flex:1;overflow:auto;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                  <tr id="ud-table-head" style="font:700 var(--pn-font-size-sm)/1 var(--font-sans);color:var(--pn-color-text-muted);letter-spacing:.06em;text-align:left;"></tr>
+                </thead>
+                <tbody id="ud-table-body"></tbody>
+              </table>
+            </div>
+            <!-- Real pagination, not a note: with about 25 rows per list there is
+                 something to page through, which is why Cate set that number. -->
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding-top:12px;flex-wrap:wrap;">
+              <span id="ud-page-count" style="font:400 var(--pn-font-size-xs)/1 var(--font-sans);color:var(--pn-color-text-muted);"></span>
+              <span id="ud-pager" style="display:flex;gap:4px;align-items:center;"></span>
+              <select disabled style="font:400 var(--pn-font-size-xs)/1 var(--font-sans);color:var(--pn-color-text-muted);border:1px solid var(--pn-color-border-default);border-radius:4px;padding:4px 8px;background:var(--pn-color-surface-default);cursor:not-allowed;">
+                <option>10</option>
+              </select>
+            </div>
+          </section>
+
+          <section style="background:var(--pn-color-surface-default);border-radius:var(--pn-border-radius-xl);box-shadow:var(--pn-shadow-card-soft);padding:20px 24px 24px;display:flex;flex-direction:column;min-height:0;">
+            <header style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+              <h2 style="font:400 var(--pn-font-size-md)/32px var(--font-sans);color:var(--pn-color-text-primary);margin:0;">Instruments</h2>
+            </header>
+            <!-- A vertical list, per 146, not a 2x2 grid of cards. -->
+            <div id="ud-instruments" style="flex:1;min-height:0;overflow:auto;border-top:1px solid var(--pn-color-border-subtle);"></div>
+            <div style="display:flex;justify-content:center;padding-top:12px;">
+              <span id="ud-instrument-count" style="font:400 var(--pn-font-size-xs)/1 var(--font-sans);color:var(--pn-color-text-muted);"></span>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The live read status modal was removed on 2026-09-12 and stashed at
+       china-pronect-demo/stashed/live-read-status-modal.md. It was invented,
+       nothing in the product does it, and clicking the Reading instrument now
+       opens the instrument details page instead. -->
+
+  <div id="ud-toast"></div>
+
+</div>
+
+<script src="pronect-sidebar.js"></script>
+<script src="pronect-topbar.js"></script>
+<script>
+  mountPronectSidebar(document.getElementById('ud-sidebar'), {}); // dashboardHref unset: this IS the dashboard
+  mountPronectTopbar(document.getElementById('ud-topbar'));
+
+  const ORANGE_BG = 'linear-gradient(#EB5B26,#A8401A)';
+  const PURPLE_BG = 'linear-gradient(#7278C9,#4A5098)';
+  const TOOL_BG = 'linear-gradient(#0FA888,#0D6670)';
+  const COMINGSOON_BG = 'linear-gradient(135deg,#7F1BAD,#C800FF)';
+
+  // CellTiter-Glo and Read Plate Tool tiles are dark for now (no href, not
+  // clickable) - Cate cut ctg-app-home and rpt-home from this conversion and
+  // wants a real entry point decided later rather than repointed at the new
+  // guided pages.
+  const APP_DEFS = [
+    { id:'ctg', kind:'assay', title:'CellTiter-Glo', instrument:'MyGlo', icon:'assets/app-icon-celltiterglo.svg', bg:ORANGE_BG, active:false },
+    { id:'cg37', kind:'assay', title:'Caspase-Glo 3/7', instrument:'MyGlo', icon:'assets/app-icon-caspase-glo.svg', bg:ORANGE_BG, active:false },
+    { id:'ldh', kind:'assay', title:'LDH-Glo', instrument:'MyGlo', icon:'assets/app-icon-ldh-glo.svg', bg:ORANGE_BG, active:false },
+    { id:'btg', kind:'assay', title:'BacTiter-Glo', instrument:'MyGlo', icon:'assets/app-icon-bactiter-glo.svg', bg:ORANGE_BG, active:false },
+    { id:'tpd', kind:'assay', title:'TPD Kinetic', instrument:'GloMax', icon:'assets/app-icon-tpd75.svg', bg:PURPLE_BG, active:false },
+    { id:'comingsoon', kind:'comingSoon', title:'Coming Soon', instrument:'', icon:'assets/icon-new-releases-large.svg', bg:COMINGSOON_BG, active:false },
+  ];
+
+  const ctgRows = (list) => list.map(r => ({
+    name: r.name, app: 'CellTiter-Glo', type: r.type || '', instrument: r.instrument || '',
+    created: r.date, pinned: r.pinned,
+  }));
+  const otherRows = (list) => list.map(r => ({
+    name: r.name, app: r.app, type: r.type || '', instrument: r.instrument || '',
+    created: r.date, pinned: r.pinned,
+  }));
+  const byPinnedThenDateDesc = (a, b) => {
+    if (!a.pinned !== !b.pinned) return a.pinned ? -1 : 1;
+    return a.created < b.created ? 1 : a.created > b.created ? -1 : 0;
+  };
+
+  const DATA_SETS = {
+    'Analysis Results': {
+      countLabel: 'Analyses', col2Label: 'App', col2Key: 'app', showType: false,
+      rows: ctgRows(window.CTG.ANALYSES).concat(otherRows(window.CTG.OTHER_ANALYSES)).sort(byPinnedThenDateDesc),
+    },
+    'Plate Maps': {
+      countLabel: 'Plate Maps', col2Label: 'App', col2Key: 'app', showType: false,
+      rows: ctgRows(window.CTG.PLATE_MAPS).concat(otherRows(window.CTG.OTHER_PLATE_MAPS)).sort(byPinnedThenDateDesc),
+    },
+    'Instrument Data': {
+      countLabel: 'File(s)', col2Label: 'Instrument', col2Key: 'instrument', showType: true,
+      rows: ctgRows(window.CTG.INSTRUMENT_DATA).concat(otherRows(window.CTG.OTHER_INSTRUMENT_DATA)).sort(byPinnedThenDateDesc),
+    },
+  };
+  const PER_PAGE = 10;
+
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const fmtRangeDate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const RANGE_END = new Date();
+  const RANGE_START = new Date(RANGE_END);
+  RANGE_START.setFullYear(RANGE_START.getFullYear() - 1);
+  const DATE_RANGE_LABEL = `${fmtRangeDate(RANGE_START)} – ${fmtRangeDate(RANGE_END)}`;
+
+  const INSTRUMENT_DEFS = window.CTG.INSTRUMENTS.map(i => ({
+    id: i.id, name: i.name, status: i.status, statusLabel: i.statusLabel, color: i.color,
+  }));
+
+  // Fixed value, matching prod's "Reading - 2d 15h"; the dashboard's own
+  // countdown never actually ticked in the original either.
+  const READING_TOTAL_SEC = 2 * 86400 + 15 * 3600;
+
+  let dataType = 'Analysis Results';
+  let dataPage = 1;
+  let toastTimer = null;
+
+  // Shared hover-note tooltip.
+  let noteEl = null;
+  function showNote(e) {
+    const note = e.currentTarget.dataset.note;
+    if (!note) return;
+    if (!noteEl) {
+      noteEl = document.createElement('div');
+      noteEl.style.cssText = 'position:fixed;background:var(--pn-color-neutral-900);color:var(--pn-color-text-inverse);font:500 var(--pn-font-size-xs)/1.3 var(--font-sans);padding:8px 12px;border-radius:8px;pointer-events:none;z-index:2000;box-shadow:var(--pn-shadow-xs);max-width:220px;';
+      document.body.appendChild(noteEl);
+    }
+    noteEl.textContent = note;
+    noteEl.style.left = (e.clientX + 14) + 'px';
+    noteEl.style.top = (e.clientY + 18) + 'px';
+  }
+  function moveNote(e) {
+    if (!noteEl) return;
+    noteEl.style.left = (e.clientX + 14) + 'px';
+    noteEl.style.top = (e.clientY + 18) + 'px';
+  }
+  function hideNote(e) {
+    if (e && e.currentTarget && e.currentTarget.dataset.hoverable === 'true') {
+      e.currentTarget.style.transform = '';
+      e.currentTarget.style.boxShadow = '';
+    }
+    if (noteEl) { noteEl.remove(); noteEl = null; }
+  }
+  function onCardEnter(e) {
+    if (e.currentTarget.dataset.hoverable === 'true') {
+      e.currentTarget.style.transform = 'translateY(-2px)';
+      e.currentTarget.style.boxShadow = 'var(--pn-shadow-2)';
+    }
+    showNote(e);
+  }
+  function wireHover(el) {
+    el.addEventListener('mouseenter', onCardEnter);
+    el.addEventListener('mousemove', moveNote);
+    el.addEventListener('mouseleave', hideNote);
+  }
+
+  function showToast(msg) {
+    if (toastTimer) clearTimeout(toastTimer);
+    const toastEl = document.getElementById('ud-toast');
+    toastEl.innerHTML = `<div style="position:fixed;bottom:24px;left:24px;z-index:2200;background:var(--pn-color-surface-inverse);color:var(--pn-color-text-inverse);border-radius:8px;padding:10px 18px;font:500 var(--pn-font-size-sm)/1.4 var(--font-sans);box-shadow:0 6px 20px rgba(0,0,0,.25);animation:toast-in .2s ease-out;max-width:340px;">${msg}</div>`;
+    toastTimer = setTimeout(() => { toastEl.innerHTML = ''; }, 3200);
+  }
+
+  function styleStr(obj) {
+    return Object.entries(obj).map(([k, v]) => {
+      const kebab = k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
+      return `${kebab}:${typeof v === 'number' ? v + 'px' : v}`;
+    }).join(';') + ';';
+  }
+
+  function renderApps() {
+    const appsEl = document.getElementById('ud-apps');
+    appsEl.innerHTML = '';
+
+    APP_DEFS.filter((a) => a.kind !== 'comingSoon').forEach((a) => {
+      const note = a.active ? '' : 'Not enabled in this demo yet.';
+      const card = document.createElement('div');
+      card.dataset.note = note;
+      card.dataset.hoverable = String(a.active);
+      card.style.cssText = styleStr({
+        flex: '1 1 0', minWidth: 0, height: 126, borderRadius: 12, padding: 12, boxSizing: 'border-box',
+        color: 'var(--pn-color-text-inverse)', position: 'relative', overflow: 'hidden',
+        cursor: a.active ? 'pointer' : 'not-allowed', background: a.bg,
+        transition: 'transform .12s ease, box-shadow .12s ease',
+      });
+      card.innerHTML = `
+        <img src="${a.icon}" alt="" style="position:absolute;right:-12px;bottom:-12px;width:92px;height:92px;opacity:.2;filter:brightness(0) invert(1);pointer-events:none;">
+        <div style="padding-right:24px;"><span style="font:700 var(--pn-font-size-base)/1.2 var(--font-sans);">${a.title}</span></div>
+        <div style="position:absolute;left:12px;bottom:10px;display:inline-flex;background:rgba(255,255,255,.2);border-radius:var(--pn-border-radius-full);padding:4px 12px;">
+          <span style="font:700 var(--pn-font-size-xs)/1 var(--font-sans);">${a.instrument}</span>
+        </div>
+      `;
+      wireHover(card);
+      if (a.active) card.addEventListener('click', () => (window.location.href = a.href));
+      else card.addEventListener('click', () => showToast(`${a.title} opens its own app, with the same workflows as CellTiter-Glo.`));
+      appsEl.appendChild(card);
+    });
+
+    const divider = document.createElement('div');
+    divider.style.cssText = 'width:1px;height:126px;background:rgba(187,187,187,.5);margin:0 2px;';
+    appsEl.appendChild(divider);
+
+    // Read Plate Tool - dark for now, same as the disabled app tiles.
+    const toolCard = document.createElement('div');
+    toolCard.dataset.note = 'Not enabled in this demo yet.';
+    toolCard.dataset.hoverable = 'false';
+    toolCard.style.cssText = styleStr({
+      flex: '1 1 0', minWidth: 0, height: 126, borderRadius: 12, padding: 12, boxSizing: 'border-box',
+      color: 'var(--pn-color-text-inverse)', position: 'relative', overflow: 'hidden', cursor: 'not-allowed',
+      background: TOOL_BG, transition: 'transform .12s ease, box-shadow .12s ease',
+    });
+    toolCard.innerHTML = `
+      <img src="assets/app-icon-readplatetool.svg" alt="" style="position:absolute;right:-12px;bottom:-12px;width:92px;height:92px;opacity:.2;filter:brightness(0) invert(1);pointer-events:none;">
+      <div style="padding-right:24px;"><span style="font:700 var(--pn-font-size-base)/1.2 var(--font-sans);">Read Plate Tool</span></div>
+      <div style="position:absolute;left:12px;bottom:10px;display:inline-flex;background:rgba(255,255,255,.2);border-radius:var(--pn-border-radius-full);padding:4px 12px;">
+        <span style="font:700 var(--pn-font-size-xs)/1 var(--font-sans);">MyGlo</span>
+      </div>
+    `;
+    wireHover(toolCard);
+    appsEl.appendChild(toolCard);
+
+    const comingSoonDef = APP_DEFS.find((a) => a.kind === 'comingSoon');
+    const comingSoonCard = document.createElement('div');
+    comingSoonCard.dataset.note = 'Coming Soon lists apps that are in development. Not part of this demo.';
+    comingSoonCard.style.cssText = styleStr({
+      flex: '1 1 0', minWidth: 0, height: 126, borderRadius: 12, padding: 12, boxSizing: 'border-box',
+      color: 'var(--pn-color-text-inverse)', position: 'relative', overflow: 'hidden', cursor: 'not-allowed',
+      background: comingSoonDef.bg, transition: 'transform .12s ease, box-shadow .12s ease',
+    });
+    comingSoonCard.innerHTML = `
+      <img src="${comingSoonDef.icon}" alt="" style="position:absolute;right:-12px;bottom:-12px;width:92px;height:92px;opacity:.2;filter:brightness(0) invert(1);pointer-events:none;">
+      <div style="padding-right:24px;"><span style="font:700 var(--pn-font-size-base)/1.2 var(--font-sans);">${comingSoonDef.title}</span></div>
+      <div style="position:absolute;left:12px;bottom:10px;display:inline-flex;background:rgba(255,255,255,.2);border-radius:var(--pn-border-radius-full);padding:4px 12px;">
+        <span style="font:700 var(--pn-font-size-xs)/1 var(--font-sans);">Preview</span>
+      </div>
+    `;
+    wireHover(comingSoonCard);
+    appsEl.appendChild(comingSoonCard);
+  }
+
+  const tabStyle = (active) => `background:${active ? 'var(--pn-color-sol-50)' : 'transparent'};border:0;padding:8px 16px;cursor:pointer;`
+    + `border-radius:8px 8px 0 0;font:${active ? '500' : '400'} var(--pn-font-size-sm)/1 var(--font-sans);`
+    + `color:${active ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-muted)'};`
+    + `border-bottom:3px solid ${active ? 'var(--pn-color-sol-500)' : 'transparent'};margin-bottom:-1px;`;
+
+  const TYPE_TONE = {
+    'Analysis':    { bg:'rgba(195, 85, 40, 0.1)',  border:'rgb(195, 85, 40)',  text:'rgb(181, 74, 26)' },
+    'Endpoint':    { bg:'rgba(60, 100, 185, 0.1)', border:'rgb(60, 100, 185)', text:'rgb(46, 91, 173)' },
+    'Full Plate':  { bg:'rgba(95, 130, 50, 0.11)', border:'rgb(95, 130, 50)',  text:'rgb(78, 114, 40)' },
+    'Time Course': { bg:'rgba(180, 60, 105, 0.1)', border:'rgb(180, 60, 105)', text:'rgb(168, 48, 96)' },
+  };
+  const TYPE_NOTE = {
+    'Analysis':    'Data collected during an analysis run using a plate map.',
+    'Endpoint':    'Single plate read collected using the Read Plate tool.',
+    'Time Course': 'Multi-read time course collected using the Read Plate tool.',
+    'Full Plate':  'Full plate read collected without a plate map.',
+  };
+  const navStyle = (on) => `border:1px solid var(--pn-color-border-default);background:var(--pn-color-surface-default);border-radius:4px;`
+    + `width:24px;height:24px;display:flex;align-items:center;justify-content:center;`
+    + `font:400 var(--pn-font-size-xs)/1 var(--font-sans);color:${on ? 'var(--pn-color-text-primary)' : 'var(--pn-color-text-disabled)'};`
+    + `cursor:${on ? 'pointer' : 'not-allowed'};`;
+
+  const PIN_ACTIVE_SVG = '<svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-brand-sol);" role="img" aria-label="Pinned"><path d="M7.56663 2.9452C7.82034 2.26215 8.69593 2.07106 9.21116 2.58629L14.2776 7.65273C14.7928 8.16796 14.6017 9.04356 13.9187 9.29726L13.4221 9.48169L10.0666 12.8372C10.0666 12.8372 10.0666 14.6656 9.31213 16.059C9.04914 16.5446 8.40783 16.5473 8.01731 16.1567L0.707154 8.84659C0.31663 8.45606 0.319266 7.81475 0.804919 7.55177C2.19826 6.79727 4.02668 6.79727 4.02668 6.79727L7.3822 3.44174L7.56663 2.9452Z" fill="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>';
+  const PIN_DEFAULT_SVG = '<svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="color:var(--pn-color-neutral-700);" role="img" aria-label="Not pinned"><path d="M13.2481 9.01298L13.1458 9.05097L13.0686 9.12814L9.71307 12.4837L9.56662 12.6301L9.56662 12.8367L9.56662 12.8369L9.56662 12.8369V12.837V12.8372L9.56661 12.8392L9.56648 12.8514C9.56633 12.8628 9.56601 12.8807 9.56534 12.9045C9.56401 12.9522 9.56129 13.0236 9.55576 13.1142C9.54468 13.2958 9.52241 13.5531 9.4778 13.8517C9.38748 14.4562 9.21031 15.197 8.87245 15.8209C8.83076 15.8979 8.76944 15.9328 8.68665 15.9371C8.59292 15.942 8.47096 15.9033 8.37086 15.8032L1.06071 8.49303C0.960611 8.39294 0.921938 8.27098 0.926799 8.17724C0.931092 8.09445 0.966015 8.03313 1.043 7.99144C1.66694 7.65358 2.40767 7.47641 3.01218 7.38609C3.31077 7.34148 3.56809 7.31921 3.74967 7.30813C3.84031 7.3026 3.91166 7.29988 3.95936 7.29855C3.9832 7.29788 4.0011 7.29756 4.01251 7.29741L4.02468 7.29728L4.02668 7.29727H4.02686L4.02697 7.29727L4.027 7.29727L4.02715 7.29727L4.23378 7.29727L4.38023 7.15082L7.73576 3.7953L7.81292 3.71813L7.85091 3.61584L8.03534 3.1193C8.1622 2.77777 8.59999 2.68222 8.85761 2.93984L13.9241 8.00628C14.1817 8.2639 14.0861 8.7017 13.7446 8.82855L13.2481 9.01298Z" stroke="currentColor"></path><rect x="4.69788" y="11.4951" width="0.949086" height="6.6436" transform="rotate(45 4.69788 11.4951)" fill="currentColor"></rect></svg>';
+
+  function renderMyData() {
+    const set = DATA_SETS[dataType];
+    const totalPages = Math.max(1, Math.ceil(set.rows.length / PER_PAGE));
+    const page = Math.min(Math.max(1, dataPage), totalPages);
+    const pageRows = set.rows.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+    // Tabs
+    const tabsEl = document.getElementById('ud-data-tabs');
+    tabsEl.innerHTML = '';
+    Object.keys(DATA_SETS).forEach((key) => {
+      const btn = document.createElement('button');
+      btn.textContent = key;
+      btn.style.cssText = tabStyle(key === dataType);
+      btn.addEventListener('click', () => { dataType = key; dataPage = 1; renderMyData(); });
+      tabsEl.appendChild(btn);
+    });
+
+    document.getElementById('ud-range-label').textContent = DATE_RANGE_LABEL;
+
+    // Header
+    const headEl = document.getElementById('ud-table-head');
+    headEl.innerHTML = `
+      <th style="padding:12px 8px;width:32px;"></th>
+      <th style="padding:12px 8px;">Name</th>
+      ${set.showType ? '<th style="padding:12px 8px;width:12%;">Type</th>' : ''}
+      <th style="padding:12px 8px;width:17%;">Date</th>
+      <th style="padding:12px 8px;width:17%;">${set.col2Label}</th>
+      <th style="padding:12px 8px;width:112px;"></th>
+    `;
+
+    // Rows
+    const bodyEl = document.getElementById('ud-table-body');
+    bodyEl.innerHTML = '';
+    pageRows.forEach((r) => {
+      const col2 = r[set.col2Key] || '';
+      const tone = TYPE_TONE[r.type] || { bg: 'var(--pn-color-surface-sunken)', border: 'var(--pn-color-border-default)', text: 'var(--pn-color-text-muted)' };
+      const typeStyle = `display:inline-block;padding:4px 12px;border-radius:var(--pn-border-radius-full);white-space:nowrap;`
+        + `font:400 var(--pn-font-size-sm)/1.3 var(--font-sans);background:${tone.bg};color:${tone.text};border:1px solid ${tone.border};`;
+      const typeNote = TYPE_NOTE[r.type] || '';
+
+      const tr = document.createElement('tr');
+      tr.style.cssText = 'border-top:1px solid var(--pn-color-border-subtle);';
+      tr.innerHTML = `
+        <td class="ud-hover" data-note="Pin keeps a file at the top of the list." style="padding:12px 8px;">
+          ${r.pinned ? PIN_ACTIVE_SVG : PIN_DEFAULT_SVG}
+        </td>
+        <td style="padding:12px 8px;font:400 var(--pn-font-size-sm)/1.2 var(--font-sans);color:var(--pn-color-text-primary);">${r.name}</td>
+        ${set.showType ? `<td style="padding:12px 8px;"><span class="ud-hover" data-note="${typeNote}" style="${typeStyle}">${r.type}</span></td>` : ''}
+        <td style="padding:12px 8px;font:400 var(--pn-font-size-sm)/1 var(--font-sans);color:var(--pn-color-text-muted);">${r.created}</td>
+        <td style="padding:12px 8px;font:400 var(--pn-font-size-sm)/1 var(--font-sans);color:var(--pn-color-text-secondary);">${col2}</td>
+        <td style="padding:12px 8px;text-align:right;white-space:nowrap;">
+          <button class="ad-icon ud-hover" data-note="Rename changes the name of this file.">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 11h7M4 16h7M14 19l5-5 2 2-5 5h-2z"/></svg>
+          </button>
+          <button class="ad-icon ud-hover" data-note="Delete removes this file from your account.">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 7V5h4v2M6 7l1 13h10l1-13"/></svg>
+          </button>
+          <button class="ad-icon ud-hover" data-note="Download saves a copy of this file to your computer.">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--pn-color-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M8 12l4 4 4-4M5 20h14"/></svg>
+          </button>
+        </td>
+      `;
+      bodyEl.appendChild(tr);
+    });
+
+    document.getElementById('ud-page-count').textContent = `${set.rows.length} ${set.countLabel}`;
+
+    const pagerEl = document.getElementById('ud-pager');
+    pagerEl.innerHTML = '';
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '&lsaquo;';
+    prevBtn.disabled = page === 1;
+    prevBtn.style.cssText = navStyle(page !== 1);
+    prevBtn.addEventListener('click', () => { dataPage = Math.max(1, page - 1); renderMyData(); });
+    pagerEl.appendChild(prevBtn);
+    for (let n = 1; n <= totalPages; n++) {
+      const btn = document.createElement('button');
+      btn.textContent = String(n);
+      btn.style.cssText = `border:1px solid ${n === page ? 'var(--pn-color-text-primary)' : 'var(--pn-color-border-default)'};`
+        + `background:var(--pn-color-surface-default);border-radius:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;`
+        + `font:${n === page ? '600' : '400'} var(--pn-font-size-xs)/1 var(--font-sans);color:var(--pn-color-text-primary);`;
+      btn.addEventListener('click', () => { dataPage = n; renderMyData(); });
+      pagerEl.appendChild(btn);
+    }
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '&rsaquo;';
+    nextBtn.disabled = page === totalPages;
+    nextBtn.style.cssText = navStyle(page !== totalPages);
+    nextBtn.addEventListener('click', () => { dataPage = Math.min(totalPages, page + 1); renderMyData(); });
+    pagerEl.appendChild(nextBtn);
+
+    wireAllHovers();
+  }
+
+  function renderInstruments() {
+    const remainingSec = READING_TOTAL_SEC; // fixed - matches prod's frozen countdown
+    const fmt = (sec) => sec >= 86400
+      ? `${Math.floor(sec / 86400)}d ${Math.floor((sec % 86400) / 3600)}h`
+      : `${String(Math.floor(sec / 3600)).padStart(2, '0')}:${String(Math.floor((sec % 3600) / 60)).padStart(2, '0')}`;
+
+    const listEl = document.getElementById('ud-instruments');
+    listEl.innerHTML = '';
+    INSTRUMENT_DEFS.forEach((ins) => {
+      const isReading = ins.status === 'reading';
+      const linked = isReading;
+      const statusLabel = isReading ? `Reading - ${fmt(remainingSec)} left` : ins.statusLabel;
+      const note = linked ? '' : (ins.status === 'actionNeeded'
+        ? 'Opening an instrument to see why it needs action.'
+        : 'Every MyGlo on your account appears here with its current status.');
+
+      const row = document.createElement('div');
+      row.className = 'instrument-row ud-hover';
+      row.dataset.note = note;
+      row.style.cssText = `display:flex;align-items:center;gap:14px;padding:12px 4px;`
+        + `border-bottom:1px solid var(--pn-color-border-subtle);cursor:${linked ? 'pointer' : 'default'};`;
+      row.innerHTML = `
+        <img src="assets/reading-myglo.gif" alt="" style="width:52px;height:32px;object-fit:contain;flex:none;">
+        <span style="flex:1;min-width:0;font:400 var(--pn-font-size-sm)/1.3 var(--font-sans);color:var(--pn-color-text-primary);overflow-wrap:anywhere;">${ins.name}</span>
+        <span style="width:26%;flex:none;display:flex;flex-direction:column;gap:8px;">
+          <span style="display:block;height:4px;border-radius:2px;background:${ins.color};"></span>
+          <span style="display:flex;align-items:center;gap:4px;">
+            <span style="font:400 var(--pn-font-size-xs)/1 var(--font-sans);color:var(--pn-color-text-primary);">${statusLabel}</span>
+            ${linked ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--pn-color-text-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>' : ''}
+          </span>
+        </span>
+      `;
+      if (linked) row.addEventListener('click', () => { window.location.href = 'instrument-details.html'; });
+      listEl.appendChild(row);
+    });
+
+    document.getElementById('ud-instrument-count').textContent = `${INSTRUMENT_DEFS.length} instruments`;
+    wireAllHovers();
+  }
+
+  function wireAllHovers() {
+    document.querySelectorAll('.ud-hover').forEach((el) => {
+      if (el.dataset.wired) return;
+      el.dataset.wired = '1';
+      el.addEventListener('mouseenter', showNote);
+      el.addEventListener('mousemove', moveNote);
+      el.addEventListener('mouseleave', hideNote);
+    });
+  }
+
+  renderApps();
+  renderMyData();
+  renderInstruments();
+</script>
+</body>
+</html>
