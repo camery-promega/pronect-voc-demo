@@ -107,11 +107,11 @@ window.CTG.PLATE_MAPS = Object.freeze([
    the demo never faking persistence: there is nothing to rename, delete or pin.
    NOTE COPY IS PENDING the demo's voice and tone guidelines. */
 window.CTG.PLATE_MAP_ROW_ACTIONS = Object.freeze([
-  Object.freeze({ key:'rename',   note:'Rename changes the name of a plate map in your account. Not wired up in this demo.',    path:'M4 6h11M4 11h7M4 16h7M14 19l5-5 2 2-5 5h-2z' }),
-  Object.freeze({ key:'delete',   note:'Delete removes a plate map from your account. Not wired up in this demo.',    path:'M4 7h16M10 7V5h4v2M6 7l1 13h10l1-13' }),
-  Object.freeze({ key:'download', note:'Download saves a copy of the plate map to your computer. Not wired up in this demo.', path:'M12 4v11M8 12l4 4 4-4M5 20h14' }),
-  Object.freeze({ key:'edit',     note:'Edit opens the plate map in the plate map editor. Not wired up in this demo.',     path:'M4 20h4L19 9l-4-4L4 16z' }),
-  Object.freeze({ key:'pin',      note:'Pin keeps a plate map at the top of the list. Not wired up in this demo.',                 path:'M10 3h4l-.6 5.4 3.6 3.2V14h-4.5v6l-.5 1-.5-1v-6H7v-2.4l3.6-3.2z' }),
+  Object.freeze({ key:'rename',   note:'Rename changes the name of a plate map in your account.',    path:'M4 6h11M4 11h7M4 16h7M14 19l5-5 2 2-5 5h-2z' }),
+  Object.freeze({ key:'delete',   note:'Delete removes a plate map from your account.',    path:'M4 7h16M10 7V5h4v2M6 7l1 13h10l1-13' }),
+  Object.freeze({ key:'download', note:'Download saves a copy of the plate map to your computer.', path:'M12 4v11M8 12l4 4 4-4M5 20h14' }),
+  Object.freeze({ key:'edit',     note:'Edit opens the plate map in the plate map editor.',     path:'M4 20h4L19 9l-4-4L4 16z' }),
+  Object.freeze({ key:'pin',      note:'Pin keeps a plate map at the top of the list.',                 path:'M10 3h4l-.6 5.4 3.6 3.2V14h-4.5v6l-.5 1-.5-1v-6H7v-2.4l3.6-3.2z' }),
 ]);
 
 /* Analyses, one per plate map, in the same order as PLATE_MAPS.

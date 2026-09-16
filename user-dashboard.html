@@ -237,7 +237,7 @@
     appsEl.innerHTML = '';
 
     APP_DEFS.filter((a) => a.kind !== 'comingSoon').forEach((a) => {
-      const note = a.active ? '' : 'Not enabled in this demo yet.';
+      const note = '';
       const card = document.createElement('div');
       card.dataset.note = note;
       card.dataset.hoverable = String(a.active);
@@ -266,7 +266,7 @@
 
     // Read Plate Tool - dark for now, same as the disabled app tiles.
     const toolCard = document.createElement('div');
-    toolCard.dataset.note = 'Not enabled in this demo yet.';
+    toolCard.dataset.note = '';
     toolCard.dataset.hoverable = 'false';
     toolCard.style.cssText = styleStr({
       flex: '1 1 0', minWidth: 0, height: 126, borderRadius: 12, padding: 12, boxSizing: 'border-box',
@@ -285,7 +285,7 @@
 
     const comingSoonDef = APP_DEFS.find((a) => a.kind === 'comingSoon');
     const comingSoonCard = document.createElement('div');
-    comingSoonCard.dataset.note = 'Coming Soon lists apps that are in development. Not part of this demo.';
+    comingSoonCard.dataset.note = 'Coming Soon lists apps that are in development.';
     comingSoonCard.style.cssText = styleStr({
       flex: '1 1 0', minWidth: 0, height: 126, borderRadius: 12, padding: 12, boxSizing: 'border-box',
       color: 'var(--pn-color-text-inverse)', position: 'relative', overflow: 'hidden', cursor: 'not-allowed',

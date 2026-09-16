@@ -49,7 +49,7 @@ function mountCtgSelectInstrument(container, opts) {
           <h2 style="margin:0 0 16px;font:600 24px/1.2 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">Select Instrument</h2>
           <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--pn-border-radius-md);background:var(--pn-color-status-success-surface);border:1px solid var(--pn-color-status-success-border);flex:none;margin-bottom:8px;">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--pn-color-status-success-border)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>
-            <span style="font:400 14px/1.45 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">ProNect checks the plate map before a read starts, so an issue surfaces here rather than after the data is collected. This demo's plate map has no errors to show.</span>
+            <span style="font:400 14px/1.45 var(--pn-font-family-sans);color:var(--pn-color-text-primary);">ProNect checks the plate map before a read starts, so an issue surfaces here rather than after the data is collected. This plate map has no errors to show.</span>
           </div>
           <div style="display:flex;align-items:center;gap:24px;padding:20px 0;flex:none;">
             <span style="font:500 15px/1 var(--pn-font-family-sans);color:var(--pn-color-text-primary);flex:none;">Analysis Results Name</span>
