@@ -236,6 +236,7 @@
   document.getElementById('rr-proto-count').textContent = `Number of Reads: ${READ_COUNT - 1}`;
 
   let selectedRead = 0; // Always the first read on arrival, whatever the state.
+  let read1Cued = true; // Cleared once Read 1 is clicked, so the pulse doesn't linger.
 
   function renderPlate() {
     const done = doneCount();
@@ -269,14 +270,18 @@
     listEl.innerHTML = '';
     for (let i = 0; i < READ_COUNT; i++) {
       const isDone = i < done;
-      const cls = 'rpt-read ' + (isDone ? 'is-done' : 'is-pending') + (i === selectedRead && isDone ? ' is-active' : '') + (i === 1 && isDone ? ' demo-cue' : '');
+      const cls = 'rpt-read ' + (isDone ? 'is-done' : 'is-pending') + (i === selectedRead && isDone ? ' is-active' : '') + (i === 1 && isDone && read1Cued ? ' demo-cue' : '');
       const note = isDone ? '' : 'This read has not run yet. Scheduled reads are informational only.';
       const row = document.createElement('div');
       row.className = cls;
       row.dataset.note = note;
       row.textContent = 'Read ' + i;
       wireHover(row);
-      if (isDone) row.addEventListener('click', () => { selectedRead = i; renderPlate(); });
+      if (isDone) row.addEventListener('click', () => {
+        if (i === 1) read1Cued = false;
+        selectedRead = i;
+        renderPlate();
+      });
       listEl.appendChild(row);
     }
   }
